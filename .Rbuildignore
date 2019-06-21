@@ -1,2 +1,3 @@
 ^\.Rhistory$
 ^\.gitignore$
+^PackageSetup\.R$
