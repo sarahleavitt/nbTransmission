@@ -1,11 +1,20 @@
 Package: nbTransmission
-Version: 0.1
-Date: 2019-06-20
 Title: Naive Bayes Transmission Analysis
-Description: Functions to calculate transmission probabilities and transmission parameters.
-Author: Sarah V Leavitt <sv1205@bu.edu>
+Version: 0.0.1
+Date: 2019-06-20
+Author@R: person("Sarah V", "Leavitt", email = "sv1205@bu.edu", role = c("aut", "cre"))
 Maintainer: Sarah V Leavitt <sv1205@bu.edu>
+Description: A package containing functions to calculate relative transmission
+    probabilities using naive Bayes and use these probabilities to estimate
+    transmission paramaters such as the serial interval and reproductive number.
+Depends: R (>= 3.4.0)
 RoxygenNote: 6.1.1
-License: MIT + LICENSE
+License: MIT + file LICENSE
 URL: https://github.com/sv1205/nbTransmission 
 BugReports: https://github.com/sv1205/nbTransmission/issues
+LazyData: true
+Imports: 
+    dplyr (>= 0.8.1),
+    tidyr (>= 0.8.3),
+    purrr (>= 0.3.2),
+    FSelector (>= 0.31)
