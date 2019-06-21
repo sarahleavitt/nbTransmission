@@ -5,11 +5,11 @@
 #'
 #' @param probs dateset with transmission probabilities
 #' @param dateVar the variable name (in quotes) of the date that the individual is observed
-#' @param idVar the variable name (in quotes) of the id variable
+#' @param indIDVar the variable name (in quotes) of the id variable
 #' @param pVar the variable name (in quotes) of the transmission probabilities
 #'
-#' @return Individual-level dataframe with the following variables: id, Ri, date, iden, nInfectors,
-#'      month, year, dayR, monthR, yearR
+#' @return Individual-level dataframe with the following variables: indID, Ri, date,
+#'      iden, nInfectors, month, year, dayR, monthR, yearR
 #'
 #' @examples
 #' #Insert example here
@@ -17,15 +17,15 @@
 #' @export
 
 
-calcRi <- function(probs, dateVar, idVar, pVar){
+calcRi <- function(probs, dateVar, indIDVar, pVar){
   
   #Creating correctly named variables
   probs <- as.data.frame(probs)
   probs$date.1 <- probs[, paste0(dateVar, ".1")]
   probs$date.2 <- probs[, paste0(dateVar, ".2")]
   probs$timeDiff <- as.numeric(difftime(probs$date.2, probs$date.1, units = "days"))
-  probs$id.1 <- probs[, paste0(idVar, ".1")]
-  probs$id.2 <- probs[, paste0(idVar, ".2")]
+  probs$indID.1 <- probs[, paste0(indIDVar, ".1")]
+  probs$indID.2 <- probs[, paste0(indIDVar, ".2")]
   probs$p <- probs[, pVar]
   
   
@@ -34,29 +34,28 @@ calcRi <- function(probs, dateVar, idVar, pVar){
   #Calculating variance to get 1-q identifiability measure from Teunis et al.
   totalV <- (probs
              %>% mutate(var = p * (1 - p))
-             %>% group_by(id.2)
+             %>% group_by(indID.2)
              %>% summarize(iden =  1- sum(var, na.rm = TRUE),
                            nInfectors = n(),
                            date = first(date.2))
-             %>% rename(id = id.2)
+             %>% rename(indID = indID.2)
   )
-  
   
   #### Calculating reproductive number ####
   
   #Calculating the individual level reproductive number
   ri <- (probs
-              %>% group_by(id.1)
-              %>% rename(id = id.1)
-              %>% summarize(Ri = sum(p),
-                            nInfectees = n(),
-                            date = first(date.1))
-              %>% full_join(totalV, by = c("id", "date"))
-              %>% mutate(label = label)
-              #If nInfectees is missing, this is the latest case
-              #If nInfectors is missing, this is the earliest case
-              #If Ri is missing, it is the last case so the value should be 0
-              %>% replace_na(list(nInfectees = 0, nInfectors = 0, Ri = 0))
+         %>% group_by(indID.1)
+         %>% rename(indID = indID.1)
+         %>% summarize(Ri = sum(p),
+                       nInfectees = n(),
+                       date = first(date.1))
+         %>% full_join(totalV, by = c("indID", "date"))
+         %>% mutate(label = label)
+         #If nInfectees is missing, this is the latest case
+         #If nInfectors is missing, this is the earliest case
+         #If Ri is missing, it is the last case so the value should be 0
+         %>% replace_na(list(nInfectees = 0, nInfectors = 0, Ri = 0))
   )
   
   
@@ -76,12 +75,12 @@ calcRi <- function(probs, dateVar, idVar, pVar){
   
   #Combining the year and month rankings with the raw data
   riFull <- (ri
-               %>% mutate(month = format(date, "%Y-%m"),
-                          year = year(date),
-                          date = format(date, "%Y-%m-%d"))
-               %>% left_join(daysDf, by = "date")
-               %>% left_join(monthsDf, by = "month")
-               %>% left_join(yearsDf, by = "year")
+             %>% mutate(month = format(date, "%Y-%m"),
+                        year = year(date),
+                        date = format(date, "%Y-%m-%d"))
+             %>% left_join(daysDf, by = "date")
+             %>% left_join(monthsDf, by = "month")
+             %>% left_join(yearsDf, by = "year")
   )
   
   return(riFull)

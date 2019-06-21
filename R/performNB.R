@@ -37,23 +37,22 @@ performNB <- function(training, validation, covariates,
       #Finding all pairs of variables
       pairs <- as.data.frame(t(combn(subset, 2)), stringsAsFactors = FALSE)
       names(pairs) <- c("Var1", "Var2")
-      pairs <- pairs %>% mutate(comb = paste(Var1, Var2, sep = "~"))
+      pairs <- pairs %>% unite(comb, Var1, Var2, sep = "~", remove = FALSE)
       
       #Finding symmertric uncertainty (adjusted information gain) for all pairs of features
-      Rff <- map_df(pairs$comb, symmetrical.uncertainty, data=training) 
+      Rff <- purrr::map_df(pairs$comb, FSelector::symmetrical.uncertainty, data=training) 
       #Mean of all feature-feature correlations
       rff <- mean(Rff[,1])
     }else{rff <- 0}
     
     model <- as.simple.formula(subset, "linked")
-    Rcf <- symmetrical.uncertainty(model, training)
+    Rcf <- FSelector::symmetrical.uncertainty(model, training)
     #Mean of all classification-feature correlations
     rcf <- mean(Rcf[,1])
     
     #Calculating merit of the subset
     merit <- k * rcf / sqrt(k + k * (k - 1) * rff)
-    #print(subset)
-    #print(merit)
+
     return(merit)
   }
 
@@ -66,7 +65,7 @@ performNB <- function(training, validation, covariates,
     
     if(weighting == TRUE){
       #Running CFS with with two different methods for calculating correlation
-      model <- best.first.search(covariates, calcEntropy)
+      model <- FSelector::best.first.search(covariates, calcEntropy)
       #Setting weights to 2 if the variable is chosen and 1 if it is not chosen
       varTable <- varTable %>% mutate(weight = ifelse(variable %in% model, 2, 1))
     }else{varTable$weight <- 1}
@@ -114,9 +113,8 @@ performNB <- function(training, validation, covariates,
     probs <- (results
                 %>% mutate(p = link / (link + nonlink))
                 %>% bind_rows(training)
-                %>% mutate(nLinksTrain = sum(training$linked == TRUE),
-                           label = labelFull)
-                %>% select(label, edgeID, p, nLinksTrain)
+                %>% mutate(label = labelFull)
+                %>% select(label, edgeID, p)
     )
     
     return(list(probs, coeff))
