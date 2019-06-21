@@ -1,21 +1,22 @@
 
-#' Calculate Relative Transmission Probabilities
+#' Calculates Relative Transmission Probabilities
 #'
 #' Uses naive Bayes and cross vaidation to calculate the relative transmission probabilities
 #'
 #' @param indData individual-level dataset with covariate values
 #' @param pairData pair-level dataset with covariate values
-#' @param observationDate the variable name (in quotes) of the date that the individual is observed
-#' @param individualID the variable name (in quotes) of the id variable
-#' @param goldStandard the variable name (in quotes) that will define linking status
+#' @param dateVar the variable name (in quotes) of the date that the individual is observed
+#' @param idVar the variable name (in quotes) of the id variable
+#' @param goldStdVar the variable name (in quotes) that will define linking status
 #' @param covariates vector of the covariate variable names
-#' @param scheme optional label for the run (default is NULL)
+#' @param label optional label for the run (default is NULL)
 #' @param n number of folds for nxm cross validation
 #' @param m number of times to create n folds in nxm cross validation
 #' @param nReps number of times to randomly select one infector
 #'
-#' @return List containing two dataframes: "probs" with pairdata with an extra column with the probabilities and
-#'    "coeff" with the coefficients.
+#' @return List containing two dataframes: "probs" with pairdata with an extra column with the
+#'    average probabilities over all of the cross validation runs and "coeff" with the
+#'    average, minimum, and maximum coefficient values over all cv runs.
 #'
 #' @examples
 #' #Insert example here
@@ -23,58 +24,45 @@
 #' @export
 
 
-calcProbabilities <- function(indData, pairData, observationDate, individualID = "individualID",
-                              goldStandard, covariates, scheme = NULL,
+calcProbabilities <- function(indData, pairData, dateVar, idVar,
+                              goldStdVar, covariates, label = NULL,
                               n = 10, m = 1, nReps = 50){
   
-  #Creating correctly named variables
-  indData$observationDate <- indData[, observationDate]
-  pairData$observationDate.1 <- pairData[, paste0(observationDate, ".1")]
-  pairData$observationDate.2 <- pairData[, paste0(observationDate, ".2")]
-  pairData$observationDiff <- as.numeric(difftime(pairData$observationDate.2,
-                                                  pairData$observationDate.1, units = "days"))
+  #### Setting up data frames ####
   
-  indData$individualID <- indData[, individualID]
-  pairData$individualID.1 <- pairData[, paste0(individualID, ".1")]
-  pairData$individualID.2 <- pairData[, paste0(individualID, ".2")]
+  #Creating correctly named variables
+  indData$date <- indData[, dateVar]
+  pairData$date.1 <- pairData[, paste0(dateVar, ".1")]
+  pairData$date.2 <- pairData[, paste0(dateVar, ".2")]
+  pairData$timeDiff <- as.numeric(difftime(pairData$date.2, pairData$date.1, units = "days"))
+  
+  indData$id <- indData[, idVar]
+  pairData$id.1 <- pairData[, paste0(idVar, ".1")]
+  pairData$id.2 <- pairData[, paste0(idVar, ".2")]
   
   #Creating the edgeID
-  pairData <- pairData %>% unite(edgeID, individualID.1, individualID.2, remove = FALSE)
+  pairData <- pairData %>% unite(edgeID, id.1, id.2, remove = FALSE)
   
   #Restricting to sampled cases
-  indData <- indData %>% filter(!is.na(observationDate))
-  pairData <- pairData %>% filter(!is.na(observationDiff))
+  indData <- indData %>% filter(!is.na(date))
+  pairData <- pairData %>% filter(!is.na(timeDiff))
   
   #Subseting to the pairs with the potential infector observed before the infectee
-  covarOrderedPair <- pairData %>% filter(observationDiff > 0)
+  orderedPair <- pairData %>% filter(timeDiff > 0)
   
-  
-  
-  ############### Finding all possible training pairs ################
-  
-  #Restricting to cases that can be in the training dataset (no missing variables)
-  trainingID <- (indData
-                 %>% filter(complete == TRUE)
-                 %>% pull(individualID)
-  )
-  
-  #Finding all pairs that involve those people
-  posTrain <- covarOrderedPair %>% filter(individualID.1 %in% trainingID &
-                                            individualID.2 %in% trainingID)
   #Finding all pairs that can be included in the training dataset (have gold standard)
-  posTrain <- posTrain[!is.na(posTrain[, goldStandard]) ,]
+  posTrain <- orderedPair[!is.na(orderedPair[, goldStdVar]) ,]
   
   #Finding all pairs that can be included in the gold standard dataset as links
-  posLinks <- posTrain[posTrain[, goldStandard] == TRUE, ]
+  posLinks <- posTrain[posTrain[, goldStdVar] == TRUE, ]
   
+
   
-  #### Cross-Validation Probability Calculation ####
+  #### Cross-Validation Procedure ####
   
-  #Initializing dataframes to hold results, messages, and performance
+  #Initializing dataframes to hold results and coefficients
   rAll <- NULL
-  pAll <- NULL
   cAll <- NULL
-  messages <- NULL
 
   for (k in 1:nReps){
     
@@ -82,18 +70,18 @@ calcProbabilities <- function(indData, pairData, observationDate, individualID =
     #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
     #one possible infector
     links <- (posLinks
-              %>% group_by(individualID.2)
+              %>% group_by(id.2)
               %>% sample_n(1)
-              %>% ungroup(individualID.2)
+              %>% ungroup(id.2)
               %>% mutate(linked = TRUE)
-              %>% select(edgeID, individualID.2, linked)
+              %>% select(edgeID, id.2, linked)
     )
     #Combining the links with the non-links that do not share an infectee with the links
-    trainingFull <- (covarOrderedPair
-                     %>% full_join(links, by = c("edgeID", "individualID.2"))
+    trainingFull <- (orderedPair
+                     %>% full_join(links, by = c("edgeID", "id.2"))
                      %>% filter(edgeID %in% links$edgeID | 
                                   (edgeID %in% posTrain$edgeID &
-                                   !individualID.2 %in% links$individualID.2))
+                                   !id.2 %in% links$id.2))
                      %>% replace_na(list(linked = FALSE))
     )
     
@@ -112,36 +100,29 @@ calcProbabilities <- function(indData, pairData, observationDate, individualID =
       #Finding the infectee whose infector was found in the training dataset
       foundInfector <- trainingRaw[trainingRaw$linked == TRUE, ]
       #Finding all pairs that share an infectee with the pairs where the infector was found
-      shareInfectee <- (covarOrderedPair
+      shareInfectee <- (orderedPair
                         %>% filter(!edgeID %in% foundInfector$edgeID &
-                                     individualID.2 %in% foundInfector$individualID.2)
+                                     id.2 %in% foundInfector$id.2)
                         %>% mutate(linked = FALSE)
       )
       training <- trainingRaw %>% bind_rows(shareInfectee)
-      validation <- (covarOrderedPair
-                     %>% full_join(links, by = c("edgeID", "individualID.2"))
+      validation <- (orderedPair
+                     %>% full_join(links, by = c("edgeID", "id.2"))
                      %>% filter(!edgeID %in% training$edgeID)
                      %>% replace_na(list(linked = FALSE))
       )
       
       #Calculating probabilities for one split
-      # sim1 <- performLogistic(training, validation, covariates, 
-      #                        scheme, goldStandard, pTraining = 1, thresholds)
-      sim2 <- performBayes(training, validation, covariates, weighting=FALSE,
-                           scheme, goldStandard)
+      sim <- performNB(training, validation, covariates, goldStdVar, weighting=FALSE, label)
       
       #Combining the results from fold run with the previous folds
-      rAll <- bind_rows(rAll, sim2[[1]])
-      
-      #Combining the erros for the various methods
-      mTemp <- as.data.frame(sim2[[2]])
-      mTemp <- mTemp %>% filter(!is.na(messages)) %>% filter(!duplicated(.))
-      messages <- rbind.data.frame(messages, mTemp)
-      
-      #Extracting significance of coefficients from regular logistic regression
-      cAll <- bind_rows(cAll, sim2[[3]])
+      rAll <- bind_rows(rAll, sim[[1]])
+      cAll <- bind_rows(cAll, sim[[2]])
     }
   }
+  
+  
+  #### Summarizing Over Runs ####
   
   #Averaging the probabilities over all the replicates
   results <- (rAll
@@ -150,16 +131,16 @@ calcProbabilities <- function(indData, pairData, observationDate, individualID =
                             pSD = sd(p, na.rm = TRUE),
                             nLinksTrain = mean(nLinksTrain),
                             nSamples = sum(!is.na(p)))
-              %>% full_join(covarOrderedPair, by = "edgeID")
+              %>% full_join(orderedPair, by = "edgeID")
   )
   
   #Calculating scaled probabilities
   totalP <- (results
-             %>% group_by(label, individualID.2)
+             %>% group_by(label, id.2)
              %>% summarize(pTotal = sum(pAvg, na.rm = TRUE))
   )
   probs <- (results
-               %>% full_join(totalP, by = c("label", "individualID.2"))
+               %>% full_join(totalP, by = c("label", "id.2"))
                %>% mutate(pScaled = ifelse(pTotal != 0, pAvg / pTotal, 0))
                %>% select(-pTotal)
                %>% ungroup()
