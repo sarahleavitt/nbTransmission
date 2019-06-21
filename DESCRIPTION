@@ -1,0 +1,9 @@
+Package: nbTransmission
+Version: 0.1
+Date: 2019-06-20
+Title: Naive Bayes Transmission Analysis
+Description: Functions to calculate transmission probabilities and transmission parameters.
+Author: Sarah V Leavitt <sv1205@bu.edu>
+Maintainer: Sarah V Leavitt <sv1205@bu.edu>
+RoxygenNote: 6.1.1
+License: MIT + LICENSE
