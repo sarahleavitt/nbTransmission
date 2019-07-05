@@ -40,14 +40,13 @@ hamPair <- readRDS("../Datasets/HamburgPair.rds")
 hamPair <- hamPair %>% mutate(snpClose = ifelse(snpDist < 2, TRUE,
                                          ifelse(snpDist > 12, FALSE, NA)))
 
-pairData$observationDiff <- as.numeric(difftime(pairData$observationDate.2,
-                                                pairData$observationDate.1, units = "days"))
 orderedHam <- (hamPair
                %>% mutate(IsolationDiff = as.numeric(difftime(IsolationDate.2,
                                                               IsolationDate.1, units = "days")))
                %>% filter(!is.na(IsolationDiff) & observationDiff > 0)
 )
 
+orderedPair <- orderedHam
 dateVar <- "IsolationDate"
 indIDVar <- "individualID"
 edgeIDVar <- "edgeID"
@@ -56,8 +55,9 @@ pVar <- "pScaled"
 covariates <- c("Study", "Nationality", "Sex", "Age", "SmearPos", "HIV",
                "SubstanceAbuse", "Residence", "Milieu", "TimeCat")
 
-results1 <- calcProbabilities(orderedHam,indIDVar, edgeIDVar, goldStdVar,
-                              covariates, label = NULL, n = 10, m = 1, nReps = 1)
+results1 <- calcProbabilities(orderedHam, indIDVar, edgeIDVar, goldStdVar,
+                              covariates, label = NULL, nbWeighting = TRUE,
+                              n = 10, m = 1, nReps = 1)
 
 hamRes <- results1[[1]] %>% full_join(orderedHam, by = "edgeID")
 
@@ -83,10 +83,6 @@ rate <- 0.5 / length
 source("../dissertation_code/SimOutbreak.R")
 source("../dissertation_code/SimCovariates.R")
 source("../dissertation_code/TransPhylo/SimulateOutbreakS.R")
-source("../dissertation_code/TransPhylo/makeTTreeS.R")
-source("../dissertation_code/TransPhylo/withinhost.R")
-source("../dissertation_code/TransPhylo/glueTrees.R")
-source("../dissertation_code/TransPhylo/computeHost.R")
 
 #Simulate outbreak  
 set.seed(1001)
