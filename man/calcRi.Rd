@@ -4,23 +4,26 @@
 \alias{calcRi}
 \title{Calculates Ri}
 \usage{
-calcRi(probs, dateVar, idVar, pVar)
+calcRi(probs, dateVar, indIDVar, pVar)
 }
 \arguments{
-\item{probs}{dateset with transmission probabilities}
+\item{probs}{The name of the dateset with transmission probabilities}
 
-\item{dateVar}{the variable name (in quotes) of the date that the individual is observed}
+\item{dateVar}{The variable name (in quotes) of the date that the individual is observed.}
 
-\item{idVar}{the variable name (in quotes) of the id variable}
+\item{indIDVar}{The variable name (in quotes) of the individual ID variable.}
 
-\item{pVar}{the variable name (in quotes) of the transmission probabilities}
+\item{pVar}{The variable name (in quotes) of the transmission probabilities.}
 }
 \value{
-Individual-level dataframe with the following variables: id, Ri, date, iden, nInfectors,
-     month, year, dayR, monthR, yearR
+Individual-level dataframe with the following variables: indID, Ri, date,
+     iden, nInfectors, month, year, dayR, monthR, yearR
 }
 \description{
 Uses probabilities to calculate the individual level reproductive number
+}
+\details{
+Add details section
 }
 \examples{
 #Insert example here

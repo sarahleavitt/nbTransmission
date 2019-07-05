@@ -18,6 +18,8 @@
 #' @examples
 #' #Insert example here
 #'
+#' @import dplyr
+#' 
 #' @export
 
 
@@ -111,7 +113,7 @@ calcEntropy <- function(subset){
     rff <- mean(Rff[,1])
   }else{rff <- 0}
   
-  model <- as.simple.formula(subset, "linked")
+  model <- FSelector::as.simple.formula(subset, "linked")
   Rcf <- FSelector::symmetrical.uncertainty(model, training)
   #Mean of all classification-feature correlations
   rcf <- mean(Rcf[,1])

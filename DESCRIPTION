@@ -17,7 +17,9 @@ Imports:
     dplyr (>= 0.8.1),
     tidyr (>= 0.8.3),
     purrr (>= 0.3.2),
-    FSelector (>= 0.31)
+    FSelector (>= 0.31),
+    caret,
+    lubridate
 Suggests: 
     knitr,
     rmarkdown,

@@ -23,11 +23,13 @@
 #' @examples
 #' #Insert example here
 #'
+#' @import dplyr
+#' 
 #' @export
 
 
 calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
-                              covariates, label = NULL, nbWeighting = FALSE,
+                              covariates, label = "", nbWeighting = FALSE,
                               n = 10, m = 1, nReps = 50){
   
   #### Setting up data frames ####
@@ -54,7 +56,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross validation
-    cvResults <- runCV(posLinks, orderedPair, nbWeighting, n, m)
+    cvResults <- runCV(posTrain, posLinks, orderedPair, nbWeighting, n, m, rAll, cAll)
     
   }
   
@@ -101,7 +103,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
 
 
 
-runCV <- function(posLinks, orderedPair, nbWeighting, n, m){
+runCV <- function(posTrain, posLinks, orderedPair, nbWeighting, n, m, rAll, cAll){
   
   #Choosing the true infector from all possibles (if multiple)
   #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
@@ -119,11 +121,11 @@ runCV <- function(posLinks, orderedPair, nbWeighting, n, m){
                    %>% filter(edgeID %in% links$edgeID | 
                                 (edgeID %in% posTrain$edgeID &
                                    !indID.2 %in% links$indID.2))
-                   %>% replace_na(list(linked = FALSE))
+                   %>% tidyr::replace_na(list(linked = FALSE))
   )
   
   #Creating the cross-valindIDation folds for that part of the training dataset
-  cv_splits <- createMultiFolds(trainingFull$linked, k = n, times = m)
+  cv_splits <- caret::createMultiFolds(trainingFull$linked, k = n, times = m)
   
   #Running the methods for all of the CV Folds
   for (i in 1:length(cv_splits)){
@@ -146,11 +148,12 @@ runCV <- function(posLinks, orderedPair, nbWeighting, n, m){
     validation <- (orderedPair
                       %>% full_join(links, by = c("edgeID", "indID.2"))
                       %>% filter(!edgeID %in% training$edgeID)
-                      %>% replace_na(list(linked = FALSE))
+                      %>% tidyr::replace_na(list(linked = FALSE))
     )
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, covariates, goldStdVar, weighting=nbWeighting, label)
+    sim <- performNB(training, validation, covariates,
+                     goldStdVar, nbWeighting, label)
     
     #Combining the results from fold run with the previous folds
     rAll <- bind_rows(rAll, sim[[1]])

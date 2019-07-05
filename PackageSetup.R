@@ -18,11 +18,8 @@ library(roxygen2)
 setwd("~/Boston University/Dissertation/nbTransmission")
 build()
 install()
-#check()
+check()
 document()
-
-#build, install, load
-load_all()
 
 #Add package dependence
 use_package()
@@ -35,6 +32,9 @@ usethis::use_vignette("my-vignette")
 
 #Create a directory of tests
 usethis::use_testthat()
+
+#build, install, load
+load_all()
 
 
 
@@ -60,9 +60,15 @@ goldStdVar <- "snpClose"
 pVar <- "pScaled"
 covariates <- c("Study", "Nationality", "Sex", "Age", "SmearPos", "HIV",
                "SubstanceAbuse", "Residence", "Milieu", "TimeCat")
+label <- "Ham"
+nbWeighting <- FALSE
+n <- 10
+m <- 1
+nReps <- 1
 
+load_all()
 results1 <- calcProbabilities(orderedHam, indIDVar, edgeIDVar, goldStdVar,
-                              covariates, label = NULL, nbWeighting = TRUE,
+                              covariates, label = "Ham", nbWeighting = FALSE,
                               n = 10, m = 1, nReps = 1)
 
 hamRes <- results1[[1]] %>% full_join(orderedHam, by = "edgeID")

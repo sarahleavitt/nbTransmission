@@ -5,20 +5,20 @@
 \title{Perform Naive Bayes}
 \usage{
 performNB(training, validation, covariates, goldStdVar,
-  weighting = FALSE, label)
+  nbWeighting = FALSE, label)
 }
 \arguments{
-\item{training}{training dataset}
+\item{training}{The training dataset name.}
 
-\item{validation}{validation dataset}
+\item{validation}{The validation dataset name.}
 
-\item{covariates}{vector of the covariate variable names}
+\item{covariates}{A character vector containing the covariate variable names.}
 
-\item{goldStdVar}{the variable name (in quotes) that will define linking status}
+\item{goldStdVar}{The variable name (in quotes) that will define linking status.}
 
-\item{weighting}{should deep frequency covariate weighting be applied}
+\item{nbWeighting}{A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?}
 
-\item{label}{optional label for the run (default is NULL)}
+\item{label}{An optional label string for the run (default is NULL).}
 }
 \value{
 List containing two dataframes: "probs" with pairdata with an extra column with the
@@ -26,6 +26,9 @@ List containing two dataframes: "probs" with pairdata with an extra column with 
 }
 \description{
 Calculates predicted probabilities using naive Bayes
+}
+\details{
+Add details section
 }
 \examples{
 #Insert example here

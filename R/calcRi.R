@@ -16,6 +16,8 @@
 #' @examples
 #' #Insert example here
 #'
+#' @import dplyr
+#' 
 #' @export
 
 
@@ -57,7 +59,7 @@ calcRi <- function(probs, dateVar, indIDVar, pVar){
          #If nInfectees is missing, this is the latest case
          #If nInfectors is missing, this is the earliest case
          #If Ri is missing, it is the last case so the value should be 0
-         %>% replace_na(list(nInfectees = 0, nInfectors = 0, Ri = 0))
+         %>% tidyr::replace_na(list(nInfectees = 0, nInfectors = 0, Ri = 0))
   )
   
   
@@ -71,14 +73,14 @@ calcRi <- function(probs, dateVar, indIDVar, pVar){
   months <- format(seq(min(ri$date), max(ri$date), by = "months"), "%Y-%m")
   monthsDf <- cbind.data.frame(month = months, monthR = 1:length(months), stringsAsFactors = FALSE)
   
-  years <- year(seq(min(ri$date), max(ri$date), by = "years"))
+  years <- lubridate::year(seq(min(ri$date), max(ri$date), by = "years"))
   yearsDf <- cbind.data.frame(year = years, yearR = 1:length(years), stringsAsFactors = FALSE)
 
   
   #Combining the year and month rankings with the raw data
   riFull <- (ri
              %>% mutate(month = format(date, "%Y-%m"),
-                        year = year(date),
+                        year = lubridate::year(date),
                         date = format(date, "%Y-%m-%d"))
              %>% left_join(daysDf, by = "date")
              %>% left_join(monthsDf, by = "month")

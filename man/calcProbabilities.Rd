@@ -4,37 +4,40 @@
 \alias{calcProbabilities}
 \title{Calculates Relative Transmission Probabilities}
 \usage{
-calcProbabilities(indData, pairData, dateVar, idVar, goldStdVar,
-  covariates, label = NULL, n = 10, m = 1, nReps = 50)
+calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, covariates,
+  label = NULL, nbWeighting = FALSE, n = 10, m = 1, nReps = 50)
 }
 \arguments{
-\item{indData}{individual-level dataset with covariate values}
+\item{orderedPair}{The name of the ordered pair-level dataset with the covariates.}
 
-\item{pairData}{pair-level dataset with covariate values}
+\item{indIDVar}{The variable name (in quotes) of the individual ID variable.}
 
-\item{dateVar}{the variable name (in quotes) of the date that the individual is observed}
+\item{edgeIDVar}{The variable name (in quotes) of the edge ID variable.}
 
-\item{idVar}{the variable name (in quotes) of the id variable}
+\item{goldStdVar}{The variable name (in quotes) that will define linking status.}
 
-\item{goldStdVar}{the variable name (in quotes) that will define linking status}
+\item{covariates}{A character vector containing the covariate variable names.}
 
-\item{covariates}{vector of the covariate variable names}
+\item{label}{An optional label string for the run (default is NULL).}
 
-\item{label}{optional label for the run (default is NULL)}
+\item{nbWeighting}{A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?}
 
-\item{n}{number of folds for nxm cross validation}
+\item{n}{The number of folds for nxm cross valindIDation.}
 
-\item{m}{number of times to create n folds in nxm cross validation}
+\item{m}{The number of times to create n folds in nxm cross valindIDation.}
 
-\item{nReps}{number of times to randomly select one infector}
+\item{nReps}{The number of times to randomly select one infector.}
 }
 \value{
 List containing two dataframes: "probs" with pairdata with an extra column with the
-   average probabilities over all of the cross validation runs and "coeff" with the
+   average probabilities over all of the cross valindIDation runs and "coeff" with the
    average, minimum, and maximum coefficient values over all cv runs.
 }
 \description{
-Uses naive Bayes and cross vaidation to calculate the relative transmission probabilities
+Uses naive Bayes and cross vaindIDation to calculate the relative transmission probabilities
+}
+\details{
+Add details section
 }
 \examples{
 #Insert example here

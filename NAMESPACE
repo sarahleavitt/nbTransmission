@@ -3,3 +3,4 @@
 export(calcProbabilities)
 export(calcRi)
 export(performNB)
+import(dplyr)
