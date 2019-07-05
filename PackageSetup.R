@@ -1,37 +1,25 @@
 
-library(TransPhylo)
-library(phangorn)
-library(reshape2)
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(lubridate)
-library(glmnet)
-library(FSelector)
-library(caret)
-library(gtools)
-
+setwd("~/Boston University/Dissertation/nbTransmission")
 
 library(devtools)
 library(roxygen2)
 
-setwd("~/Boston University/Dissertation/nbTransmission")
-build()
-install()
-check()
-document()
-
-#Add package dependence
-use_package()
-
-#Add to ignore file
-use_build_ignore()
-
-#Create a vingnette
-usethis::use_vignette("my-vignette")
-
-#Create a directory of tests
-usethis::use_testthat()
+# build()
+# install()
+# check()
+# document()
+# 
+# #Add package dependence
+# use_package()
+# 
+# #Add to ignore file
+# use_build_ignore()
+# 
+# #Create a vingnette
+# usethis::use_vignette("my-vignette")
+# 
+# #Create a directory of tests
+# usethis::use_testthat()
 
 #build, install, load
 load_all()
