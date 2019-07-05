@@ -2,11 +2,13 @@
 #' Calculates Ri
 #'
 #' Uses probabilities to calculate the individual level reproductive number
+#' 
+#' Add details section
 #'
-#' @param probs dateset with transmission probabilities
-#' @param dateVar the variable name (in quotes) of the date that the individual is observed
-#' @param indIDVar the variable name (in quotes) of the id variable
-#' @param pVar the variable name (in quotes) of the transmission probabilities
+#' @param probs The name of the dateset with transmission probabilities
+#' @param dateVar The variable name (in quotes) of the date that the individual is observed.
+#' @param indIDVar The variable name (in quotes) of the individual ID variable.
+#' @param pVar The variable name (in quotes) of the transmission probabilities.
 #'
 #' @return Individual-level dataframe with the following variables: indID, Ri, date,
 #'      iden, nInfectors, month, year, dayR, monthR, yearR

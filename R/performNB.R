@@ -5,12 +5,12 @@
 #' 
 #' Add details section
 #'
-#' @param training training dataset
-#' @param validation validation dataset
-#' @param covariates vector of the covariate variable names
-#' @param goldStdVar the variable name (in quotes) that will define linking status
-#' @param weighting should deep frequency covariate weighting be applied
-#' @param label optional label for the run (default is NULL)
+#' @param training The training dataset name.
+#' @param validation The validation dataset name.
+#' @param covariates A character vector containing the covariate variable names.
+#' @param goldStdVar The variable name (in quotes) that will define linking status.
+#' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
+#' @param label An optional label string for the run (default is NULL).
 #'
 #' @return List containing two dataframes: "probs" with pairdata with an extra column with the
 #'    probabilities and "coeff" with the coefficient values.
@@ -22,11 +22,11 @@
 
 
 performNB <- function(training, validation, covariates,
-                      goldStdVar, weighting=FALSE, label){
+                      goldStdVar, nbWeighting=FALSE, label){
   
   #Create label
-  if (weighting == FALSE){labelFull <- paste0(label, goldStdVar, "NB")}
-  if (weighting == TRUE){labelFull <- paste0(label, goldStdVar, "NBDFW")}
+  if (nbWeighting == FALSE){labelFull <- paste0(label, goldStdVar, "NB")}
+  if (nbWeighting == TRUE){labelFull <- paste0(label, goldStdVar, "NBDFW")}
 
     
   #### Naive Bayes Method ####
@@ -35,7 +35,7 @@ performNB <- function(training, validation, covariates,
     varTable <- as.data.frame(covariates)
     varTable <- varTable %>% mutate(variable = as.character(covariates))
     
-    if(weighting == TRUE){
+    if(nbWeighting == TRUE){
       #Running CFS with with two different methods for calculating correlation
       model <- FSelector::best.first.search(covariates, calcEntropy)
       #Setting weights to 2 if the variable is chosen and 1 if it is not chosen

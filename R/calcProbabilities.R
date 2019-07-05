@@ -5,16 +5,16 @@
 #'
 #' Add details section
 #'
-#' @param orderedPair and ordered pair-level dataset with covariate values
-#' @param indIDVar the variable name (in quotes) of the individual ID variable
-#' @param edgeIDVar the variable name (in quotes) of the edge ID variable
-#' @param goldStdVar the variable name (in quotes) that will define linking status
-#' @param covariates vector of the covariate variable names
-#' @param label optional label for the run (default is NULL)
-#' @param nbWeighting do you want to use deep frequency weighting in NB (default is FALSE)
-#' @param n number of folds for nxm cross valindIDation
-#' @param m number of times to create n folds in nxm cross valindIDation
-#' @param nReps number of times to randomly select one infector
+#' @param orderedPair The name of the ordered pair-level dataset with the covariates.
+#' @param indIDVar The variable name (in quotes) of the individual ID variable.
+#' @param edgeIDVar The variable name (in quotes) of the edge ID variable.
+#' @param goldStdVar The variable name (in quotes) that will define linking status.
+#' @param covariates A character vector containing the covariate variable names.
+#' @param label An optional label string for the run (default is NULL).
+#' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
+#' @param n The number of folds for nxm cross valindIDation.
+#' @param m The number of times to create n folds in nxm cross valindIDation.
+#' @param nReps The number of times to randomly select one infector.
 #'
 #' @return List containing two dataframes: "probs" with pairdata with an extra column with the
 #'    average probabilities over all of the cross valindIDation runs and "coeff" with the
