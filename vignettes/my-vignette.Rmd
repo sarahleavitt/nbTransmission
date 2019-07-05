@@ -1,0 +1,21 @@
+---
+title: "Introductory tutorial for R Package nbTransmission"
+author: "Sarah V. Leavitt"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introductory tutorial for R Package nbTransmission}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(nbTransmission)
+```

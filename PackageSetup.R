@@ -30,6 +30,12 @@ use_package()
 #Add to ignore file
 use_build_ignore()
 
+#Create a vingnette
+usethis::use_vignette("my-vignette")
+
+#Create a directory of tests
+usethis::use_testthat()
+
 
 
 #### Running examples ####
