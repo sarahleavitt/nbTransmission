@@ -2,6 +2,8 @@
 #' Perform Naive Bayes
 #'
 #' Calculates predicted probabilities using naive Bayes
+#' 
+#' Add details section
 #'
 #' @param training training dataset
 #' @param validation validation dataset
@@ -25,36 +27,6 @@ performNB <- function(training, validation, covariates,
   #Create label
   if (weighting == FALSE){labelFull <- paste0(label, goldStdVar, "NB")}
   if (weighting == TRUE){labelFull <- paste0(label, goldStdVar, "NBDFW")}
-  
-
-  #### Function for CFS Search Algorithms ####
-  
-  calcEntropy <- function(subset){
-    
-    k <-  length(subset)
-    
-    if(k > 1){
-      #Finding all pairs of variables
-      pairs <- as.data.frame(t(combn(subset, 2)), stringsAsFactors = FALSE)
-      names(pairs) <- c("Var1", "Var2")
-      pairs <- pairs %>% unite(comb, Var1, Var2, sep = "~", remove = FALSE)
-      
-      #Finding symmertric uncertainty (adjusted information gain) for all pairs of features
-      Rff <- purrr::map_df(pairs$comb, FSelector::symmetrical.uncertainty, data=training) 
-      #Mean of all feature-feature correlations
-      rff <- mean(Rff[,1])
-    }else{rff <- 0}
-    
-    model <- as.simple.formula(subset, "linked")
-    Rcf <- FSelector::symmetrical.uncertainty(model, training)
-    #Mean of all classification-feature correlations
-    rcf <- mean(Rcf[,1])
-    
-    #Calculating merit of the subset
-    merit <- k * rcf / sqrt(k + k * (k - 1) * rff)
-
-    return(merit)
-  }
 
     
   #### Naive Bayes Method ####
@@ -119,3 +91,34 @@ performNB <- function(training, validation, covariates,
     
     return(list(probs, coeff))
 }
+
+
+#### Function for CFS Search Algorithms ####
+
+calcEntropy <- function(subset){
+  
+  k <-  length(subset)
+  
+  if(k > 1){
+    #Finding all pairs of variables
+    pairs <- as.data.frame(t(combn(subset, 2)), stringsAsFactors = FALSE)
+    names(pairs) <- c("Var1", "Var2")
+    pairs <- pairs %>% unite(comb, Var1, Var2, sep = "~", remove = FALSE)
+    
+    #Finding symmertric uncertainty (adjusted information gain) for all pairs of features
+    Rff <- purrr::map_df(pairs$comb, FSelector::symmetrical.uncertainty, data=training) 
+    #Mean of all feature-feature correlations
+    rff <- mean(Rff[,1])
+  }else{rff <- 0}
+  
+  model <- as.simple.formula(subset, "linked")
+  Rcf <- FSelector::symmetrical.uncertainty(model, training)
+  #Mean of all classification-feature correlations
+  rcf <- mean(Rcf[,1])
+  
+  #Calculating merit of the subset
+  merit <- k * rcf / sqrt(k + k * (k - 1) * rff)
+  
+  return(merit)
+}
+
