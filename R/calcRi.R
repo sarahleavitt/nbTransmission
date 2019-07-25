@@ -70,7 +70,11 @@ calcRi <- function(probs, dateVar, indIDVar, pVar){
   daysDf <- cbind.data.frame(date = format(days, "%Y-%m-%d"),
                              dayR = 1:length(days), stringsAsFactors = FALSE)
   
-  months <- format(seq(min(ri$date), max(ri$date), by = "months"), "%Y-%m")
+  months1 <- seq(min(ri$date), max(ri$date), by = "months")
+  #I need this trick because this doesn't deal with february correctly
+  months2 <- gsub("03-01", "02-28", months1)
+  months <- gsub("-[1-9]*$", "", months2)
+  monthsDf <- cbind.data.frame(month = months, monthR = 1:length(months), stringsAsFactors = FALSE)
   monthsDf <- cbind.data.frame(month = months, monthR = 1:length(months), stringsAsFactors = FALSE)
   
   years <- lubridate::year(seq(min(ri$date), max(ri$date), by = "years"))
