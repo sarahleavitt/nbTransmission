@@ -55,7 +55,6 @@ calcRi <- function(probs, dateVar, indIDVar, pVar){
                        nInfectees = n(),
                        date = first(date.1))
          %>% full_join(totalV, by = c("indID", "date"))
-         %>% mutate(label = label)
          #If nInfectees is missing, this is the latest case
          #If nInfectors is missing, this is the earliest case
          #If Ri is missing, it is the last case so the value should be 0
@@ -70,11 +69,7 @@ calcRi <- function(probs, dateVar, indIDVar, pVar){
   daysDf <- cbind.data.frame(date = format(days, "%Y-%m-%d"),
                              dayR = 1:length(days), stringsAsFactors = FALSE)
   
-  months1 <- seq(min(ri$date), max(ri$date), by = "months")
-  #I need this trick because this doesn't deal with february correctly
-  months2 <- gsub("03-01", "02-28", months1)
-  months <- gsub("-[1-9]*$", "", months2)
-  monthsDf <- cbind.data.frame(month = months, monthR = 1:length(months), stringsAsFactors = FALSE)
+  months <- format(seq(min(ri$date), max(ri$date), by = "months"), "%Y-%m")
   monthsDf <- cbind.data.frame(month = months, monthR = 1:length(months), stringsAsFactors = FALSE)
   
   years <- lubridate::year(seq(min(ri$date), max(ri$date), by = "years"))
