@@ -60,50 +60,25 @@ covariates <- c("Study", "Nationality", "Sex", "Age", "SmearPos", "HIV",
                 "SubstanceAbuse", "Residence", "Milieu", "TimeCat")
 
 resHam1 <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID",
-                              goldStdVar = "snpClose", covariates = covariates, label = "Ham",
-                              nbWeighting = FALSE, n = 10, m = 1, nReps = 50)
+                              goldStdVar = "snpClose", covariates = covariates, label = "HamGen",
+                              nbWeighting = FALSE, n = 10, m = 1, nReps = 5)
 
 resHam2 <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID",
-                              goldStdVar = "SameGroup", covariates = covariates, label = "Ham",
-                              nbWeighting = FALSE, n = 10, m = 1, nReps = 50)
+                              goldStdVar = "SameGroup", covariates = covariates, label = "HamCont",
+                              nbWeighting = FALSE, n = 10, m = 1, nReps = 5)
 
 resHamCov1 <- resHam1[[1]] %>% full_join(orderedHam, by = "edgeID")
 resHamCov2 <- resHam2[[1]] %>% full_join(orderedHam, by = "edgeID")
 hamRes <- bind_rows(resHamCov1, resHamCov2)
 
-ri1 <- calcRi(hamRes1, dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled")
-ri2 <- calcRi(hamRes2, dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled")
+ri1 <- calcRi(resHamCov1, dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled")
+ri2 <- calcRi(resHamCov2, dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled")
 
 riSum <- (hamRes
           %>% group_by(label)
           %>% do(calcRi(., dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled"))
 )
 
-#Calculating the average monthly Rt by run
-repNumMH <- (riSum
-             %>% group_by(label, monthR)
-             %>% summarize(Rt = mean(Ri),
-                           month = first(month),
-                           year = first(year))
-             %>% ungroup()
-)
-
-#Cutting the outbreak
-totalTime <- max(repNumMH$monthR) - min(repNumMH$monthR)
-monthCut1 <- ceiling(0.1 * totalTime)
-monthCut2 <- ceiling(0.9 * totalTime)
-
-repNumCutH <- repNumMH  %>% filter(monthR > monthCut1 & monthR < monthCut2)
-
-#Calculating the average R0 for each method
-monthR0H <- (repNumCutH
-             %>% group_by(label)
-             %>% summarize(R0 = mean(Rt, na.rm = TRUE),
-                           R0_median = median(Rt, na.rm = TRUE),
-                           sdR0 = sd(Rt, na.rm = TRUE))
-)
-monthR0H
-tapply(hamRes$pAvg, hamRes$label, summary)
 
 
 ## Simulation
