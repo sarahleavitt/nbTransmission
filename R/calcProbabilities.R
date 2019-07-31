@@ -30,7 +30,7 @@
 
 calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
                               covariates, label = "", nbWeighting = FALSE,
-                              n = 10, m = 1, nReps = 50){
+                              n = 10, m = 1, nReps = 10){
   
   #### Setting up data frames ####
   
@@ -56,22 +56,24 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross validation
-    cvResults <- runCV(posTrain, posLinks, orderedPair, nbWeighting, n, m, rAll, cAll)
-    
+    cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, goldStdVar,
+                       nbWeighting, label, n, m)
+    rAll <- bind_rows(rAll, cvResults$rFolds)
+    cAll <- bind_rows(cAll, cvResults$cFolds)
   }
   
   
   #### Summarizing Over Runs ####
   
   #Averaging the probabilities over all the replicates
-  probs <- (cvResults$rAll
-              %>% group_by(edgeID)
-              %>% summarize(pAvg = mean(p, na.rm = TRUE),
-                            pSD = sd(p, na.rm = TRUE),
-                            nSamples = sum(!is.na(p)),
-                            label = first(label))
-              %>% full_join(orderedPair, by = "edgeID")
-              %>% ungroup()
+  probs <- (rAll
+            %>% group_by(edgeID)
+            %>% summarize(pAvg = mean(p, na.rm = TRUE),
+                          pSD = sd(p, na.rm = TRUE),
+                          nSamples = sum(!is.na(p)),
+                          label = first(label))
+            %>% full_join(orderedPair, by = "edgeID")
+            %>% ungroup()
   )
   
   #Calculating scaled probabilities
@@ -86,7 +88,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   )
   
   #Averaging over the measures of effect
-  coeff <- (cvResults$cAll
+  coeff <- (cAll
             %>% group_by(level)
             %>% summarize(label = first(label),
                           ratioMean = mean(ratio, na.rm = TRUE),
@@ -103,7 +105,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
 
 
 
-runCV <- function(posTrain, posLinks, orderedPair, nbWeighting, n, m, rAll, cAll){
+runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWeighting, label, n, m){
   
   #Choosing the true infector from all possibles (if multiple)
   #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
@@ -127,15 +129,16 @@ runCV <- function(posTrain, posLinks, orderedPair, nbWeighting, n, m, rAll, cAll
   #Creating the cross-valindIDation folds for that part of the training dataset
   cv_splits <- caret::createMultiFolds(trainingFull$linked, k = n, times = m)
   
+  #Initializing dataframes to hold results and coefficients
+  rFolds <- NULL
+  cFolds <- NULL
+  
   #Running the methods for all of the CV Folds
   for (i in 1:length(cv_splits)){
     
     #Finding training dataset
     trainingPairID <- trainingFull$edgeID[cv_splits[[i]]]
-    trainingRaw <- (trainingFull
-                    %>% filter(edgeID %in% trainingPairID)
-                    %>% mutate(p = ifelse(linked == TRUE, 1, 0))
-    )
+    trainingRaw <- trainingFull %>% filter(edgeID %in% trainingPairID)
     #Finding the infectee whose infector was found in the training dataset
     foundInfector <- trainingRaw[trainingRaw$linked == TRUE, ]
     #Finding all pairs that share an infectee with the pairs where the infector was found
@@ -144,7 +147,11 @@ runCV <- function(posTrain, posLinks, orderedPair, nbWeighting, n, m, rAll, cAll
                                    indID.2 %in% foundInfector$indID.2)
                       %>% mutate(linked = FALSE)
     )
-    training <- trainingRaw %>% bind_rows(shareInfectee)
+    training <- (trainingRaw
+                 %>% bind_rows(shareInfectee)
+                 %>% mutate(p = ifelse(goldStd == FALSE, 0,
+                                ifelse(linked == TRUE, 1, NA)))
+    )
     validation <- (orderedPair
                       %>% full_join(links, by = c("edgeID", "indID.2"))
                       %>% filter(!edgeID %in% training$edgeID)
@@ -156,9 +163,9 @@ runCV <- function(posTrain, posLinks, orderedPair, nbWeighting, n, m, rAll, cAll
                      goldStdVar, nbWeighting, label)
     
     #Combining the results from fold run with the previous folds
-    rAll <- bind_rows(rAll, sim[[1]])
-    cAll <- bind_rows(cAll, sim[[2]])
+    rFolds <- bind_rows(rFolds, sim[[1]])
+    cFolds <- bind_rows(cFolds, sim[[2]])
   }
   
-  return(list("rAll" = rAll, "cAll" = cAll))
+  return(list("rFolds" = rFolds, "cFolds" = cFolds))
 }
