@@ -57,7 +57,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross validation
     cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, goldStdVar,
-                       nbWeighting, label, n, m)
+                       nbWeighting, n, m)
     rAll <- bind_rows(rAll, cvResults$rFolds)
     cAll <- bind_rows(cAll, cvResults$cFolds)
   }
@@ -70,8 +70,8 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
             %>% group_by(edgeID)
             %>% summarize(pAvg = mean(p, na.rm = TRUE),
                           pSD = sd(p, na.rm = TRUE),
-                          nSamples = sum(!is.na(p)),
-                          label = first(label))
+                          nSamples = sum(!is.na(p)))
+            %>% mutate(label = label)
             %>% full_join(orderedPair, by = "edgeID")
             %>% ungroup()
   )
@@ -95,6 +95,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
                           ratioMin = min(ratio, na.rm = TRUE),
                           ratioMax = max(ratio, na.rm = TRUE),
                           ratioSD = sd(ratio, na.rm = TRUE))
+            %>% mutate(label = label)
             %>% ungroup()
   )
   
@@ -105,7 +106,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
 
 
 
-runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWeighting, label, n, m){
+runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWeighting, n, m){
   
   #Choosing the true infector from all possibles (if multiple)
   #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
@@ -159,8 +160,7 @@ runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWei
     )
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, covariates,
-                     goldStdVar, nbWeighting, label)
+    sim <- performNB(training, validation, covariates, goldStdVar, nbWeighting)
     
     #Combining the results from fold run with the previous folds
     rFolds <- bind_rows(rFolds, sim[[1]])

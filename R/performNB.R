@@ -10,7 +10,6 @@
 #' @param covariates A character vector containing the covariate variable names.
 #' @param goldStdVar The variable name (in quotes) that will define linking status.
 #' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
-#' @param label An optional label string for the run (default is NULL).
 #'
 #' @return List containing two dataframes: "probs" with pairdata with an extra column with the
 #'    probabilities and "coeff" with the coefficient values.
@@ -24,14 +23,7 @@
 
 
 performNB <- function(training, validation, covariates,
-                      goldStdVar, nbWeighting=FALSE, label){
-  
-  #Create label
-  if (nbWeighting == FALSE){labelFull <- paste0(label, goldStdVar, "NB")}
-  if (nbWeighting == TRUE){labelFull <- paste0(label, goldStdVar, "NBDFW")}
-
-    
-  #### Naive Bayes Method ####
+                      goldStdVar, nbWeighting=FALSE){
   
     #Setting up weight table
     varTable <- as.data.frame(covariates)
@@ -76,7 +68,6 @@ performNB <- function(training, validation, covariates,
       level <- paste(Var, names(ratio), sep = ":")
       cTemp <- cbind.data.frame(level, ratio, stringsAsFactors = FALSE)
       coeff <- bind_rows(coeff, cTemp)
-      coeff$label <- labelFull
     }
     
     #Calculating numerator and denominator for the probability calculation
@@ -87,8 +78,7 @@ performNB <- function(training, validation, covariates,
     probs <- (results
                 %>% mutate(p = link / (link + nonlink))
                 %>% bind_rows(training)
-                %>% mutate(label = labelFull)
-                %>% select(label, edgeID, p)
+                %>% select(edgeID, p)
     )
     
     return(list(probs, coeff))
