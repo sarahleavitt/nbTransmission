@@ -17,7 +17,6 @@ Imports:
     dplyr (>= 0.8.0),
     tidyr (>= 0.8.0),
     purrr (>= 0.3.0),
-    FSelector (>= 0.31),
     caret,
     lubridate
 Suggests: 
