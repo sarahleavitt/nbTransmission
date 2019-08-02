@@ -139,7 +139,12 @@ runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWei
     
     #Finding training dataset
     trainingPairID <- trainingFull$edgeID[cv_splits[[i]]]
-    trainingRaw <- trainingFull %>% filter(edgeID %in% trainingPairID)
+    #trainingRaw <- trainingFull %>% filter(edgeID %in% trainingPairID)
+    trainingRaw <- (trainingFull
+                    %>% filter(edgeID %in% trainingPairID)
+                    %>% mutate(p = ifelse(linked == TRUE, 1, 0))
+    )
+    
     #Finding the infectee whose infector was found in the training dataset
     foundInfector <- trainingRaw[trainingRaw$linked == TRUE, ]
     #Finding all pairs that share an infectee with the pairs where the infector was found
@@ -150,8 +155,8 @@ runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWei
     )
     training <- (trainingRaw
                  %>% bind_rows(shareInfectee)
-                 %>% mutate(p = ifelse(goldStd == FALSE, 0,
-                                ifelse(linked == TRUE, 1, NA)))
+                 #%>% mutate(p = ifelse(goldStd == FALSE, 0,
+                 #               ifelse(linked == TRUE, 1, NA)))
     )
     validation <- (orderedPair
                       %>% full_join(links, by = c("edgeID", "indID.2"))
