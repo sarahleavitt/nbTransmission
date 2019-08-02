@@ -76,9 +76,9 @@ performNB <- function(training, validation, covariates,
     
     #Calculating probability of link
     probs <- (results
-                %>% mutate(p = link / (link + nonlink))
-                %>% bind_rows(training)
-                %>% select(edgeID, p)
+              %>% mutate(p = link / (link + nonlink))
+              %>% bind_rows(training)
+              %>% select(edgeID, p)
     )
     
     return(list(probs, coeff))
