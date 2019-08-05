@@ -85,13 +85,13 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   probs2 <- (probs
              %>% full_join(totalP, by = "indID.2")
              %>% mutate(pScaled = ifelse(pTotal != 0, pAvg / pTotal, 0))
-             %>% select(label, edgeID, pAvg, pSD, pScaled, nSamples)
              #Ranking the probabilities for each possible infector
              #Ties are set to the minimum rank of that group
-             %>% group_by(individualID.2)
+             %>% group_by(indID.2)
              %>% arrange(desc(pScaled))
              %>% mutate(pRank = rank(desc(pScaled), ties.method = "min"))
              %>% ungroup()
+             %>% select(label, edgeID, pAvg, pSD, pScaled, pRank, nSamples)
   )
   
   
@@ -102,7 +102,8 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
                           ratioMean = mean(ratio, na.rm = TRUE),
                           ratioMin = min(ratio, na.rm = TRUE),
                           ratioMax = max(ratio, na.rm = TRUE),
-                          ratioSD = sd(ratio, na.rm = TRUE))
+                          ratioSD = sd(ratio, na.rm = TRUE),
+                          nSamples = sum(!is.na(ratio)))
             %>% mutate(label = label)
             %>% ungroup()
   )
