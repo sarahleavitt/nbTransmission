@@ -25,6 +25,25 @@
 performNB <- function(training, validation, covariates,
                       goldStdVar, nbWeighting=FALSE){
   
+  training$goldStd <- training[, goldStdVar]
+  
+  #Making sure there are both linked and nonlinked pairs.
+  #If not return NA for probabilities and print a warning
+  if(sum(training$goldStd == TRUE, na.rm = TRUE) == 0 |
+     sum(training$goldStd == FALSE, na.rm = TRUE) == 0){
+    
+    #Calculating probability of link
+    probs <- (validation
+              %>% mutate(p = NA)
+              %>% bind_rows(training)
+              %>% select(edgeID, p)
+    )
+    coeff <- NULL
+    
+    warning("No events or non-events in training set")
+    
+  }else{
+    
     #Setting up weight table
     varTable <- as.data.frame(covariates)
     varTable <- varTable %>% mutate(variable = as.character(covariates))
@@ -80,8 +99,9 @@ performNB <- function(training, validation, covariates,
               %>% bind_rows(training)
               %>% select(edgeID, p)
     )
-    
-    return(list(probs, coeff))
+  }
+  
+  return(list(probs, coeff))
 }
 
 
