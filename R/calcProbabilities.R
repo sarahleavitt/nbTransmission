@@ -32,6 +32,37 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
                               covariates, label = "", nbWeighting = FALSE,
                               n = 10, m = 1, nReps = 10){
   
+  orderedPair <- as.data.frame(orderedPair)
+  
+  #Checking that the named variables are in the dataframe
+  if(!paste0(indIDVar, ".1") %in% names(orderedPair)){
+    stop(paste0(paste0(indIDVar, ".1"), " is not in the dataframe."))
+  }
+  if(!paste0(indIDVar, ".2") %in% names(orderedPair)){
+    stop(paste0(paste0(indIDVar, ".2"), " is not in the dataframe."))
+  }
+  if(!edgeIDVar %in% names(orderedPair)){
+    stop(paste0(edgeIDVar, " is not in the dataframe."))
+  }
+  if(!goldStdVar %in% names(orderedPair)){
+    stop(paste0(goldStdVar, " is not in the dataframe."))
+  }
+  
+  #Checking that the covariates are in the dataframe
+  covarTest <- covariates %in% names(orderedPair)
+  if(FALSE %in% covarTest){
+    stop("At least one of the covariates is not in the dataframe.")
+  }
+  
+  #Checking that all of the covariates are factors
+  covarDf <- orderedPair[, covariates]
+  notFactor <- names(covarDf)[!sapply(covarDf, is.factor)]
+  notFactorC <- paste0(notFactor, collapse = ", ")
+  if(FALSE %in% sapply(covarDf, is.factor)){
+    stop(paste0(notFactorC, " are not a factors"))
+  }
+  
+  
   #### Setting up data frames ####
   
   #Creating correctly named variables
@@ -40,10 +71,15 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   orderedPair$edgeID <- orderedPair[, edgeIDVar]
   orderedPair$goldStd <- orderedPair[, goldStdVar]
   
+  #Subsetting to only relevant columns
+  orderedPair <- orderedPair[, c("indID.1", "indID.2", "edgeID", "goldStd",
+                                 goldStdVar, covariates)]
+  
   #Finding all pairs that can be included in the training dataset
   #And subsetting into the potential links
-  posTrain <- orderedPair %>% filter(!is.na(goldStd))
-  posLinks <- posTrain %>% filter(goldStd == TRUE)
+  posTrain <- orderedPair[!is.na(orderedPair$goldStd), ]
+  posLinks <- posTrain[posTrain$goldStd == TRUE, ]
+  
   
 
   #### Cross-ValindIDation Procedure ####
@@ -170,7 +206,7 @@ runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWei
     )
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, covariates, goldStdVar, nbWeighting)
+    sim <- performNB(training, validation, covariates, goldStdVar = "goldStd", nbWeighting)
     
     #Combining the results from fold run with the previous folds
     rFolds <- bind_rows(rFolds, sim[[1]])
