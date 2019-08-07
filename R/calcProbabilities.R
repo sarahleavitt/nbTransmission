@@ -11,6 +11,7 @@
 #' @param goldStdVar The variable name (in quotes) that will define linking status.
 #' @param covariates A character vector containing the covariate variable names.
 #' @param label An optional label string for the run (default is NULL).
+#' @param l Laplace smoothing parameter that is added to each cell (default is 1).
 #' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
 #' @param n The number of folds for nxm cross valindIDation.
 #' @param m The number of times to create n folds in nxm cross valindIDation.
@@ -29,7 +30,7 @@
 
 
 calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
-                              covariates, label = "", nbWeighting = FALSE,
+                              covariates, label = "", l = 1, nbWeighting = FALSE, 
                               n = 10, m = 1, nReps = 10){
   
   orderedPair <- as.data.frame(orderedPair)
@@ -93,7 +94,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross validation
     cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, goldStdVar,
-                       nbWeighting, n, m)
+                       l, nbWeighting, n, m)
     rAll <- bind_rows(rAll, cvResults$rFolds)
     cAll <- bind_rows(cAll, cvResults$cFolds)
   }
@@ -151,7 +152,8 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
 
 
 
-runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWeighting, n, m){
+runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar,
+                  l, nbWeighting, n, m){
   
   #Choosing the true infector from all possibles (if multiple)
   #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
@@ -206,7 +208,7 @@ runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar, nbWei
     )
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, covariates, goldStdVar = "goldStd", nbWeighting)
+    sim <- performNB(training, validation, covariates, goldStdVar, l, nbWeighting)
     
     #Combining the results from fold run with the previous folds
     rFolds <- bind_rows(rFolds, sim[[1]])

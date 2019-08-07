@@ -9,6 +9,7 @@
 #' @param validation The validation dataset name.
 #' @param covariates A character vector containing the covariate variable names.
 #' @param goldStdVar The variable name (in quotes) that will define linking status.
+#' @param l Laplace smoothing parameter that is added to each cell (default is 1).
 #' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
 #'
 #' @return List containing two dataframes: "probs" with pairdata with an extra column with the
@@ -23,7 +24,7 @@
 
 
 performNB <- function(training, validation, covariates,
-                      goldStdVar, nbWeighting=FALSE){
+                      goldStdVar, l = 1, nbWeighting=FALSE){
   
   training$goldStd <- training[, goldStdVar]
   
@@ -59,7 +60,7 @@ performNB <- function(training, validation, covariates,
     #Creating the results dataframe
     results <- validation
     #Finding proportion of links/non-links
-    classTab <- prop.table(table(training[, "linked"]) + 1)
+    classTab <- prop.table(table(training[, "linked"]) + l)
     coeff <- NULL
     
     #Looping through all covariates
@@ -70,7 +71,7 @@ performNB <- function(training, validation, covariates,
       #Determining the weight for that covariate
       W <- varTable %>% filter(variable == Var) %>% pull(weight)
       #Creating a table with proportions in each level of the covariate from training data
-      Tab <- prop.table(W * table(training[, Var], training[, "linked"]) + 1, 2)
+      Tab <- prop.table(W * table(training[, Var], training[, "linked"]) + l, 2)
       
       #Determining P(Y|L = TRUE, W) and P(Y|L = FALSE, W)
       #First creating a variable with the value of this covariate
