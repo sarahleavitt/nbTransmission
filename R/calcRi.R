@@ -27,7 +27,6 @@ calcRi <- function(probs, dateVar, indIDVar, pVar){
   probs <- as.data.frame(probs)
   probs$date.1 <- probs[, paste0(dateVar, ".1")]
   probs$date.2 <- probs[, paste0(dateVar, ".2")]
-  probs$timeDiff <- as.numeric(difftime(probs$date.2, probs$date.1, units = "days"))
   probs$indID.1 <- probs[, paste0(indIDVar, ".1")]
   probs$indID.2 <- probs[, paste0(indIDVar, ".2")]
   probs$p <- probs[, pVar]
