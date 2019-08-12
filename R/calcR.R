@@ -41,13 +41,13 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
   ri <- calcRi(probs)
   
   #Calculating the time-level reproductibe number
-  rt <- calcRt(ri, timeFrame)
+  rt <- calcRt(ri, timeFrame)[[1]]
   
   #Calculating the average effective reproductive number
   rtAvg <- calcRtAvg(rt, rangeForAvg)
   
 
-  return(list("RiDf" = ri, "RtDf" = rt[[1]], "RtAvg" = rtAvg))
+  return(list("RiDf" = ri, "RtDf" = rt, "RtAvg" = rtAvg))
 }
 
 
