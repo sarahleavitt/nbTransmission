@@ -23,15 +23,13 @@
 #' @export
 
 
-performNB <- function(training, validation, covariates,
-                      goldStdVar, l = 1, nbWeighting=FALSE){
-  
-  training$goldStd <- training[, goldStdVar]
+performNB <- function(training, validation, covariates, goldStdVar,
+                      l = 1, nbWeighting=FALSE){
   
   #Making sure there are both linked and nonlinked pairs.
   #If not return NA for probabilities and print a warning
-  if(sum(training$goldStd == TRUE, na.rm = TRUE) == 0 |
-     sum(training$goldStd == FALSE, na.rm = TRUE) == 0){
+  if(sum(training[, goldStdVar] == TRUE, na.rm = TRUE) == 0 |
+     sum(training[, goldStdVar] == FALSE, na.rm = TRUE) == 0){
     
     #Calculating probability of link
     probs <- (validation
