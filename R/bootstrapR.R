@@ -72,9 +72,6 @@ bootstrapR <- function(probs, dateVar, indIDVar, pVar,
                 %>% pull(rtAvg)
   )
   
-  #Calculate RtAvg from bootRt, by adding some id for B in simulate Ri and then grouping by this variable
-  #look at hamburg code to run calcRtAvg over a grouping variable
-  
   ciLower <- rtAvgEst - (quantile(bootRtAvg, 1-alpha/2) - rtAvgEst)
   ciUpper <- rtAvgEst - (quantile(bootRtAvg, alpha/2) - rtAvgEst)
   ciDataRtAvg <- cbind.data.frame(RtAvg = rtAvgEst, ciLower = ciLower, 
@@ -86,26 +83,19 @@ bootstrapR <- function(probs, dateVar, indIDVar, pVar,
 
 #Function that simulates Ri from the probabilities
 simulateRi <- function(probs, riEst){
-  
-  #Running this function on all patients to get a new set of Ri values
-  riNew <- NULL
-  ids <- unique(probs$indID.1)
-  
-  for(id in ids){
-    
-    patientdf <- probs %>% filter(indID.1 == id)
-    #Samples Ri from a possion binomial distribution using probabilities
-    ri <- rpoisbinom(1, patientdf$p)
-    riInd <- cbind.data.frame(indID = id, Ri = ri)
-    
-    riNew <- riNew %>% bind_rows(riInd)
-  }
+
+  #Making a matrix of probabilities for speedy calculation
+  probsM <- unclass(xtabs(probs$p ~ probs$indID.1 + probs$indID.2))
+  Ri <- apply(probsM, 1, function(x) rpoisbinom(n = 1, pp = x))
+  riNew <- cbind.data.frame(indID = names(Ri), Ri, stringsAsFactors = "FALSE")
   
   #Merging this data back with the original Ri values
   riNew2 <- (riEst
+             %>% mutate(indIDChar = as.character(indID))
              %>% select(-Ri)
-             %>% full_join(riNew, by = "indID")
+             %>% full_join(riNew, by = c("indIDChar" = "indID"))
              %>% replace_na(list(Ri = 0))
+             %>% select(-indIDChar)
   )
   
   return(riNew2)
