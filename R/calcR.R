@@ -142,7 +142,6 @@ calcRt <- function(riData, timeFrame = c("days", "weeks", "months", "years")){
     )
   }
   
-  
   #I need to deal with weeks differently so that I can figure out the proper time frame
   if(timeFrame == "weeks"){
     #Creating a dataframe of week labels and their ranks
@@ -165,9 +164,7 @@ calcRt <- function(riData, timeFrame = c("days", "weeks", "months", "years")){
     )
   }
   
-  
-  #### Calculating Rt ####
-  
+  ## Calculating Rt ##
   rt <- (riData2
          %>% group_by(timeRank)
          %>% summarize(Rt = mean(Ri))
