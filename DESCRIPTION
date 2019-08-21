@@ -14,11 +14,12 @@ URL: https://github.com/sv1205/nbTransmission
 BugReports: https://github.com/sv1205/nbTransmission/issues
 LazyData: true
 Imports: 
-    dplyr (>= 0.8.0),
-    tidyr (>= 0.8.0),
-    purrr (>= 0.3.0),
+    dplyr,
+    tidyr,
+    purrr,
     caret,
-    lubridate
+    lubridate,
+    poisbinom
 Suggests: 
     knitr,
     rmarkdown,
