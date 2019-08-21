@@ -86,7 +86,7 @@ simulateRi <- function(probs, riEst){
 
   #Making a matrix of probabilities for speedy calculation
   probsM <- unclass(xtabs(probs$p ~ probs$indID.1 + probs$indID.2))
-  Ri <- apply(probsM, 1, function(x) rpoisbinom(n = 1, pp = x))
+  Ri <- apply(probsM, 1, function(x) poisbinom::rpoisbinom(n = 1, pp = x))
   riNew <- cbind.data.frame(indID = names(Ri), Ri, stringsAsFactors = "FALSE")
   
   #Merging this data back with the original Ri values
