@@ -14,6 +14,8 @@
 #' @param timeFrame The time frame used to calculate Rt. One of "days", "weeks", "months", "years".
 #' @param rangeForAvg A vector with the start and ending time period to be used to calculate the
 #' average effective reproductive number.
+#' @param B The number of bootstrap samples (default is 1000)
+#' @param alpha The alpha level for the confidence intervals (default is 0.05)
 #'
 #' @return A list with three dataframes: one with the individual-level reproductive numbers,
 #'  one with the time-level reproductive numbers, and one with the average effective reproductive
@@ -51,8 +53,8 @@ bootstrapR <- function(probs, dateVar, indIDVar, pVar,
   
   ciDataRt <- (bootRt
                %>% group_by(timeRank)
-               %>% summarize(lb = quantile(Rt, 1-alpha/2),
-                             ub = quantile(Rt, alpha/2))
+               %>% summarize(lb = stats::quantile(Rt, 1-alpha/2),
+                             ub = stats::quantile(Rt, alpha/2))
                %>% full_join(rtEst, by = "timeRank")
                %>% mutate(ciLower = ifelse(Rt - (lb - Rt) > 0, 
                                          Rt - (lb - Rt), 0),
@@ -72,8 +74,8 @@ bootstrapR <- function(probs, dateVar, indIDVar, pVar,
                 %>% pull(rtAvg)
   )
   
-  ciLower <- rtAvgEst - (quantile(bootRtAvg, 1-alpha/2) - rtAvgEst)
-  ciUpper <- rtAvgEst - (quantile(bootRtAvg, alpha/2) - rtAvgEst)
+  ciLower <- rtAvgEst - (stats::quantile(bootRtAvg, 1-alpha/2) - rtAvgEst)
+  ciUpper <- rtAvgEst - (stats::quantile(bootRtAvg, alpha/2) - rtAvgEst)
   ciDataRtAvg <- cbind.data.frame(RtAvg = rtAvgEst, ciLower = ciLower, 
                                   ciUpper = ciUpper, row.names = NULL)
   
@@ -85,7 +87,7 @@ bootstrapR <- function(probs, dateVar, indIDVar, pVar,
 simulateRi <- function(probs, riEst){
 
   #Making a matrix of probabilities for speedy calculation
-  probsM <- unclass(xtabs(probs$p ~ probs$indID.1 + probs$indID.2))
+  probsM <- unclass(stats::xtabs(probs$p ~ probs$indID.1 + probs$indID.2))
   Ri <- apply(probsM, 1, function(x) poisbinom::rpoisbinom(n = 1, pp = x))
   riNew <- cbind.data.frame(indID = names(Ri), Ri, stringsAsFactors = "FALSE")
   
@@ -94,7 +96,7 @@ simulateRi <- function(probs, riEst){
              %>% mutate(indIDChar = as.character(indID))
              %>% select(-Ri)
              %>% full_join(riNew, by = c("indIDChar" = "indID"))
-             %>% replace_na(list(Ri = 0))
+             %>% tidyr::replace_na(list(Ri = 0))
              %>% select(-indIDChar)
   )
   

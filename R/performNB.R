@@ -7,8 +7,9 @@
 #'
 #' @param training The training dataset name.
 #' @param validation The validation dataset name.
-#' @param covariates A character vector containing the covariate variable names.
+#' @param edgeIDVar The variable name (in quotes) of the edge ID variable.
 #' @param goldStdVar The variable name (in quotes) that will define linking status.
+#' @param covariates A character vector containing the covariate variable names.
 #' @param l Laplace smoothing parameter that is added to each cell (default is 1).
 #' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
 #'
@@ -23,8 +24,38 @@
 #' @export
 
 
-performNB <- function(training, validation, covariates, goldStdVar,
-                      l = 1, nbWeighting=FALSE){
+performNB <- function(training, validation, edgeIDVar, goldStdVar, 
+                      covariates, l = 1, nbWeighting=FALSE){
+  
+  #### Checking variable names ####
+  
+  #Checking that the named variables are in the dataframe
+  if(!edgeIDVar %in% names(training) | !edgeIDVar %in% names(validation)){
+    stop(paste0(edgeIDVar, " is not in the dataframe."))
+  }
+  if(!goldStdVar %in% names(training)){
+    stop(paste0(goldStdVar, " is not in the dataframe."))
+  }
+  #Checking that the covariates are in the dataframe
+  covarTestT <- c(covariates %in% names(training), covariates %in% names(validation))
+  if(FALSE %in% covarTestT){
+    stop("At least one of the covariates is not in the input dataframes.")
+  }
+
+  #Checking that all of the covariates are factors
+  covarDf <- training[, covariates]
+  notFactor <- names(covarDf)[!sapply(covarDf, is.factor)]
+  notFactorC <- paste0(notFactor, collapse = ", ")
+  if(FALSE %in% sapply(covarDf, is.factor)){
+    stop(paste0(notFactorC, " are not factors in the training data"))
+  }
+  covarDf <- validation[, covariates]
+  notFactor <- names(covarDf)[!sapply(covarDf, is.factor)]
+  notFactorC <- paste0(notFactor, collapse = ", ")
+  if(FALSE %in% sapply(covarDf, is.factor)){
+    stop(paste0(notFactorC, " are not factors in the training data"))
+  }
+  
   
   #Making sure there are both linked and nonlinked pairs.
   #If not return NA for probabilities and print a warning
@@ -35,8 +66,8 @@ performNB <- function(training, validation, covariates, goldStdVar,
     probs <- (validation
               %>% mutate(p = NA)
               %>% bind_rows(training)
-              %>% select(edgeID, p)
     )
+    probs <- probs[, c("p", "edgeIDVar")]
     coeff <- NULL
     
     warning("No events or non-events in training set")
@@ -96,8 +127,8 @@ performNB <- function(training, validation, covariates, goldStdVar,
     probs <- (results
               %>% mutate(p = link / (link + nonlink))
               %>% bind_rows(training)
-              %>% select(edgeID, p)
     )
+    probs <- probs[, c("p", "edgeIDVar")]
   }
   
   return(list(probs, coeff))
@@ -112,9 +143,9 @@ calcEntropy <- function(subset){
   
   if(k > 1){
     #Finding all pairs of variables
-    pairs <- as.data.frame(t(combn(subset, 2)), stringsAsFactors = FALSE)
+    pairs <- as.data.frame(t(utils::combn(subset, 2)), stringsAsFactors = FALSE)
     names(pairs) <- c("Var1", "Var2")
-    pairs <- pairs %>% unite(comb, Var1, Var2, sep = "~", remove = FALSE)
+    pairs <- pairs %>% tidyr::unite(comb, Var1, Var2, sep = "~", remove = FALSE)
     
     #Finding symmertric uncertainty (adjusted information gain) for all pairs of features
     Rff <- purrr::map_df(pairs$comb, FSelector::symmetrical.uncertainty, data=training) 

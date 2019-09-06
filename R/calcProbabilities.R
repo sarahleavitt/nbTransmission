@@ -106,7 +106,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   probs <- (rAll
             %>% group_by(edgeID)
             %>% summarize(pAvg = mean(p, na.rm = TRUE),
-                          pSD = sd(p, na.rm = TRUE),
+                          pSD = stats::sd(p, na.rm = TRUE),
                           nSamples = sum(!is.na(p)))
             %>% mutate(label = label)
             %>% full_join(orderedPair, by = "edgeID")
@@ -139,7 +139,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
                           ratioMean = mean(ratio, na.rm = TRUE),
                           ratioMin = min(ratio, na.rm = TRUE),
                           ratioMax = max(ratio, na.rm = TRUE),
-                          ratioSD = sd(ratio, na.rm = TRUE),
+                          ratioSD = stats::sd(ratio, na.rm = TRUE),
                           nSamples = sum(!is.na(ratio)))
             %>% mutate(label = label)
             %>% ungroup()
