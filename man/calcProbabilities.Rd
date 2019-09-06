@@ -5,7 +5,8 @@
 \title{Calculates Relative Transmission Probabilities}
 \usage{
 calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, covariates,
-  label = NULL, nbWeighting = FALSE, n = 10, m = 1, nReps = 50)
+  label = "", l = 1, nbWeighting = FALSE, n = 10, m = 1,
+  nReps = 10)
 }
 \arguments{
 \item{orderedPair}{The name of the ordered pair-level dataset with the covariates.}
@@ -20,6 +21,8 @@ calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, covariates,
 
 \item{label}{An optional label string for the run (default is NULL).}
 
+\item{l}{Laplace smoothing parameter that is added to each cell (default is 1).}
+
 \item{nbWeighting}{A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?}
 
 \item{n}{The number of folds for nxm cross valindIDation.}
@@ -30,7 +33,7 @@ calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, covariates,
 }
 \value{
 List containing two dataframes: "probs" with pairdata with an extra column with the
-   average probabilities over all of the cross valindIDation runs and "coeff" with the
+   average probabilities over all of the cross validation runs and "coeff" with the
    average, minimum, and maximum coefficient values over all cv runs.
 }
 \description{
