@@ -59,11 +59,12 @@ nReps <- 1
 covariates <- c("Study", "Nationality", "Sex", "Age", "SmearPos", "HIV",
                 "SubstanceAbuse", "Residence", "Milieu", "TimeCat")
 
-resHam <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID",
+orderedHam <- orderedHam %>% rename(edgeID2 = edgeID)
+resHam <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID2",
                              goldStdVar = "SameGroup", covariates = covariates, label = "HamCont",
                              nbWeighting = FALSE, n = 10, m = 1, nReps = 5)
 
-resHam2 <- full_join(orderedHam, resHam[[1]], by = "edgeID")
+resHam2 <- full_join(orderedHam, resHam[[1]], by = "edgeID2")
 
 rInitial <- calcR(resHam2, dateVar = "IsolationDate", indIDVar = "individualID",
                   pVar = "pScaled", timeFrame = "months")

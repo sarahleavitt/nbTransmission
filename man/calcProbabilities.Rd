@@ -32,12 +32,39 @@ calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, covariates,
 \item{nReps}{The number of times to randomly select one infector.}
 }
 \value{
-List containing two dataframes: "probs" with pairdata with an extra column with the
-   average probabilities over all of the cross validation runs and "coeff" with the
-   average, minimum, and maximum coefficient values over all cv runs.
+List containing two dataframes:
+\enumerate{
+  \item \code{probabilities} - a dataframe of transmission probabilities with the
+   following columns:
+     \itemize{
+       \item \code{label} - the optional label of the run
+       \item \code{pAvg} - the mean transmission probability for the pair over all runs
+       \item \code{pSD} - the standard deviation of the transmission probability for the pair
+        over all runs
+       \item \code{pScaled} - the mean relative transmission probability for the pair over
+        all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
+       \item \code{pRank} - the rank of the probability of the the pair out of all pairs for that
+       infectee
+       \item \code{nSamples} - the number of probability estimates that contributed to pAvg. This
+       represents the number of validation datasets this pair was included in over the \code{nxm}
+       cross validation repeated \code{nReps} times.
+       \item \code{edgeIDVar} - the edgeID variable with the name specified
+     }
+  \item \code{estimates} - a dataframe with the effect estimates with the following columns:
+     \itemize{
+       \item \code{level} - the covariate name and level
+       \item \code{label} - the optional label of the run
+       \item \code{ratioMean} - the mean value of the likelihood ratio across runs
+       \item \code{ratioMin} - the min value of the likelihood ratio across runs
+       \item \code{ratioMax} - the max value of the likelihood ratio across runs
+       \item \code{ratioSD} - the standard deviation of the likelihood ratio across runs
+       \item \code{nSamples} - the number of samples included in the average: \code{n * m * nReps}
+     }
+}
 }
 \description{
-Uses naive Bayes and cross vaindIDation to calculate the relative transmission probabilities
+\code{calcProbabilities} uses naive Bayes and cross vaindIDation to calculate the relative
+ transmission probabilities
 }
 \details{
 Add details section
