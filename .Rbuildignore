@@ -1,3 +1,4 @@
 ^\.Rhistory$
 ^\.gitignore$
 ^PackageSetup\.R$
+^README\.Rmd$
