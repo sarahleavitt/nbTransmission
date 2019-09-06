@@ -42,14 +42,20 @@ bootstrapR <- function(probs, dateVar, indIDVar, pVar,
   
   #Finding the point estimates
   riEst <- calcRi(probs)
-  rtEst <- calcRt(riEst, timeFrame)[[1]]
+  rtEst <- calcRt(riEst, timeFrame)
   rtAvgEst <- calcRtAvg(rtEst, rangeForAvg)$rtAvg
   
   
   ## Finding the CI for Rt ##
   
-  bootListRt <- replicate(B, calcRt(simulateRi(probs, riEst), timeFrame = "months"))
-  bootRt <- bind_rows(bootListRt)
+  #Use manual list instead if replicate for progress bar
+  pb <- utils::txtProgressBar(min = 0, max = B, style = 3)
+  bootRt <- NULL
+  for(i in 1:B){
+    oneRep <- calcRt(simulateRi(probs, riEst), timeFrame = "months")
+    bootRt <- bind_rows(bootRt, oneRep)
+    utils::setTxtProgressBar(pb, i)
+  }
   
   ciDataRt <- (bootRt
                %>% group_by(timeRank)
