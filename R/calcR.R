@@ -68,18 +68,6 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
 
 calcRi <- function(probs){
   
-  #### Calculating identifiability of links ####
-  
-  #Calculating variance to get 1-q identifiability measure from Teunis et al.
-  totalV <- (probs
-             %>% mutate(var = p * (1 - p))
-             %>% group_by(indID.2)
-             %>% summarize(iden =  1- sum(var, na.rm = TRUE),
-                           nInfectors = n(),
-                           date = first(date.2))
-             %>% rename(indID = indID.2)
-  )
-  
   #### Calculating reproductive number ####
   
   #Calculating the individual level reproductive number
@@ -91,10 +79,9 @@ calcRi <- function(probs){
                        date = first(date.1))
          %>% full_join(totalV, by = c("indID", "date"))
          #If nInfectees is missing, this is the latest case
-         #If nInfectors is missing, this is the earliest case
          #If Ri is missing, it is the last case so the value should be 0
-         %>% tidyr::replace_na(list(nInfectees = 0, nInfectors = 0, Ri = 0))
-         %>% select(indID, date, Ri, iden, nInfectors, nInfectees)
+         %>% tidyr::replace_na(list(nInfectees = 0, Ri = 0))
+         %>% select(indID, date, Ri, nInfectees)
   )
   
   return(ri)
