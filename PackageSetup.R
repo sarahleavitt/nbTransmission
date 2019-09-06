@@ -4,6 +4,7 @@ rm(list = ls())
 
 library(devtools)
 library(roxygen2)
+library(qpdf)
 
 # build()
 # install()
@@ -25,6 +26,8 @@ library(roxygen2)
 #build, install, load
 load_all()
 
+#Check for errors
+devtools::check()
 
 
 #### Running examples ####
@@ -33,107 +36,49 @@ load_all()
 hamInd <- readRDS("../Datasets/HamburgInd.rds")
 hamPair <- readRDS("../Datasets/HamburgPair.rds")
 hamPair <- hamPair %>% mutate(snpClose = ifelse(snpDist < 2, TRUE,
-                                         ifelse(snpDist > 12, FALSE, NA)))
+                                                ifelse(snpDist > 12, FALSE, NA)))
 
 orderedHam <- (hamPair
                %>% mutate(IsolationDiff = as.numeric(difftime(IsolationDate.2,
                                                               IsolationDate.1, units = "days")))
-               %>% filter(!is.na(IsolationDiff) & observationDiff > 0)
+               %>% filter(!is.na(IsolationDiff) & IsolationDiff > 0)
 )
 
-# orderedPair <- orderedHam
-# dateVar <- "IsolationDate"
-# indIDVar <- "individualID"
-# edgeIDVar <- "edgeID"
-# goldStdVar <- "snpClose"
-# pVar <- "pScaled"
-# label <- "Ham"
-# nbWeighting <- FALSE
-# n <- 10
-# m <- 1
-# nReps <- 1
+orderedPair <- orderedHam
+dateVar <- "IsolationDate"
+indIDVar <- "individualID"
+edgeIDVar <- "edgeID"
+goldStdVar <- "snpClose"
+pVar <- "pScaled"
+label <- "Ham"
+nbWeighting <- FALSE
+n <- 10
+m <- 1
+nReps <- 1
 
-load_all()
-
-set.seed(103020)
 covariates <- c("Study", "Nationality", "Sex", "Age", "SmearPos", "HIV",
                 "SubstanceAbuse", "Residence", "Milieu", "TimeCat")
 
-resHam1 <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID",
-                              goldStdVar = "snpClose", covariates = covariates, label = "HamGen",
-                              nbWeighting = FALSE, n = 10, m = 1, nReps = 5)
+resHam <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID",
+                             goldStdVar = "SameGroup", covariates = covariates, label = "HamCont",
+                             nbWeighting = FALSE, n = 10, m = 1, nReps = 5)
 
-resHam2 <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID",
-                              goldStdVar = "SameGroup", covariates = covariates, label = "HamCont",
-                              nbWeighting = FALSE, n = 10, m = 1, nReps = 5)
+resHam2 <- full_join(orderedHam, resHam[[1]], by = "edgeID")
 
-resHamCov1 <- resHam1[[1]] %>% full_join(orderedHam, by = "edgeID")
-resHamCov2 <- resHam2[[1]] %>% full_join(orderedHam, by = "edgeID")
-hamRes <- bind_rows(resHamCov1, resHamCov2)
+rInitial <- calcR(resHam2, dateVar = "IsolationDate", indIDVar = "individualID",
+                  pVar = "pScaled", timeFrame = "months")
+rt <- rInitial[[2]]
 
-ri1 <- calcRi(resHamCov1, dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled")
-ri2 <- calcRi(resHamCov2, dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled")
+#Cutting the outbreak
+totalTime <- max(rt$timeRank) - min(rt$timeRank)
+monthCut1 <- ceiling(0.1 * totalTime)
+monthCut2 <- ceiling(0.9 * totalTime)
 
-riSum <- (hamRes
-          %>% group_by(label)
-          %>% do(calcRi(., dateVar = "IsolationDate", indIDVar = "individualID", pVar = "pScaled"))
-)
+rFinal <- bootstrapR(resHam2, dateVar = "IsolationDate",
+                     indIDVar = "individualID", pVar = "pScaled",
+                     timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
+                     B = 1000, alpha = 0.05)
 
-
-
-## Simulation
-sampleSize <- 200
-neg <- 0.25
-pi <- 1
-off.r <- 1.2
-off.p <- 0.5
-w.shape <- 1.05
-w.scale <- 1 / (0.0014 * 365)
-ws.shape <- w.shape
-ws.scale <- w.scale
-shift <- 0.25
-multOutbreaks <- TRUE
-rootseq <- NULL
-length <- 300
-rate <- 0.5 / length
-
-source("../dissertation_code/SimOutbreak.R")
-source("../dissertation_code/SimCovariates.R")
-source("../dissertation_code/TransPhylo/SimulateOutbreakS.R")
-
-#Simulate outbreak  
-set.seed(1001)
-obk <- simOutbreak(neg = neg, pi = pi, off.r = off.r, off.p = off.p,
-                   w.scale = w.scale, w.shape = w.shape, shift = shift,
-                   ws.scale = ws.scale, ws.shape = ws.shape,
-                   sampleSize = sampleSize,
-                   multOutbreaks = multOutbreaks,
-                   length = length, rate = rate)
-initialInd <- obk[[1]]
-initialPair <- obk[[2]]
-
-#Simulating covariates
-covar <- simCovariates(initialInd, initialPair, scheme = "info")
-indData <- covar[[2]]
-pairData <- covar[[1]]
-
-#Subseting to the pairs with the potential infector observed before the infectee
-#Restricting to sampled cases
-orderedPair <- pairData %>% filter(!is.na(observationDiff) & observationDiff > 0)
-
-
-dateVar <- "infectionDate"
-indIDVar <- "individualID"
-edgeIDVar <- "edgeID"
-goldStdVar <- "transmission"
-pVar <- "pScaled"
-covariates <- c("Y1", "Y2", "Y3", "Y4", "timeCat")
-
-results2 <- calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, 
-                              covariates, label = NULL, n = 10, m = 1, nReps = 1)
-
-df <- results2[[1]] %>% full_join(orderedPair, by = "edgeID")
-
-ri2 <- calcRi(df, dateVar, indIDVar, pVar)
+rFinal[[3]]
 
 
