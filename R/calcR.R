@@ -41,7 +41,7 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
   ri <- calcRi(probs)
   
   #Calculating the time-level reproductibe number
-  rt <- calcRt(ri, timeFrame)[[1]]
+  rt <- calcRt(ri, timeFrame)
   
   #Calculating the average effective reproductive number
   rtAvg <- calcRtAvg(rt, rangeForAvg)
@@ -77,7 +77,6 @@ calcRi <- function(probs){
          %>% summarize(Ri = sum(p),
                        nInfectees = n(),
                        date = first(date.1))
-         %>% full_join(totalV, by = c("indID", "date"))
          #If nInfectees is missing, this is the latest case
          #If Ri is missing, it is the last case so the value should be 0
          %>% tidyr::replace_na(list(nInfectees = 0, Ri = 0))
@@ -158,7 +157,7 @@ calcRt <- function(riData, timeFrame = c("days", "weeks", "months", "years")){
          %>% ungroup()
   )
   
-  return(list(rt))
+  return(rt)
 }
 
 

@@ -93,8 +93,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross validation
-    cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, goldStdVar,
-                       l, nbWeighting, n, m)
+    cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, l, nbWeighting, n, m)
     rAll <- bind_rows(rAll, cvResults$rFolds)
     cAll <- bind_rows(cAll, cvResults$cFolds)
   }
@@ -152,8 +151,8 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
 
 
 
-runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar,
-                  l, nbWeighting, n, m){
+runCV <- function(posTrain, posLinks, orderedPair,
+                  covariates, l, nbWeighting, n, m){
   
   #Choosing the true infector from all possibles (if multiple)
   #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
@@ -208,7 +207,8 @@ runCV <- function(posTrain, posLinks, orderedPair, covariates, goldStdVar,
     )
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, covariates, goldStdVar, l, nbWeighting)
+    sim <- performNB(training, validation, edgeIDVar = "edgeID",
+                     goldStdVar = "goldStd", covariates, l, nbWeighting)
     
     #Combining the results from fold run with the previous folds
     rFolds <- bind_rows(rFolds, sim[[1]])

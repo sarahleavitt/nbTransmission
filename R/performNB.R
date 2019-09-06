@@ -67,7 +67,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
               %>% mutate(p = NA)
               %>% bind_rows(training)
     )
-    probs <- probs[, c("p", "edgeIDVar")]
+    probs <- probs[, c("p", edgeIDVar)]
     coeff <- NULL
     
     warning("No events or non-events in training set")
@@ -128,7 +128,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
               %>% mutate(p = link / (link + nonlink))
               %>% bind_rows(training)
     )
-    probs <- probs[, c("p", "edgeIDVar")]
+    probs <- probs[, c("p", edgeIDVar)]
   }
   
   return(list(probs, coeff))
