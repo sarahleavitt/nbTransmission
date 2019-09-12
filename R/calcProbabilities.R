@@ -158,7 +158,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   )
   #Renaming the edgeID variable to match input
   probs2[, edgeIDVar] <- probs2$edgeID
-  probs2 <- probs2 %>% select(-edgeID)
+  if(edgeIDVar != "edgeID"){probs2 <- probs2 %>% select(-edgeID)}
   
   
   #Averaging over the measures of effect
@@ -181,7 +181,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
 
 
 
-.runCV <- function(posTrain, posLinks, orderedPair,
+runCV <- function(posTrain, posLinks, orderedPair,
                   covariates, l, nbWeighting, n, m){
   
   #Choosing the true infector from all possibles (if multiple)

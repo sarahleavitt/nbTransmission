@@ -137,7 +137,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
 
 #### Function for CFS Search Algorithms ####
 
-.calcEntropy <- function(subset){
+calcEntropy <- function(subset){
   
   k <-  length(subset)
   
