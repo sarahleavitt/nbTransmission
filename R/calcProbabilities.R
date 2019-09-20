@@ -1,19 +1,36 @@
 
 #' Calculates Relative Transmission Probabilities
 #'
-#' \code{calcProbabilities} uses naive Bayes and cross vaindIDation to calculate the relative
+#' \code{calcProbabilities} uses naive Bayes and an interative estimation procedure to calculate relative
 #'  transmission probabilities
 #'
-#' Add details section
+#' This algorithm takes a dataset of ordered possible infector-infectee pairs in an infectious disease
+#'  cluster and estimates the relative probability the cases are linked by direct transmission.
+#' 
+#' The algorithm used a classification technique called naive Bayes (NB). NB is a simple machine learning
+#' method that uses Bayes rule to estimate the probability of an outcome in a prediction dataset
+#' given a set of \code{covariates} from the observed frequencies in a training dataset.
+#' The covariates could be spatial, clinical, demographic, and temporal characteristics of the cases.
+#' 
+#' Then a subset of cases with pathogen WGS or contact investigation data are used to create a training
+#' dataset of probable links and non/links. These probable links and non/links are defined by \code{goldStdVar}
+#' which should be a logical vector with \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
+#' the pair cannot be used to train (does not have the information or is indeterminate). 
+#' 
+#' Because the outcomes in our training set represent probable and not certain transmission events
+#' and a given case could have mulitple probable infectors, we use an iterative estimation procedure.
+#' This procedure randomly chooses one link of all of the possible links to include in the training
+#' dataset \code{nReps} times, and then uses \code{mxn} cross validation to give all pairs a turn 
+#' in the prediction dataset.
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
 #' @param indIDVar The variable name (in quotes) of the individual ID variable.
 #' @param edgeIDVar The variable name (in quotes) of the edge ID variable.
-#' @param goldStdVar The variable name (in quotes) that will define linking status.
+#' @param goldStdVar The variable name (in quotes) that of logical vector defining training links/non-links
 #' @param covariates A character vector containing the covariate variable names.
-#' @param label An optional label string for the run (default is NULL).
-#' @param l Laplace smoothing parameter that is added to each cell (default is 1).
-#' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
+#' @param label An optional label string for the run.
+#' @param l Laplace smoothing parameter that is added to each cell.
+#' @param nbWeighting A logical scalar indicating if you want to use deep frequency weighting in NB.
 #' @param n The number of folds for nxm cross valindIDation.
 #' @param m The number of times to create n folds in nxm cross valindIDation.
 #' @param nReps The number of times to randomly select one infector.
@@ -44,12 +61,36 @@
 #'        \item \code{ratioMin} - the min value of the likelihood ratio across runs
 #'        \item \code{ratioMax} - the max value of the likelihood ratio across runs
 #'        \item \code{ratioSD} - the standard deviation of the likelihood ratio across runs
-#'        \item \code{nSamples} - the number of samples included in the average: \code{n * m * nReps}
+#'        \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
 #'      }
 #' }
 #'
 #' @examples
-#' #Insert example here
+#' ## Use the pairData dataset which represents a TB-like outbreak
+#' # First create a dataset of ordered pairs
+#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+#' 
+#' ## Create a variable called snpClose that will define probable links
+#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+#' # will not be used to train.
+#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
+#' table(orderedPair$snpClose)
+#' 
+#' ## Running the algorithm
+#' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
+#' resGen <- calcProbabilities(orderedPair = orderedPair,
+#'                             indIDVar = "individualID",
+#'                             edgeIDVar = "edgeID",
+#'                             goldStdVar = "snpClose",
+#'                             covariates = covariates,
+#'                             label = "SNPs",
+#'                             nbWeighting = FALSE,
+#'                             n = 10, m = 1, nReps = 10)
+#'                             
+#' ## Merging the probabilities back with the pair-level data
+#' allProbs <- resGen[[1]] %>% full_join(orderedPair, by = "edgeID")
+#' 
 #'
 #' @import dplyr
 #' 
