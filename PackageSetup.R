@@ -25,6 +25,7 @@ library(qpdf)
 
 #build, install, load
 load_all()
+document()
 
 #Check for errors
 devtools::check()
