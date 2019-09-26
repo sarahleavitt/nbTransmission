@@ -13,6 +13,8 @@
 #' @param timeFrame The time frame used to calculate Rt. One of "days", "weeks", "months", "years".
 #' @param rangeForAvg A vector with the start and ending time period to be used to calculate the
 #' average effective reproductive number.
+#' @param bootSamples The number of bootstrap samples. If 0, then no confidence intervals are calculated
+#' @param alpha The alpha level for the confidence intervals (default is 0.05)
 #'
 #' @return A list with three dataframes: one with the individual-level reproductive numbers,
 #'  one with the time-level reproductive numbers, and one with the average effective reproductive
@@ -27,7 +29,7 @@
 
 calcR <- function(probs, dateVar, indIDVar, pVar,
                    timeFrame = c("days", "months", "weeks", "years"),
-                   rangeForAvg = NULL){
+                   rangeForAvg = NULL, bootSamples = 0, alpha = 0.5){
   
   #Creating correctly named variables
   probs <- as.data.frame(probs)
@@ -38,16 +40,60 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
   probs$p <- probs[, pVar]
   
   #Calculating the individual-level reproductive number
-  ri <- calcRi(probs)
+  riEst <- calcRi(probs)
   
   #Calculating the time-level reproductibe number
-  rt <- calcRt(ri, timeFrame)
+  rtEst <- calcRt(riEst, timeFrame)
   
   #Calculating the average effective reproductive number
-  rtAvg <- calcRtAvg(rt, rangeForAvg)
+  rtAvgEst <- calcRtAvg(rtEst, rangeForAvg)
   
-
-  return(list("RiDf" = ri, "RtDf" = rt, "RtAvg" = rtAvg))
+  if(bootSamples == 0){
+    return(list("RiDf" = riEst, "RtDf" = rtEst, "RtAvg" = rtAvgEst))}
+  
+  if (bootSamples > 0){
+    
+    ## Finding the CI for Rt ##
+    
+    #Use manual list instead if replicate for progress bar
+    pb <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
+    bootRt <- NULL
+    for(i in 1:bootSamples){
+      oneRep <- calcRt(simulateRi(probs, riEst), timeFrame = "months")
+      bootRt <- bind_rows(bootRt, oneRep)
+      utils::setTxtProgressBar(pb, i)
+    }
+    
+    ciDataRt <- (bootRt
+                 %>% group_by(timeRank)
+                 %>% summarize(lb = stats::quantile(Rt, 1-alpha/2),
+                               ub = stats::quantile(Rt, alpha/2))
+                 %>% full_join(rtEst, by = "timeRank")
+                 %>% mutate(ciLower = ifelse(Rt - (lb - Rt) > 0, 
+                                             Rt - (lb - Rt), 0),
+                            ciUpper = Rt - (ub - Rt))
+                 %>% select(-lb, -ub)
+    )
+    
+    
+    ## Finding the CI for RtAvg ##
+    
+    #Calculating RtAvg for each bootstrap Rt sample
+    bootRtAvg <- (bootRt
+                  %>% group_by(timeRank)
+                  %>% mutate(rep = 1:n())
+                  %>% group_by(rep)
+                  %>% do(calcRtAvg(., rangeForAvg))
+                  %>% pull(rtAvg)
+    )
+    
+    ciLower <- rtAvgEst - (stats::quantile(bootRtAvg, 1-alpha/2) - rtAvgEst)
+    ciUpper <- rtAvgEst - (stats::quantile(bootRtAvg, alpha/2) - rtAvgEst)
+    ciDataRtAvg <- cbind.data.frame(RtAvg = rtAvgEst, ciLower = ciLower, 
+                                    ciUpper = ciUpper, row.names = NULL)
+    
+    return(list("RiDf" = riEst, "RtCI" = ciDataRt, "RtAvgCI" = ciDataRtAvg))
+  }
 }
 
 
@@ -191,6 +237,26 @@ calcRtAvg <- function(rtData, rangeForAvg = NULL){
   return(as.data.frame(rtAvg))
 }
 
+
+#Function that simulates Ri from the probabilities
+simulateRi <- function(probs, riEst){
+  
+  #Making a matrix of probabilities for speedy calculation
+  probsM <- unclass(stats::xtabs(probs$p ~ probs$indID.1 + probs$indID.2))
+  Ri <- apply(probsM, 1, function(x) poisbinom::rpoisbinom(n = 1, pp = x))
+  riNew <- cbind.data.frame(indID = names(Ri), Ri, stringsAsFactors = "FALSE")
+  
+  #Merging this data back with the original Ri values
+  riNew2 <- (riEst
+             %>% mutate(indIDChar = as.character(indID))
+             %>% select(-Ri)
+             %>% full_join(riNew, by = c("indIDChar" = "indID"))
+             %>% tidyr::replace_na(list(Ri = 0))
+             %>% select(-indIDChar)
+  )
+  
+  return(riNew2)
+}
 
 
 
