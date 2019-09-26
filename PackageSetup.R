@@ -68,7 +68,7 @@ resHam <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID",
 resHam2 <- full_join(orderedHam, resHam[[1]], by = "edgeID2")
 
 rInitial <- calcR(resHam2, dateVar = "IsolationDate", indIDVar = "individualID",
-                  pVar = "pScaled", timeFrame = "months")
+                  pVar = "pScaled", timeFrame = "months", bootSamples = 0)
 rt <- rInitial[[2]]
 
 #Cutting the outbreak
@@ -76,10 +76,10 @@ totalTime <- max(rt$timeRank) - min(rt$timeRank)
 monthCut1 <- ceiling(0.1 * totalTime)
 monthCut2 <- ceiling(0.9 * totalTime)
 
-rFinal <- bootstrapR(resHam2, dateVar = "IsolationDate",
+rFinal <- calcR(resHam2, dateVar = "IsolationDate",
                      indIDVar = "individualID", pVar = "pScaled",
                      timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
-                     B = 1000, alpha = 0.05)
+                     bootSamples = 100, alpha = 0.05)
 
 rFinal[[3]]
 
