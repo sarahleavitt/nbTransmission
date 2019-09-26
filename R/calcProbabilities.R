@@ -279,7 +279,7 @@ runCV <- function(posTrain, posLinks, orderedPair,
     
     #Calculating probabilities for one split
     sim <- performNB(training, validation, edgeIDVar = "edgeID",
-                     goldStdVar = "goldStd", covariates, l, nbWeighting)
+                     goldStdVar = "linked", covariates, l, nbWeighting)
     
     #Combining the results from fold run with the previous folds
     rFolds <- bind_rows(rFolds, sim[[1]])

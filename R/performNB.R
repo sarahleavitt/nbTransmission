@@ -11,7 +11,7 @@
 #' @param goldStdVar The variable name (in quotes) that will define linking status.
 #' @param covariates A character vector containing the covariate variable names.
 #' @param l Laplace smoothing parameter that is added to each cell (default is 1).
-#' @param nbWeighting A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?
+#' @param nbWeighting A logical scalar indicatin if you want to use deep frequency weighting.
 #'
 #' @return List containing two dataframes: "probs" with pairdata with an extra column with the
 #'    probabilities and "coeff" with the coefficient values.
@@ -89,7 +89,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
     #Creating the results dataframe
     results <- validation
     #Finding proportion of links/non-links
-    classTab <- prop.table(table(training[, "linked"]) + l)
+    classTab <- prop.table(table(training[, goldStdVar]) + l)
     coeff <- NULL
     
     #Looping through all covariates
@@ -100,7 +100,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
       #Determining the weight for that covariate
       W <- varTable %>% filter(variable == Var) %>% pull(weight)
       #Creating a table with proportions in each level of the covariate from training data
-      Tab <- prop.table(W * table(training[, Var], training[, "linked"]) + l, 2)
+      Tab <- prop.table(W * table(training[, Var], training[, goldStdVar]) + l, 2)
       
       #Determining P(Y|L = TRUE, W) and P(Y|L = FALSE, W)
       #First creating a variable with the value of this covariate
@@ -153,13 +153,14 @@ calcEntropy <- function(subset){
     rff <- mean(Rff[,1])
   }else{rff <- 0}
   
-  model <- FSelector::as.simple.formula(subset, "linked")
+  model <- FSelector::as.simple.formula(subset, goldStdVar)
   Rcf <- FSelector::symmetrical.uncertainty(model, training)
   #Mean of all classification-feature correlations
   rcf <- mean(Rcf[,1])
   
   #Calculating merit of the subset
   merit <- k * rcf / sqrt(k + k * (k - 1) * rff)
+  print(c(subset, merit))
   
   return(merit)
 }
