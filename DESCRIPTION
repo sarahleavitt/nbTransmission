@@ -4,8 +4,10 @@ Version: 0.0.1
 Date: 2019-09-06
 Authors@R: person("Sarah V", "Leavitt", email = "sv1205@bu.edu", role = c("aut", "cre"))
 Maintainer: Sarah V Leavitt <sv1205@bu.edu>
-Description: A package containing functions to calculate relative transmission
-    probabilities using naive Bayes and use these probabilities to estimate
+Description: This package is a group of functions used in infectious diseases analysis.
+	It implements an algorithm to calculate relative transmission probabilities between
+	cases in an infectious disease outbreak or cluster using naive Bayes. It also
+	contians various functions to use these probabilities to estimate
     transmission paramaters such as the serial interval and reproductive number.
 Depends: R (>= 3.4.0)
 RoxygenNote: 6.1.1
