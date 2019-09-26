@@ -14,7 +14,7 @@
 #' @param rangeForAvg A vector with the start and ending time period to be used to calculate the
 #' average effective reproductive number.
 #' @param bootSamples The number of bootstrap samples. If 0, then no confidence intervals are calculated
-#' @param alpha The alpha level for the confidence intervals (default is 0.05)
+#' @param alpha The alpha level for the confidence intervals.
 #'
 #' @return A list with three dataframes: one with the individual-level reproductive numbers,
 #'  one with the time-level reproductive numbers, and one with the average effective reproductive
