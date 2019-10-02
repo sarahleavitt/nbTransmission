@@ -25,11 +25,12 @@ of cases with pathogen WGS or contact investigation data are used to create a
 
 You can install nbTransmission in R using the following command:
 
-`r devtools::install_github('https://github.com/sarahleavitt/nbTransmission.git')`
+`devtools::install_github('https://github.com/sarahleavitt/nbTransmission.git')`
 
 
 ## Documentation
 
+IN PROGRESS
 There is a tutorial for nbTransmission at ... which is also within the R package
 as a vingette. The reference manual is located at ....  
 
