@@ -1,4 +1,5 @@
 ^\.Rhistory$
 ^\.gitignore$
 ^PackageSetup\.R$
+^SimData\.R$
 ^README\.Rmd$
