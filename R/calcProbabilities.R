@@ -151,7 +151,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   
   
 
-  #### Cross-ValindIDation Procedure ####
+  #### Cross-Validation Procedure ####
   
   #Initializing dataframes to hold results and coefficients
   rAll <- NULL
