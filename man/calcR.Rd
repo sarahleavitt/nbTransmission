@@ -5,7 +5,8 @@
 \title{Calculates the effective reproductive number}
 \usage{
 calcR(probs, dateVar, indIDVar, pVar, timeFrame = c("days", "months",
-  "weeks", "years"), rangeForAvg = NULL)
+  "weeks", "years"), rangeForAvg = NULL, bootSamples = 0,
+  alpha = 0.5)
 }
 \arguments{
 \item{probs}{The name of the dateset with transmission probabilities}
@@ -20,6 +21,10 @@ calcR(probs, dateVar, indIDVar, pVar, timeFrame = c("days", "months",
 
 \item{rangeForAvg}{A vector with the start and ending time period to be used to calculate the
 average effective reproductive number.}
+
+\item{bootSamples}{The number of bootstrap samples. If 0, then no confidence intervals are calculated}
+
+\item{alpha}{The alpha level for the confidence intervals.}
 }
 \value{
 A list with three dataframes: one with the individual-level reproductive numbers,

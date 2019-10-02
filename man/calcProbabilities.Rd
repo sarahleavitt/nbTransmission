@@ -87,18 +87,18 @@ dataset \code{nReps} times, and then uses \code{mxn} cross validation to give al
 in the prediction dataset.
 }
 \examples{
-# Use the pairData dataset which represents a TB-like outbreak
+## Use the pairData dataset which represents a TB-like outbreak
 # First create a dataset of ordered pairs
 orderedPair <- pairData[pairData$infectionDiffY > 0, ]
 
-# Create a variable called snpClose that will define probable links
-#  (<3 SNPs) and nonlinks (>12 SNPs)
-# all pairs with between 2-12 SNPs will not be used to train.
+## Create a variable called snpClose that will define probable links
+# (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+# will not be used to train.
 orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
 table(orderedPair$snpClose)
 
-# Running the algorithm
+## Running the algorithm
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 resGen <- calcProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
@@ -109,7 +109,7 @@ resGen <- calcProbabilities(orderedPair = orderedPair,
                             nbWeighting = FALSE,
                             n = 10, m = 1, nReps = 10)
                             
-# Merging the probabilities back with the pair-level data
+## Merging the probabilities back with the pair-level data
 allProbs <- resGen[[1]] \%>\% full_join(orderedPair, by = "edgeID")
 
 

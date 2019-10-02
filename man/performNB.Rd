@@ -20,7 +20,7 @@ performNB(training, validation, edgeIDVar, goldStdVar, covariates, l = 1,
 
 \item{l}{Laplace smoothing parameter that is added to each cell (default is 1).}
 
-\item{nbWeighting}{A logical scalar. Do you want to use deep frequency weighting in NB (default is FALSE)?}
+\item{nbWeighting}{A logical scalar indicatin if you want to use deep frequency weighting.}
 }
 \value{
 List containing two dataframes: "probs" with pairdata with an extra column with the
