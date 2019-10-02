@@ -199,7 +199,8 @@ calcRt <- function(riData, timeFrame = c("days", "weeks", "months", "years")){
   ## Calculating Rt ##
   rt <- (riData2
          %>% group_by(timeRank)
-         %>% summarize(Rt = mean(Ri))
+         %>% summarize(Rt = mean(Ri),
+                       time = first(time))
          %>% ungroup()
   )
   
