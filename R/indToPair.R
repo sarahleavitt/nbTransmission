@@ -56,7 +56,9 @@ indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordere
                      all = TRUE, suffixes = c(".1", ".2"))
   
   if(!is.null(dateVar)){
-    pairData2$timeDiff <- pairData2[, paste0(dateVar, ".2")] - pairData2[, paste0(dateVar, ".1")]
+    pairData2$timeDiff <- as.numeric(difftime(pairData2[, paste0(dateVar, ".2")],
+                                              pairData2[, paste0(dateVar, ".1")],
+                                              units = "days"))
     pairData2$timeDiffY <- pairData2$timeDiff / 365
   }
   
