@@ -89,7 +89,7 @@
 #'                             n = 10, m = 1, nReps = 10)
 #'                             
 #' ## Merging the probabilities back with the pair-level data
-#' allProbs <- resGen[[1]] %>% full_join(orderedPair, by = "edgeID")
+#' allProbs <- merge(resGen[[1]], orderedPair, by = "edgeID", all = TRUE)
 #' 
 #'
 #' @import dplyr
@@ -105,10 +105,10 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   
   #Checking that the named variables are in the dataframe
   if(!paste0(indIDVar, ".1") %in% names(orderedPair)){
-    stop(paste0(paste0(indIDVar, ".1"), " is not in the dataframe."))
+    stop(paste0(indIDVar, ".1", " is not in the dataframe."))
   }
   if(!paste0(indIDVar, ".2") %in% names(orderedPair)){
-    stop(paste0(paste0(indIDVar, ".2"), " is not in the dataframe."))
+    stop(paste0(indIDVar, ".2"), " is not in the dataframe.")
   }
   if(!edgeIDVar %in% names(orderedPair)){
     stop(paste0(edgeIDVar, " is not in the dataframe."))
