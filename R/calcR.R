@@ -89,10 +89,10 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
     
     ciLower <- rtAvgEst - (stats::quantile(bootRtAvg, 1-alpha/2) - rtAvgEst)
     ciUpper <- rtAvgEst - (stats::quantile(bootRtAvg, alpha/2) - rtAvgEst)
-    ciDataRtAvg <- cbind.data.frame(RtAvg = rtAvgEst, ciLower = ciLower, 
-                                    ciUpper = ciUpper, row.names = NULL)
+    ciDataRtAvg <- cbind.data.frame(rtAvgEst, ciLower, ciUpper, row.names = NULL)
+    names(ciDataRtAvg) <- c("RtAvg", "ciLower", "ciUpper")
     
-    return(list("RiDf" = riEst, "RtCI" = ciDataRt, "RtAvgCI" = ciDataRtAvg))
+    return(list("RiDf" = riEst, "RtDf" = ciDataRt, "RtAvg" = ciDataRtAvg))
   }
 }
 
