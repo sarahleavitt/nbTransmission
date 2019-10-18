@@ -110,7 +110,7 @@ resGen <- calcProbabilities(orderedPair = orderedPair,
                             n = 10, m = 1, nReps = 10)
                             
 ## Merging the probabilities back with the pair-level data
-allProbs <- resGen[[1]] \%>\% full_join(orderedPair, by = "edgeID")
+allProbs <- merge(resGen[[1]], orderedPair, by = "edgeID", all = TRUE)
 
 
 }
