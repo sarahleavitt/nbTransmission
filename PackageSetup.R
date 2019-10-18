@@ -31,7 +31,12 @@ document()
 devtools::check()
 
 
-#### Running examples ####
+#### Starting tests ####
+devtools::uses_testthat()
+devtools::test()
+
+
+#### Hamburg example ####
 
 ## Hamburg
 hamInd <- readRDS("../Datasets/HamburgInd.rds")
@@ -83,4 +88,53 @@ rFinal <- calcR(resHam2, dateVar = "IsolationDate",
 
 rFinal[[3]]
 
+
+#### Simulated Example ####
+
+load_all()
+
+## Use the pairData dataset which represents a TB-like outbreak
+# First create a dataset of ordered pairs
+orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+
+## Create a variable called snpClose that will define probable links
+# (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+# will not be used to train.
+orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+                               ifelse(orderedPair$snpDist > 12, FALSE, NA))
+table(orderedPair$snpClose)
+
+## Running the algorithm
+covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
+resGen <- calcProbabilities(orderedPair = orderedPair,
+                            indIDVar = "individualID",
+                            edgeIDVar = "edgeID",
+                            goldStdVar = "snpClose",
+                            covariates = covariates,
+                            label = "SNPs",
+                            nbWeighting = FALSE,
+                            n = 10, m = 1, nReps = 1)
+
+## Merging the probabilities back with the pair-level data
+allProbs <- resGen[[1]] %>% full_join(orderedPair, by = "edgeID")
+summary(allProbs$pScaled)
+
+
+
+rInitial <- calcR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
+                  pVar = "pScaled", timeFrame = "months")
+rt <- rInitial[[2]]
+
+
+#Cutting the outbreak
+totalTime <- max(rt$timeRank) - min(rt$timeRank)
+monthCut1 <- ceiling(0.1 * totalTime)
+monthCut2 <- ceiling(0.7 * totalTime)
+
+rFinal <- bootstrapR(allProbs, dateVar = "infectionDate",
+                     indIDVar = "individualID", pVar = "pScaled",
+                     timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
+                     B = 10, alpha = 0.05)
+
+rFinal[[3]]
 
