@@ -11,7 +11,6 @@
 #' @param goldStdVar The variable name (in quotes) that will define linking status.
 #' @param covariates A character vector containing the covariate variable names.
 #' @param l Laplace smoothing parameter that is added to each cell (default is 1).
-#' @param nbWeighting A logical scalar indicatin if you want to use deep frequency weighting.
 #'
 #' @return List containing two dataframes: "probs" with pairdata with an extra column with the
 #'    probabilities and "coeff" with the coefficient values.
@@ -25,7 +24,7 @@
 
 
 performNB <- function(training, validation, edgeIDVar, goldStdVar, 
-                      covariates, l = 1, nbWeighting=FALSE){
+                      covariates, l = 1){
   
   #### Checking variable names ####
   
@@ -77,14 +76,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
     #Setting up weight table
     varTable <- as.data.frame(covariates)
     varTable <- varTable %>% mutate(variable = as.character(covariates))
-    
-    if(nbWeighting == TRUE){
-      #Running CFS with with two different methods for calculating correlation
-      model <- FSelector::best.first.search(covariates, calcEntropy)
-      #Setting weights to 2 if the variable is chosen and 1 if it is not chosen
-      varTable <- varTable %>% mutate(weight = ifelse(variable %in% model, 2, 1))
-    }else{varTable$weight <- 1}
-    
+    varTable$weight <- 1
     
     #Creating the results dataframe
     results <- validation
@@ -133,35 +125,3 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
   
   return(list(probs, coeff))
 }
-
-
-#### Function for CFS Search Algorithms ####
-
-calcEntropy <- function(subset){
-  
-  k <-  length(subset)
-  
-  if(k > 1){
-    #Finding all pairs of variables
-    pairs <- as.data.frame(t(utils::combn(subset, 2)), stringsAsFactors = FALSE)
-    names(pairs) <- c("Var1", "Var2")
-    pairs <- pairs %>% tidyr::unite(comb, Var1, Var2, sep = "~", remove = FALSE)
-    
-    #Finding symmertric uncertainty (adjusted information gain) for all pairs of features
-    Rff <- purrr::map_df(pairs$comb, FSelector::symmetrical.uncertainty, data=training) 
-    #Mean of all feature-feature correlations
-    rff <- mean(Rff[,1])
-  }else{rff <- 0}
-  
-  model <- FSelector::as.simple.formula(subset, goldStdVar)
-  Rcf <- FSelector::symmetrical.uncertainty(model, training)
-  #Mean of all classification-feature correlations
-  rcf <- mean(Rcf[,1])
-  
-  #Calculating merit of the subset
-  merit <- k * rcf / sqrt(k + k * (k - 1) * rff)
-  print(c(subset, merit))
-  
-  return(merit)
-}
-

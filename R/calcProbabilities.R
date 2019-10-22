@@ -30,7 +30,6 @@
 #' @param covariates A character vector containing the covariate variable names.
 #' @param label An optional label string for the run.
 #' @param l Laplace smoothing parameter that is added to each cell.
-#' @param nbWeighting A logical scalar indicating if you want to use deep frequency weighting in NB.
 #' @param n The number of folds for nxm cross valindIDation.
 #' @param m The number of times to create n folds in nxm cross valindIDation.
 #' @param nReps The number of times to randomly select one infector.
@@ -84,8 +83,7 @@
 #'                             edgeIDVar = "edgeID",
 #'                             goldStdVar = "snpClose",
 #'                             covariates = covariates,
-#'                             label = "SNPs",
-#'                             nbWeighting = FALSE,
+#'                             label = "SNPs", l = 1,
 #'                             n = 10, m = 1, nReps = 10)
 #'                             
 #' ## Merging the probabilities back with the pair-level data
@@ -98,7 +96,7 @@
 
 
 calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
-                              covariates, label = "", l = 1, nbWeighting = FALSE, 
+                              covariates, label = "", l = 1,
                               n = 10, m = 1, nReps = 10){
   
   orderedPair <- as.data.frame(orderedPair)
@@ -161,7 +159,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross validation
-    cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, l, nbWeighting, n, m)
+    cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, l, n, m)
     rAll <- bind_rows(rAll, cvResults$rFolds)
     cAll <- bind_rows(cAll, cvResults$cFolds)
   }
@@ -223,7 +221,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
 
 
 runCV <- function(posTrain, posLinks, orderedPair,
-                  covariates, l, nbWeighting, n, m){
+                  covariates, l, n, m){
   
   #Choosing the true infector from all possibles (if multiple)
   #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
@@ -279,7 +277,7 @@ runCV <- function(posTrain, posLinks, orderedPair,
     
     #Calculating probabilities for one split
     sim <- performNB(training, validation, edgeIDVar = "edgeID",
-                     goldStdVar = "linked", covariates, l, nbWeighting)
+                     goldStdVar = "linked", covariates, l)
     
     #Combining the results from fold run with the previous folds
     rFolds <- bind_rows(rFolds, sim[[1]])
