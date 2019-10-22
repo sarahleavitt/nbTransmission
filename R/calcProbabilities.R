@@ -25,7 +25,7 @@
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
 #' @param indIDVar The variable name (in quotes) of the individual ID variable.
-#' @param edgeIDVar The variable name (in quotes) of the edge ID variable.
+#' @param pairIDVar The variable name (in quotes) of the edge ID variable.
 #' @param goldStdVar The variable name (in quotes) that of logical vector defining training links/non-links
 #' @param covariates A character vector containing the covariate variable names.
 #' @param label An optional label string for the run.
@@ -50,7 +50,7 @@
 #'        \item \code{nSamples} - the number of probability estimates that contributed to pAvg. This
 #'        represents the number of validation datasets this pair was included in over the \code{nxm}
 #'        cross validation repeated \code{nReps} times.
-#'        \item \code{edgeIDVar} - the edgeID variable with the name specified
+#'        \item \code{pairIDVar} - the pairID variable with the name specified
 #'      }
 #'   \item \code{estimates} - a dataframe with the effect estimates with the following columns:
 #'      \itemize{
@@ -80,14 +80,14 @@
 #' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 #' resGen <- calcProbabilities(orderedPair = orderedPair,
 #'                             indIDVar = "individualID",
-#'                             edgeIDVar = "edgeID",
+#'                             pairIDVar = "pairID",
 #'                             goldStdVar = "snpClose",
 #'                             covariates = covariates,
 #'                             label = "SNPs", l = 1,
 #'                             n = 10, m = 1, nReps = 10)
 #'                             
 #' ## Merging the probabilities back with the pair-level data
-#' allProbs <- merge(resGen[[1]], orderedPair, by = "edgeID", all = TRUE)
+#' allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 #' 
 #'
 #' @import dplyr
@@ -95,7 +95,7 @@
 #' @export
 
 
-calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
+calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
                               covariates, label = "", l = 1,
                               n = 10, m = 1, nReps = 10){
   
@@ -108,8 +108,8 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   if(!paste0(indIDVar, ".2") %in% names(orderedPair)){
     stop(paste0(indIDVar, ".2"), " is not in the dataframe.")
   }
-  if(!edgeIDVar %in% names(orderedPair)){
-    stop(paste0(edgeIDVar, " is not in the dataframe."))
+  if(!pairIDVar %in% names(orderedPair)){
+    stop(paste0(pairIDVar, " is not in the dataframe."))
   }
   if(!goldStdVar %in% names(orderedPair)){
     stop(paste0(goldStdVar, " is not in the dataframe."))
@@ -135,7 +135,7 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
   #Creating correctly named variables
   orderedPair$indID.1 <- orderedPair[, paste0(indIDVar, ".1")]
   orderedPair$indID.2 <- orderedPair[, paste0(indIDVar, ".2")]
-  orderedPair$edgeID <- orderedPair[, edgeIDVar]
+  orderedPair$edgeID <- orderedPair[, pairIDVar]
   orderedPair$goldStd <- orderedPair[, goldStdVar]
   
   #Subsetting to only relevant columns
@@ -196,8 +196,8 @@ calcProbabilities <- function(orderedPair, indIDVar, edgeIDVar, goldStdVar,
              %>% select(label, edgeID, pAvg, pSD, pScaled, pRank, nSamples)
   )
   #Renaming the edgeID variable to match input
-  probs2[, edgeIDVar] <- probs2$edgeID
-  if(edgeIDVar != "edgeID"){probs2 <- probs2 %>% select(-edgeID)}
+  probs2[, pairIDVar] <- probs2$edgeID
+  if(pairIDVar != "edgeID"){probs2 <- probs2 %>% select(-edgeID)}
   
   
   #Averaging over the measures of effect
@@ -276,7 +276,7 @@ runCV <- function(posTrain, posLinks, orderedPair,
     )
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, edgeIDVar = "edgeID",
+    sim <- performNB(training, validation, pairIDVar = "edgeID",
                      goldStdVar = "linked", covariates, l)
     
     #Combining the results from fold run with the previous folds

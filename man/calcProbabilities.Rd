@@ -4,16 +4,15 @@
 \alias{calcProbabilities}
 \title{Calculates Relative Transmission Probabilities}
 \usage{
-calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, covariates,
-  label = "", l = 1, nbWeighting = FALSE, n = 10, m = 1,
-  nReps = 10)
+calcProbabilities(orderedPair, indIDVar, pairIDVar, goldStdVar, covariates,
+  label = "", l = 1, n = 10, m = 1, nReps = 10)
 }
 \arguments{
 \item{orderedPair}{The name of the ordered pair-level dataset with the covariates.}
 
 \item{indIDVar}{The variable name (in quotes) of the individual ID variable.}
 
-\item{edgeIDVar}{The variable name (in quotes) of the edge ID variable.}
+\item{pairIDVar}{The variable name (in quotes) of the edge ID variable.}
 
 \item{goldStdVar}{The variable name (in quotes) that of logical vector defining training links/non-links}
 
@@ -22,8 +21,6 @@ calcProbabilities(orderedPair, indIDVar, edgeIDVar, goldStdVar, covariates,
 \item{label}{An optional label string for the run.}
 
 \item{l}{Laplace smoothing parameter that is added to each cell.}
-
-\item{nbWeighting}{A logical scalar indicating if you want to use deep frequency weighting in NB.}
 
 \item{n}{The number of folds for nxm cross valindIDation.}
 
@@ -48,7 +45,7 @@ List containing two dataframes:
        \item \code{nSamples} - the number of probability estimates that contributed to pAvg. This
        represents the number of validation datasets this pair was included in over the \code{nxm}
        cross validation repeated \code{nReps} times.
-       \item \code{edgeIDVar} - the edgeID variable with the name specified
+       \item \code{pairIDVar} - the pairID variable with the name specified
      }
   \item \code{estimates} - a dataframe with the effect estimates with the following columns:
      \itemize{
@@ -102,15 +99,14 @@ table(orderedPair$snpClose)
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 resGen <- calcProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
-                            edgeIDVar = "edgeID",
+                            pairIDVar = "pairID",
                             goldStdVar = "snpClose",
                             covariates = covariates,
-                            label = "SNPs",
-                            nbWeighting = FALSE,
+                            label = "SNPs", l = 1,
                             n = 10, m = 1, nReps = 10)
                             
 ## Merging the probabilities back with the pair-level data
-allProbs <- merge(resGen[[1]], orderedPair, by = "edgeID", all = TRUE)
+allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 
 }

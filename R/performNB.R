@@ -7,7 +7,7 @@
 #'
 #' @param training The training dataset name.
 #' @param validation The validation dataset name.
-#' @param edgeIDVar The variable name (in quotes) of the edge ID variable.
+#' @param pairIDVar The variable name (in quotes) of the edge ID variable.
 #' @param goldStdVar The variable name (in quotes) that will define linking status.
 #' @param covariates A character vector containing the covariate variable names.
 #' @param l Laplace smoothing parameter that is added to each cell (default is 1).
@@ -23,14 +23,14 @@
 #' @export
 
 
-performNB <- function(training, validation, edgeIDVar, goldStdVar, 
+performNB <- function(training, validation, pairIDVar, goldStdVar, 
                       covariates, l = 1){
   
   #### Checking variable names ####
   
   #Checking that the named variables are in the dataframe
-  if(!edgeIDVar %in% names(training) | !edgeIDVar %in% names(validation)){
-    stop(paste0(edgeIDVar, " is not in the dataframe."))
+  if(!pairIDVar %in% names(training) | !pairIDVar %in% names(validation)){
+    stop(paste0(pairIDVar, " is not in the dataframe."))
   }
   if(!goldStdVar %in% names(training)){
     stop(paste0(goldStdVar, " is not in the dataframe."))
@@ -66,7 +66,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
               %>% mutate(p = NA)
               %>% bind_rows(training)
     )
-    probs <- probs[, c("p", edgeIDVar)]
+    probs <- probs[, c("p", pairIDVar)]
     coeff <- NULL
     
     warning("No events or non-events in training set")
@@ -120,7 +120,7 @@ performNB <- function(training, validation, edgeIDVar, goldStdVar,
               %>% mutate(p = link / (link + nonlink))
               %>% bind_rows(training)
     )
-    probs <- probs[, c("p", edgeIDVar)]
+    probs <- probs[, c("p", pairIDVar)]
   }
   
   return(list(probs, coeff))
