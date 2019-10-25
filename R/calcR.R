@@ -57,7 +57,8 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
     bootRt <- data.frame(c("timeRank" = integer(), "Rt" = numeric(),
                            "time" = character()), "rep" = integer())
     for(i in 1:bootSamples){
-      oneRep <- calcRt(simulateRi(probs, riEst), dateVar = dateVar, timeFrame = "months")
+      oneRep <- calcRt(simulateRi(probs, riEst, pVar = pVar, indIDVar = indIDVar),
+                       dateVar = dateVar, timeFrame = "months")
       oneRep$rep <- i
       bootRt <- rbind(bootRt, oneRep)
       utils::setTxtProgressBar(pb, i)
@@ -249,7 +250,11 @@ calcRtAvg <- function(rtData, rangeForAvg = NULL){
 
 
 #Function that simulates Ri from the probabilities
-simulateRi <- function(probs, riEst){
+simulateRi <- function(probs, riEst, pVar, indIDVar){
+  
+  #Creating variables with the individual indID and date variables
+  indIDVar1 <- paste0(indIDVar, ".1")
+  indIDVar2 <- paste0(indIDVar, ".2")
   
   #Making a matrix of probabilities for speedy calculation
   probsM <- unclass(stats::xtabs(probs[, pVar] ~ probs[, indIDVar1] + probs[, indIDVar2]))

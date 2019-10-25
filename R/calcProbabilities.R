@@ -95,6 +95,7 @@
 #' @export
 
 
+
 calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
                               covariates, label = "", l = 1,
                               n = 10, m = 1, nReps = 10){

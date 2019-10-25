@@ -34,6 +34,7 @@
 #' 
 
 
+
 indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordered = FALSE){
   
   indData <- as.data.frame(indData)

@@ -22,6 +22,7 @@
 #' @export
 
 
+
 performNB <- function(training, validation, obsIDVar, goldStdVar, 
                       covariates, l = 1){
   
