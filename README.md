@@ -1,4 +1,4 @@
-# nbTransmission (In Development)
+# nbTransmission (Under Development)
 
 ## Introduction
 
