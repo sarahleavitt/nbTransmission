@@ -70,7 +70,7 @@ indData <- (covar[[2]]
 nrow(indData)
 table(indData$individualID)
 
-pairData <- (covar[[1]]
+pairData1 <- (covar[[1]]
              %>% filter(!is.na(sampleDate.1) & !is.na(sampleDate.2))
              %>% mutate(infectionDiffY = infectionDiff / 365,
                         individualID.1 = as.numeric(gsub("^10", "", individualID.1)),
@@ -88,12 +88,12 @@ trainingID <- (indData
                %>% sample_frac(pTraining)
                %>% pull(individualID)
 )
-pairData2 <- pairData %>% mutate(snpDist = ifelse(individualID.1 %in% trainingID |
+pairData <- pairData1 %>% mutate(snpDist = ifelse(individualID.1 %in% trainingID |
                                           individualID.2 %in% trainingID, snpDist, NA))
 
-
 #Adding these datasets to the package
-use_data(indData, pairData2, overwrite = TRUE)
+use_data(indData, pairData, overwrite = TRUE)
+
 
 #Applying my function to get pairData
 pairDataD <- indToPair(indData = indData, indIDVar = "individualID", separator = "_",
