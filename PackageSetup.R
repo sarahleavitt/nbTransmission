@@ -4,7 +4,7 @@ rm(list = ls())
 
 library(devtools)
 library(roxygen2)
-library(qpdf)
+
 
 # build()
 # install()
