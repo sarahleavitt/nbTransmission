@@ -15,10 +15,10 @@
 #' Then a subset of cases with pathogen WGS or contact investigation data are used to create a training
 #' dataset of probable links and non/links. These probable links and non/links are defined by \code{goldStdVar}
 #' which should be a logical vector with \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
-#' the pair cannot be used to train (does not hstats::ave the information or is indeterminate). 
+#' the pair cannot be used to train (does not have the information or is indeterminate). 
 #' 
 #' Because the outcomes in our training set represent probable and not certain transmission events
-#' and a given case could hstats::ave mulitple probable infectors, we use an iterative estimation procedure.
+#' and a given case could have mulitple probable infectors, we use an iterative estimation procedure.
 #' This procedure randomly chooses one link of all of the possible links to include in the training
 #' dataset \code{nReps} times, and then uses \code{mxn} cross validation to give all pairs a turn 
 #' in the prediction dataset.

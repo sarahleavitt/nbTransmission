@@ -55,7 +55,7 @@ List containing two dataframes:
        \item \code{ratioMin} - the min value of the likelihood ratio across runs
        \item \code{ratioMax} - the max value of the likelihood ratio across runs
        \item \code{ratioSD} - the standard deviation of the likelihood ratio across runs
-       \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
+       \item \code{nSamples} - the number of samples included in the stats::average: \code{n*m*nReps}
      }
 }
 }
