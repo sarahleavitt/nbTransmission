@@ -6,7 +6,7 @@
 \usage{
 calcR(probs, dateVar, indIDVar, pVar, timeFrame = c("days", "months",
   "weeks", "years"), rangeForAvg = NULL, bootSamples = 0,
-  alpha = 0.5)
+  alpha = 0.05)
 }
 \arguments{
 \item{probs}{The name of the dateset with transmission probabilities}

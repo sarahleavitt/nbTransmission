@@ -4,7 +4,7 @@
 \alias{calcRi}
 \title{Calculates Ri}
 \usage{
-calcRi(probs)
+calcRi(probs, pVar, indIDVar, dateVar)
 }
 \arguments{
 \item{probs}{The name of the dateset with transmission probabilities}

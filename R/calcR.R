@@ -65,10 +65,10 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
     }
     
     #Finding the quantiles of the distribution of Rt
-    cilb <- aggregate(bootRt$Rt, by = list(bootRt$timeRank),
+    cilb <- stats::aggregate(bootRt$Rt, by = list(bootRt$timeRank),
                       stats::quantile, probs = 1-alpha/2)
     names(cilb) <- c("timeRank", "lb")
-    ciub <- aggregate(bootRt$Rt, by = list(bootRt$timeRank),
+    ciub <- stats::aggregate(bootRt$Rt, by = list(bootRt$timeRank),
                       stats::quantile, probs = alpha/2)
     names(ciub) <- c("timeRank", "ub")
     
@@ -125,7 +125,7 @@ calcRi <- function(probs, pVar, indIDVar, dateVar){
   #### Calculating individual-level reproductive number ####
   
   #Summing the scaled probabilties to get individual-level reproductive numer
-  sumP <- aggregate(probs[, pVar], by = list(probs[, indIDVar1]), sum)
+  sumP <- stats::aggregate(probs[, pVar], by = list(probs[, indIDVar1]), sum)
   names(sumP) <- c(indIDVar, "Ri")
   #Finding the number of possible infectors per infectee
   nInf <- as.data.frame(table(probs[, indIDVar1]))
@@ -206,7 +206,7 @@ calcRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months", "ye
   ## Calculating Rt ##
   
   #Finding the mean Ri value by time period (Rt)
-  meanRi <- aggregate(riDataFinal$Ri, by = list(riDataFinal$timeRank), mean)
+  meanRi <- stats::aggregate(riDataFinal$Ri, by = list(riDataFinal$timeRank), mean)
   names(meanRi) <- c("timeRank", "Rt")
   #Extracting the time for each Rt value
   timeInfo <- riDataFinal[!duplicated(riDataFinal$timeRank), c("timeRank", "time")]

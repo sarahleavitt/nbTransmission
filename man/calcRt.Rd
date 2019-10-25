@@ -4,7 +4,8 @@
 \alias{calcRt}
 \title{Calculates Rt}
 \usage{
-calcRt(riData, timeFrame = c("days", "weeks", "months", "years"))
+calcRt(riData, dateVar, timeFrame = c("days", "weeks", "months",
+  "years"))
 }
 \arguments{
 \item{riData}{The name of the dateset with individual-level reproductive numbers.}

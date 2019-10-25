@@ -4,24 +4,25 @@
 \alias{performNB}
 \title{Perform Naive Bayes}
 \usage{
-performNB(training, validation, pairIDVar, goldStdVar, covariates, l = 1)
+performNB(training, validation, obsIDVar, goldStdVar, covariates, l = 1)
 }
 \arguments{
 \item{training}{The training dataset name.}
 
 \item{validation}{The validation dataset name.}
 
-\item{pairIDVar}{The variable name (in quotes) of the edge ID variable.}
+\item{obsIDVar}{The variable name (in quotes) of the observation ID variable.}
 
-\item{goldStdVar}{The variable name (in quotes) that will define linking status.}
+\item{goldStdVar}{The variable name (in quotes) that will define event status
+in the training dataset.}
 
 \item{covariates}{A character vector containing the covariate variable names.}
 
 \item{l}{Laplace smoothing parameter that is added to each cell (default is 1).}
 }
 \value{
-List containing two dataframes: "probs" with pairdata with an extra column with the
-   probabilities and "coeff" with the coefficient values.
+List containing two dataframes: "probs" containing both training and validation 
+observations with the two columns: obsIDVar and p and "coeff" with the coefficient values.
 }
 \description{
 Calculates predicted probabilities using naive Bayes

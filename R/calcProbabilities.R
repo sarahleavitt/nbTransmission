@@ -15,10 +15,10 @@
 #' Then a subset of cases with pathogen WGS or contact investigation data are used to create a training
 #' dataset of probable links and non/links. These probable links and non/links are defined by \code{goldStdVar}
 #' which should be a logical vector with \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
-#' the pair cannot be used to train (does not have the information or is indeterminate). 
+#' the pair cannot be used to train (does not hstats::ave the information or is indeterminate). 
 #' 
 #' Because the outcomes in our training set represent probable and not certain transmission events
-#' and a given case could have mulitple probable infectors, we use an iterative estimation procedure.
+#' and a given case could hstats::ave mulitple probable infectors, we use an iterative estimation procedure.
 #' This procedure randomly chooses one link of all of the possible links to include in the training
 #' dataset \code{nReps} times, and then uses \code{mxn} cross validation to give all pairs a turn 
 #' in the prediction dataset.
@@ -60,7 +60,7 @@
 #'        \item \code{ratioMin} - the min value of the likelihood ratio across runs
 #'        \item \code{ratioMax} - the max value of the likelihood ratio across runs
 #'        \item \code{ratioSD} - the standard deviation of the likelihood ratio across runs
-#'        \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
+#'        \item \code{nSamples} - the number of samples included in the stats::average: \code{n*m*nReps}
 #'      }
 #' }
 #'
@@ -93,7 +93,7 @@
 #' @import dplyr
 #' 
 #' @export
-
+#'
 
 
 calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
@@ -171,16 +171,16 @@ calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
   #Averaging the probabilities over all the replicates
   sumData1 <- dplyr::group_by(rAll, !!rlang::sym(pairIDVar))
   sumData2 <- dplyr::summarize(sumData1,
-                               pAvg = mean(p, na.rm = TRUE),
-                               pSD = stats::sd(p, na.rm = TRUE),
-                               nSamples = sum(!is.na(p)),
+                               pAvg = mean(!!rlang::sym("p"), na.rm = TRUE),
+                               pSD = stats::sd(!!rlang::sym("p"), na.rm = TRUE),
+                               nSamples = sum(!is.na(!!rlang::sym("p"))),
                                label = "label")
   sumData2 <- ungroup(sumData2)
   
   probs <- as.data.frame(dplyr::full_join(sumData2, orderedPair, by = pairIDVar))
   
   #Calculating the total of all probabilities per infectee
-  totalP <- aggregate(probs$pAvg, by = list(probs[, indIDVar2]), sum, na.rm = TRUE)
+  totalP <- stats::aggregate(probs$pAvg, by = list(probs[, indIDVar2]), sum, na.rm = TRUE)
   names(totalP) <- c(indIDVar2, "pTotal")
 
   #Calculating the scaled probabilities
@@ -189,7 +189,7 @@ calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
   #Ranking the probabilities for each possible infector
   #Ties are set to the minimum rank of that group
   probs2 <- probs2[order(probs2[, indIDVar2], -probs2$pScaled), ]
-  probs2$pRank <- ave(-probs2$pScaled, probs2[, indIDVar2], 
+  probs2$pRank <- stats::ave(-probs2$pScaled, probs2[, indIDVar2], 
                             FUN = function(x){
                               rank(x, ties.method = "min") 
                             })
