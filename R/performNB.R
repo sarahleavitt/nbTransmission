@@ -7,30 +7,29 @@
 #'
 #' @param training The training dataset name.
 #' @param validation The validation dataset name.
-#' @param pairIDVar The variable name (in quotes) of the edge ID variable.
-#' @param goldStdVar The variable name (in quotes) that will define linking status.
+#' @param obsIDVar The variable name (in quotes) of the observation ID variable.
+#' @param goldStdVar The variable name (in quotes) that will define event status
+#'  in the training dataset.
 #' @param covariates A character vector containing the covariate variable names.
 #' @param l Laplace smoothing parameter that is added to each cell (default is 1).
 #'
-#' @return List containing two dataframes: "probs" with pairdata with an extra column with the
-#'    probabilities and "coeff" with the coefficient values.
+#' @return List containing two dataframes: "probs" containing both training and validation 
+#' observations with the two columns: obsIDVar and p and "coeff" with the coefficient values.
 #'
 #' @examples
 #' #Insert example here
-#'
-#' @import dplyr
 #' 
 #' @export
 
 
-performNB <- function(training, validation, pairIDVar, goldStdVar, 
+performNB <- function(training, validation, obsIDVar, goldStdVar, 
                       covariates, l = 1){
   
   #### Checking variable names ####
   
   #Checking that the named variables are in the dataframe
-  if(!pairIDVar %in% names(training) | !pairIDVar %in% names(validation)){
-    stop(paste0(pairIDVar, " is not in the dataframe."))
+  if(!obsIDVar %in% names(training) | !obsIDVar %in% names(validation)){
+    stop(paste0(obsIDVar, " is not in the dataframe."))
   }
   if(!goldStdVar %in% names(training)){
     stop(paste0(goldStdVar, " is not in the dataframe."))
@@ -56,45 +55,47 @@ performNB <- function(training, validation, pairIDVar, goldStdVar,
   }
   
   
-  #Making sure there are both linked and nonlinked pairs.
+  #Making sure there are both events and non-event observations.
   #If not return NA for probabilities and print a warning
   if(sum(training[, goldStdVar] == TRUE, na.rm = TRUE) == 0 |
      sum(training[, goldStdVar] == FALSE, na.rm = TRUE) == 0){
     
-    #Calculating probability of link
-    probs <- (validation
-              %>% mutate(p = NA)
-              %>% bind_rows(training)
-    )
-    probs <- probs[, c("p", pairIDVar)]
+    #Setting probability of a event to 0
+    probs <- validation
+    probs$p <- NA
+    if(!"p" %in% names(training)){training$p <- NA}
+    probs <- rbind(probs[, c("p", obsIDVar)], training[, c("p", obsIDVar)])
     coeff <- NULL
     
-    warning("No events or non-events in training set")
+    warning("No events or no non-events in training set")
     
   }else{
     
     #Setting up weight table
+    #(currently irrelevant but would allow for weighting in subsequent versions)
     varTable <- as.data.frame(covariates)
-    varTable <- varTable %>% mutate(variable = as.character(covariates))
+    varTable$variable <- as.character(covariates)
     varTable$weight <- 1
     
-    #Creating the results dataframe
+    #Creating the results dataframe which is a copy of the validation dataframe
     results <- validation
-    #Finding proportion of links/non-links
+    #Finding proportion of events/non-events in the trianing dataset
     classTab <- prop.table(table(training[, goldStdVar]) + l)
-    coeff <- NULL
     
-    #Looping through all covariates
+    #Initializing the coefficient dataframe
+    coeff <- data.frame("level" = character(), "ratio" = numeric())
+    
+    #Looping through all covariates and finding frequencies in training data
     for(i in 1:length(covariates)){
       
       #Extracting covariate name
       Var <- covariates[i]
       #Determining the weight for that covariate
-      W <- varTable %>% filter(variable == Var) %>% pull(weight)
+      W <- varTable[varTable$variable == Var, "weight"]
       #Creating a table with proportions in each level of the covariate from training data
       Tab <- prop.table(W * table(training[, Var], training[, goldStdVar]) + l, 2)
       
-      #Determining P(Y|L = TRUE, W) and P(Y|L = FALSE, W)
+      #Calculating P(X|Outcome = TRUE, W) and P(X|Outcome = FALSE, W)
       #First creating a variable with the value of this covariate
       results$covariate <- results[, Var]
       #1 if missing, otherwise it is the proportion in the second column and the row
@@ -104,23 +105,24 @@ performNB <- function(training, validation, pairIDVar, goldStdVar,
       results[, paste0(Var, "_F")] <- ifelse(is.na(results$covariate), 1,
                                              Tab[as.numeric(results$covariate), 1]) ^ W
       
-      #Saving the P(Y|L = TRUE) / P(Y|L = FALSE)
+      #Saving the P(X|Outcome = TRUE, W) / P(X|Outcome = FALSE, W)
       ratio <- Tab[, 2] / Tab[, 1]
       level <- paste(Var, names(ratio), sep = ":")
       cTemp <- cbind.data.frame(level, ratio, stringsAsFactors = FALSE)
-      coeff <- bind_rows(coeff, cTemp)
+      coeff <- rbind(coeff, cTemp)
     }
     
     #Calculating numerator and denominator for the probability calculation
-    results$link <- apply(results[, grepl("_T", names(results))], 1, prod) * classTab[2] 
-    results$nonlink <- apply(results[, grepl("_F", names(results))], 1, prod) * classTab[1]
+    results$event <- apply(results[, grepl("_T", names(results))], 1, prod) * classTab[2] 
+    results$nonevent <- apply(results[, grepl("_F", names(results))], 1, prod) * classTab[1]
     
-    #Calculating probability of link
-    probs <- (results
-              %>% mutate(p = link / (link + nonlink))
-              %>% bind_rows(training)
-    )
-    probs <- probs[, c("p", pairIDVar)]
+    #Calculating probability of event
+    probs <- results
+    probs$p <- probs$event / (probs$event + probs$nonevent)
+    
+    #Combining training and validation datasets
+    if(!"p" %in% names(training)){training$p <- NA}
+    probs <- rbind(probs[, c("p", obsIDVar)], training[, c("p", obsIDVar)])
   }
   
   return(list(probs, coeff))

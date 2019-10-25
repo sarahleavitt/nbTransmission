@@ -4,14 +4,14 @@
 \alias{performNB}
 \title{Perform Naive Bayes}
 \usage{
-performNB(training, validation, edgeIDVar, goldStdVar, covariates, l = 1)
+performNB(training, validation, pairIDVar, goldStdVar, covariates, l = 1)
 }
 \arguments{
 \item{training}{The training dataset name.}
 
 \item{validation}{The validation dataset name.}
 
-\item{edgeIDVar}{The variable name (in quotes) of the edge ID variable.}
+\item{pairIDVar}{The variable name (in quotes) of the edge ID variable.}
 
 \item{goldStdVar}{The variable name (in quotes) that will define linking status.}
 

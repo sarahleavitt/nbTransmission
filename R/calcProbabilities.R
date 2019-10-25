@@ -100,13 +100,16 @@ calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
                               n = 10, m = 1, nReps = 10){
   
   orderedPair <- as.data.frame(orderedPair)
+  #Creating variables with the individual indID variable
+  indIDVar1 <- paste0(indIDVar, ".1")
+  indIDVar2 <- paste0(indIDVar, ".2")
   
   #Checking that the named variables are in the dataframe
-  if(!paste0(indIDVar, ".1") %in% names(orderedPair)){
-    stop(paste0(indIDVar, ".1", " is not in the dataframe."))
+  if(!indIDVar1 %in% names(orderedPair)){
+    stop(paste0(indIDVar1, " is not in the dataframe."))
   }
-  if(!paste0(indIDVar, ".2") %in% names(orderedPair)){
-    stop(paste0(indIDVar, ".2"), " is not in the dataframe.")
+  if(!indIDVar2 %in% names(orderedPair)){
+    stop(paste0(indIDVar2, " is not in the dataframe."))
   }
   if(!pairIDVar %in% names(orderedPair)){
     stop(paste0(pairIDVar, " is not in the dataframe."))
@@ -132,86 +135,83 @@ calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
   
   #### Setting up data frames ####
   
-  #Creating correctly named variables
-  orderedPair$indID.1 <- orderedPair[, paste0(indIDVar, ".1")]
-  orderedPair$indID.2 <- orderedPair[, paste0(indIDVar, ".2")]
-  orderedPair$edgeID <- orderedPair[, pairIDVar]
-  orderedPair$goldStd <- orderedPair[, goldStdVar]
-  
-  #Subsetting to only relevant columns
-  orderedPair <- orderedPair[, c("indID.1", "indID.2", "edgeID", "goldStd",
+  #Subsetting to only relevant columns to be more efficient
+  orderedPair <- orderedPair[, c(indIDVar1, indIDVar2, pairIDVar,
                                  goldStdVar, covariates)]
   
   #Finding all pairs that can be included in the training dataset
   #And subsetting into the potential links
-  posTrain <- orderedPair[!is.na(orderedPair$goldStd), ]
-  posLinks <- posTrain[posTrain$goldStd == TRUE, ]
+  posTrain <- orderedPair[!is.na(orderedPair[, goldStdVar]), ]
+  posLinks <- posTrain[posTrain[, goldStdVar] == TRUE, ]
   
   
 
   #### Cross-Validation Procedure ####
   
   #Initializing dataframes to hold results and coefficients
-  rAll <- NULL
-  cAll <- NULL
+  rAll <- data.frame("p" = numeric(), pairIDVar = character())
+  names(rAll) <- c("p", pairIDVar)
+  cAll <- data.frame("level" = character(), "ratio" = numeric())
 
   for (k in 1:nReps){
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross validation
-    cvResults <- runCV(posTrain, posLinks, orderedPair, covariates, l, n, m)
-    rAll <- bind_rows(rAll, cvResults$rFolds)
-    cAll <- bind_rows(cAll, cvResults$cFolds)
+    cvResults <- runCV(posTrain, posLinks, orderedPair,
+                       indIDVar, pairIDVar, goldStdVar, 
+                       covariates, l, n, m)
+    rAll <- rbind(rAll, cvResults$rFolds)
+    cAll <- rbind(cAll, cvResults$cFolds)
   }
   
   
-  #### Summarizing Over Runs ####
+  #### Summarizing Probabilities Over Runs ####
   
   #Averaging the probabilities over all the replicates
-  probs <- (rAll
-            %>% group_by(edgeID)
-            %>% summarize(pAvg = mean(p, na.rm = TRUE),
-                          pSD = stats::sd(p, na.rm = TRUE),
-                          nSamples = sum(!is.na(p)))
-            %>% mutate(label = label)
-            %>% full_join(orderedPair, by = "edgeID")
-            %>% ungroup()
-  )
+  sumData1 <- dplyr::group_by(rAll, !!rlang::sym(pairIDVar))
+  sumData2 <- dplyr::summarize(sumData1,
+                               pAvg = mean(p, na.rm = TRUE),
+                               pSD = stats::sd(p, na.rm = TRUE),
+                               nSamples = sum(!is.na(p)),
+                               label = "label")
+  sumData2 <- ungroup(sumData2)
   
-  #Calculating scaled probabilities
-  totalP <- (probs
-             %>% group_by(indID.2)
-             %>% summarize(pTotal = sum(pAvg, na.rm = TRUE))
-  )
+  probs <- as.data.frame(dplyr::full_join(sumData2, orderedPair, by = pairIDVar))
+  
+  #Calculating the total of all probabilities per infectee
+  totalP <- aggregate(probs$pAvg, by = list(probs[, indIDVar2]), sum, na.rm = TRUE)
+  names(totalP) <- c(indIDVar2, "pTotal")
 
-  probs2 <- (probs
-             %>% full_join(totalP, by = "indID.2")
-             %>% mutate(pScaled = ifelse(pTotal != 0, pAvg / pTotal, 0))
-             #Ranking the probabilities for each possible infector
-             #Ties are set to the minimum rank of that group
-             %>% group_by(indID.2)
-             %>% arrange(desc(pScaled))
-             %>% mutate(pRank = rank(desc(pScaled), ties.method = "min"))
-             %>% ungroup()
-             %>% select(label, edgeID, pAvg, pSD, pScaled, pRank, nSamples)
-  )
-  #Renaming the edgeID variable to match input
-  probs2[, pairIDVar] <- probs2$edgeID
-  if(pairIDVar != "edgeID"){probs2 <- probs2 %>% select(-edgeID)}
+  #Calculating the scaled probabilities
+  probs2 <- merge(probs, totalP, by = indIDVar2)
+  probs2$pScaled <- ifelse(probs2$pTotal != 0, probs2$pAvg / probs2$pTotal, 0)
+  #Ranking the probabilities for each possible infector
+  #Ties are set to the minimum rank of that group
+  probs2 <- probs2[order(probs2[, indIDVar2], -probs2$pScaled), ]
+  probs2$pRank <- ave(-probs2$pScaled, probs2[, indIDVar2], 
+                            FUN = function(x){
+                              rank(x, ties.method = "min") 
+                            })
   
+  #Only keeping columns of interest
+  probs2 <- probs2[, c("label", pairIDVar, "pAvg", "pSD", "pScaled", "pRank", "nSamples")]
+  
+  
+  #### Summarizing Measures of Effect Over Runs ####
   
   #Averaging over the measures of effect
-  coeff <- (cAll
-            %>% group_by(level)
-            %>% summarize(label = first(label),
-                          ratioMean = mean(ratio, na.rm = TRUE),
-                          ratioMin = min(ratio, na.rm = TRUE),
-                          ratioMax = max(ratio, na.rm = TRUE),
-                          ratioSD = stats::sd(ratio, na.rm = TRUE),
-                          nSamples = sum(!is.na(ratio)))
-            %>% mutate(label = label)
-            %>% ungroup()
-  )
+  coeffL <- by(cAll,
+                 INDICES = list(cAll$level),
+                 FUN = function(x){
+                   data.frame("level" = unique(x$level),
+                              "ratioMean" = mean(x$ratio, na.rm = TRUE),
+                              "ratioMin" = min(x$ratio, na.rm = TRUE),
+                              "ratioMax" = max(x$ratio, na.rm = TRUE),
+                              "ratioSD" = stats::sd(x$ratio, na.rm = TRUE),
+                              "nSamples" = sum(!is.na(x$ratio)),
+                              "label" = label)
+                 })
+  coeff <- do.call(rbind, coeffL)
   
   return(list("probabilities" = probs2, "estimates" = coeff))
 }
@@ -221,67 +221,75 @@ calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
 
 
 runCV <- function(posTrain, posLinks, orderedPair,
+                  indIDVar, pairIDVar, goldStdVar,
                   covariates, l, n, m){
+  
+  #Creating variables with the individual indID variable
+  indIDVar1 <- paste0(indIDVar, ".1")
+  indIDVar2 <- paste0(indIDVar, ".2")
   
   #Choosing the true infector from all possibles (if multiple)
   #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
   #one possible infector
-  links <- (posLinks
-            %>% group_by(indID.2)
-            %>% sample_n(1)
-            %>% ungroup(indID.2)
-            %>% mutate(linked = TRUE)
-            %>% select(edgeID, indID.2, linked)
-  )
+  linksL <- by(posLinks,
+               INDICES = list(posLinks[, indIDVar2]),
+               FUN = function(x){
+                 x[sample(nrow(x), 1), ]
+               })
+  links <- do.call(rbind, linksL)
+  links$linked <- TRUE
+  links <- links[, c(pairIDVar, indIDVar2, "linked")]
+  
   #Combining the links with the non-links that do not share an infectee with the links
-  trainingFull <- (orderedPair
-                   %>% full_join(links, by = c("edgeID", "indID.2"))
-                   %>% filter(edgeID %in% links$edgeID | 
-                                (edgeID %in% posTrain$edgeID &
-                                   !indID.2 %in% links$indID.2))
-                   %>% tidyr::replace_na(list(linked = FALSE))
-  )
+  trainingFull <- merge(orderedPair, links, by = c(pairIDVar, indIDVar2), all = TRUE)
+  trainingFull2 <- trainingFull[trainingFull[, pairIDVar] %in% links[, pairIDVar] |
+                                  (trainingFull[, pairIDVar] %in% posTrain[, pairIDVar] &
+                                     !trainingFull[, indIDVar2] %in% links[, indIDVar2]), ]
+  trainingFull2[is.na(trainingFull2$linked), "linked"] <- FALSE
+  
+
   
   #Creating the cross-valindIDation folds for that part of the training dataset
-  cv_splits <- caret::createMultiFolds(trainingFull$linked, k = n, times = m)
+  cv_splits <- caret::createMultiFolds(trainingFull2$linked, k = n, times = m)
   
   #Initializing dataframes to hold results and coefficients
-  rFolds <- NULL
-  cFolds <- NULL
+  rFolds <- data.frame("p" = numeric(), pairIDVar = character())
+  names(rFolds) <- c("p", pairIDVar)
+  cFolds <- data.frame("level" = character(), "ratio" = numeric())
   
   #Running the methods for all of the CV Folds
   for (i in 1:length(cv_splits)){
     
     #Finding training dataset
-    trainingPairID <- trainingFull$edgeID[cv_splits[[i]]]
-    trainingRaw <- trainingFull %>% filter(edgeID %in% trainingPairID)
+    trainingPairID <- trainingFull2[, pairIDVar][cv_splits[[i]]]
+    trainingRaw <- trainingFull2[trainingFull2[, pairIDVar] %in% trainingPairID, ]
     
     #Finding the infectee whose infector was found in the training dataset
     foundInfector <- trainingRaw[trainingRaw$linked == TRUE, ]
     #Finding all pairs that share an infectee with the pairs where the infector was found
-    shareInfectee <- (orderedPair
-                      %>% filter(!edgeID %in% foundInfector$edgeID &
-                                   indID.2 %in% foundInfector$indID.2)
-                      %>% mutate(linked = FALSE)
-    )
-    training <- (trainingRaw
-                 %>% bind_rows(shareInfectee)
-                 %>% mutate(p = ifelse(goldStd == FALSE, 0,
-                                ifelse(linked == TRUE, 1, NA)))
-    )
-    validation <- (orderedPair
-                      %>% full_join(links, by = c("edgeID", "indID.2"))
-                      %>% filter(!edgeID %in% training$edgeID)
-                      %>% tidyr::replace_na(list(linked = FALSE))
-    )
+    shareInfectee <- orderedPair[!orderedPair[, pairIDVar] %in% foundInfector[, pairIDVar] &
+                                   orderedPair[, indIDVar2] %in% foundInfector[, indIDVar2], ]
+    shareInfectee$linked <- FALSE
+
+    #Creating the training datasets
+    #Setting probabilities to 1 for training links and 0 for training non-links that are
+    #defined as such by the gold standard (not just by sharing an infectee in the above df)
+    training <- rbind(trainingRaw, shareInfectee)
+    training$p <- ifelse(training[, goldStdVar] == FALSE, 0,
+                  ifelse(training[, "linked"] == TRUE, 1, NA))
+
+    #Creating the validation dataset
+    validation <- dplyr::full_join(orderedPair, links, by = c(pairIDVar, indIDVar2))
+    validation <- validation[!validation[, pairIDVar] %in% training[, pairIDVar], ]
+    validation[is.na(validation$linked), "linked"] <- FALSE
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, pairIDVar = "edgeID",
+    sim <- performNB(training, validation, obsIDVar = pairIDVar,
                      goldStdVar = "linked", covariates, l)
     
     #Combining the results from fold run with the previous folds
-    rFolds <- bind_rows(rFolds, sim[[1]])
-    cFolds <- bind_rows(cFolds, sim[[2]])
+    rFolds <- rbind(rFolds, sim[[1]])
+    cFolds <- rbind(cFolds, sim[[2]])
   }
   
   return(list("rFolds" = rFolds, "cFolds" = cFolds))

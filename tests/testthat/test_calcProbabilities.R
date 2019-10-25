@@ -11,39 +11,38 @@ orderedPair <- pairData[pairData$infectionDiffY > 0, ]
 # will not be used to train.
 orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
                                ifelse(orderedPair$snpDist > 12, FALSE, NA))
-table(orderedPair$snpClose)
+covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 
 ## Running the algorithm
-covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-resGen <- calcProbabilities(orderedPair = orderedPair, indIDVar = "individualID",
-                            edgeIDVar = "edgeID", goldStdVar = "snpClose",
-                            covariates = covariates, nReps = 1)
+
+#Creating a function with defaults equal to my simulated data
+calcProbWrapper <- function(orderedPair,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
+                            nReps = 1){
+  
+  resGen <- calcProbabilities(orderedPair = orderedPair,
+                              indIDVar = indIDVar,
+                              pairIDVar = pairIDVar,
+                              goldStdVar = goldStdVar,
+                              covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
+                              nReps = nReps)
+  return(resGen)
+}
 
 
 test_that("calcProbabilities returns a list of two dataframes for valid input",{
+  
+  resGen <- calcProbWrapper(orderedPair)
   expect_true(is.data.frame(resGen[[1]]))
   expect_true(is.data.frame(resGen[[2]]))
 })
 
 
 test_that("Descriptive error messages returned",{
-  #Creating a function with defaults equal to my simulated data
-  calcProbWrapper <- function(orderedPair,
-                              indIDVar = "individualID",
-                              edgeIDVar = "edgeID",
-                              goldStdVar = "snpClose",
-                              covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
-                              nReps = 1){
-    
-    resGen <- calcProbabilities(orderedPair = orderedPair,
-                                indIDVar = indIDVar,
-                                edgeIDVar = edgeIDVar,
-                                goldStdVar = goldStdVar,
-                                covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
-                                nReps = nReps)
-    return(resGen)
-  }
-  
+
  expect_error(calcProbWrapper(orderedPair, indIDVar = "garbage"),
               "garbage.1 is not in the dataframe.")
  
@@ -52,7 +51,7 @@ test_that("Descriptive error messages returned",{
  expect_error(calcProbWrapper(orderedPair2, indIDVar = "individualID"),
               "individualID.2 is not in the dataframe.")
  
- expect_error(calcProbWrapper(orderedPair, edgeIDVar = "garbage"),
+ expect_error(calcProbWrapper(orderedPair, pairIDVar = "garbage"),
               "garbage is not in the dataframe.")
  
  expect_error(calcProbWrapper(orderedPair, goldStdVar = "garbage"),

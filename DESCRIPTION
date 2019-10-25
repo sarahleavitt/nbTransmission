@@ -18,17 +18,14 @@ BugReports: https://github.com/sv1205/nbTransmission/issues
 LazyData: true
 Imports: 
     dplyr,
-    tidyr,
-    purrr,
     caret,
     lubridate,
     poisbinom,
     stats,
-    utils
+    utils,
+    rlang
 Suggests: 
-    FSelector,
     knitr,
     rmarkdown,
-    testthat,
-    qpdf
+    testthat
 VignetteBuilder: knitr

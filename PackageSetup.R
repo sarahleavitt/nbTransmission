@@ -53,7 +53,7 @@ orderedHam <- (hamPair
 orderedPair <- orderedHam
 dateVar <- "IsolationDate"
 indIDVar <- "individualID"
-edgeIDVar <- "edgeID"
+pairIDVar <- "edgeID"
 goldStdVar <- "snpClose"
 pVar <- "pScaled"
 label <- "Ham"
@@ -66,9 +66,9 @@ covariates <- c("Study", "Nationality", "Sex", "Age", "SmearPos", "HIV",
                 "SubstanceAbuse", "Residence", "Milieu", "TimeCat")
 
 orderedHam <- orderedHam %>% rename(edgeID2 = edgeID)
-resHam <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", edgeIDVar = "edgeID2",
+resHam <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", pairIDVar = "edgeID2",
                              goldStdVar = "SameGroup", covariates = covariates, label = "HamCont",
-                             nbWeighting = FALSE, n = 10, m = 1, nReps = 5)
+                             n = 10, m = 1, nReps = 5)
 
 resHam2 <- full_join(orderedHam, resHam[[1]], by = "edgeID2")
 
@@ -84,7 +84,7 @@ monthCut2 <- ceiling(0.9 * totalTime)
 rFinal <- calcR(resHam2, dateVar = "IsolationDate",
                      indIDVar = "individualID", pVar = "pScaled",
                      timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
-                     bootSamples = 100, alpha = 0.05)
+                     bootSamples = 1000, alpha = 0.05)
 
 rFinal[[3]]
 
@@ -108,33 +108,39 @@ table(orderedPair$snpClose)
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 resGen <- calcProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
-                            edgeIDVar = "edgeID",
+                            pairIDVar = "pairID",
                             goldStdVar = "snpClose",
                             covariates = covariates,
                             label = "SNPs",
-                            nbWeighting = FALSE,
                             n = 10, m = 1, nReps = 1)
 
 ## Merging the probabilities back with the pair-level data
-allProbs <- resGen[[1]] %>% full_join(orderedPair, by = "edgeID")
+allProbs <- resGen[[1]] %>% full_join(orderedPair, by = "pairID")
 summary(allProbs$pScaled)
 
 
 
 rInitial <- calcR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
-                  pVar = "pScaled", timeFrame = "months")
+                  pVar = "pScaled", timeFrame = "months", bootSamples = 0)
 rt <- rInitial[[2]]
-
+names(rInitial)
+names(rInitial$RiDf)
+names(rInitial$RtDf)
+names(rInitial$RtAvgDf)
 
 #Cutting the outbreak
 totalTime <- max(rt$timeRank) - min(rt$timeRank)
 monthCut1 <- ceiling(0.1 * totalTime)
 monthCut2 <- ceiling(0.7 * totalTime)
 
-rFinal <- bootstrapR(allProbs, dateVar = "infectionDate",
-                     indIDVar = "individualID", pVar = "pScaled",
-                     timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
-                     B = 10, alpha = 0.05)
-
+rFinal <- calcR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
+                pVar = "pScaled", timeFrame = "months",
+                rangeForAvg = c(monthCut1, monthCut2),
+                bootSamples = 1000, alpha = 0.05)
 rFinal[[3]]
+
+names(rFinal)
+names(rFinal$RiDf)
+names(rFinal$RtDf)
+names(rFinal$RtAvgDf)
 
