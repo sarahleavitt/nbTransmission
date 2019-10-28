@@ -1,19 +1,24 @@
 
 #' Calculates the effective reproductive number
 #'
-#' Uses probabilities to calculate the individual-level, time-level and overall average
-#' effective reproductive numbers for an outbreak.
+#' Uses relative transmission probabilities to calculate the individual-level,
+#' time-level and overall average effective reproductive numbers for an outbreak.
 #' 
 #' Add details section
 #'
 #' @param probs The name of the dateset with transmission probabilities
-#' @param dateVar The variable name (in quotes) of the dates that the individuals are observed.
-#' @param indIDVar The variable name (in quotes) of the individual ID.
+#' @param indIDVar The variable name (in quotes) of the individual ID varaibles
+#' (dataframe \code{probs} 
+#' must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
+#' @param dateVar The variable name (in quotes) of the dates that the individuals are
+#' observed (dataframe \code{probs}  must have variables called \code{<dateVar>.1} and
+#' \code{<dateVar>.2}).
 #' @param pVar The variable name (in quotes) of the transmission probabilities.
-#' @param timeFrame The time frame used to calculate Rt. One of "days", "weeks", "months", "years".
-#' @param rangeForAvg A vector with the start and ending time period to be used to calculate the
-#' average effective reproductive number.
-#' @param bootSamples The number of bootstrap samples. If 0, then no confidence intervals are calculated
+#' @param timeFrame The time frame used to calculate Rt.
+#' @param rangeForAvg A vector with the start and ending time period to be used to calculate
+#' the average effective reproductive number.
+#' @param bootSamples The number of bootstrap samples; if 0, then no confidence intervals
+#' are calculated.
 #' @param alpha The alpha level for the confidence intervals.
 #'
 #' @return A list with three dataframes: one with the individual-level reproductive numbers,
@@ -25,7 +30,7 @@
 #' 
 #' @export
 
-calcR <- function(probs, dateVar, indIDVar, pVar,
+calcR <- function(probs, indIDVar, dateVar, pVar,
                    timeFrame = c("days", "months", "weeks", "years"),
                    rangeForAvg = NULL, bootSamples = 0, alpha = 0.05){
   
@@ -37,7 +42,7 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
   dateVar2 <-  paste0(dateVar, ".2")
   
   #Calculating the individual-level reproductive number
-  riEst <- calcRi(probs, pVar = pVar, dateVar = dateVar, indIDVar = indIDVar)
+  riEst <- calcRi(probs, pVar = pVar, indIDVar = indIDVar, dateVar = dateVar)
   
   #Calculating the time-level reproductibe number
   rtEst <- calcRt(riEst, dateVar = dateVar, timeFrame = timeFrame)
@@ -106,6 +111,11 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
 #' Uses probabilities to calculate the individual-level reproductive number
 #'
 #' @param probs The name of the dateset with transmission probabilities
+#' @param indIDVar The variable name (in quotes) of the individual ID varaibles 
+#' (dataframe \code{probs} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
+#' @param dateVar The variable name (in quotes) of the dates that the individuals are observed
+#' (dataframe \code{probs}  must have variables called \code{<dateVar>.1} and \code{<dateVar>.2}).
+#' @param pVar The variable name (in quotes) of the transmission probabilities.
 #'
 #' @return Individual-level dataframe with the following variables: indID, date, Ri,
 #'      iden, nInfectors, nInfectees
@@ -113,7 +123,7 @@ calcR <- function(probs, dateVar, indIDVar, pVar,
 #' @export
 
 
-calcRi <- function(probs, pVar, indIDVar, dateVar){
+calcRi <- function(probs, indIDVar, dateVar, pVar){
   
   probs <- as.data.frame(probs)
   #Creating variables with the individual indID and date variables
@@ -153,7 +163,9 @@ calcRi <- function(probs, pVar, indIDVar, dateVar){
 #' reproductive numbers
 #'
 #' @param riData The name of the dateset with individual-level reproductive numbers.
-#' @param timeFrame The time frame used to calculate Rt. One of "days", "weeks", "months", "years".
+#' @param dateVar The variable name (in quotes) of the dates that the individuals are observed
+#' (dataframe \code{riData}  must have a variable called \code{<dateVar>}).
+#' @param timeFrame The time frame used to calculate Rt.
 #'
 #' @return Time-level dataframe with the following variables: timeRank = the rank of the time interval
 #' used to calculate the reproductive number and Rt = the reproductive number for that time interval.

@@ -4,25 +4,30 @@
 \alias{calcR}
 \title{Calculates the effective reproductive number}
 \usage{
-calcR(probs, dateVar, indIDVar, pVar, timeFrame = c("days", "months",
+calcR(probs, indIDVar, dateVar, pVar, timeFrame = c("days", "months",
   "weeks", "years"), rangeForAvg = NULL, bootSamples = 0,
   alpha = 0.05)
 }
 \arguments{
 \item{probs}{The name of the dateset with transmission probabilities}
 
-\item{dateVar}{The variable name (in quotes) of the dates that the individuals are observed.}
+\item{indIDVar}{The variable name (in quotes) of the individual ID varaibles
+(dataframe \code{probs} 
+must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
 
-\item{indIDVar}{The variable name (in quotes) of the individual ID.}
+\item{dateVar}{The variable name (in quotes) of the dates that the individuals are
+observed (dataframe \code{probs}  must have variables called \code{<dateVar>.1} and
+\code{<dateVar>.2}).}
 
 \item{pVar}{The variable name (in quotes) of the transmission probabilities.}
 
-\item{timeFrame}{The time frame used to calculate Rt. One of "days", "weeks", "months", "years".}
+\item{timeFrame}{The time frame used to calculate Rt.}
 
-\item{rangeForAvg}{A vector with the start and ending time period to be used to calculate the
-average effective reproductive number.}
+\item{rangeForAvg}{A vector with the start and ending time period to be used to calculate
+the average effective reproductive number.}
 
-\item{bootSamples}{The number of bootstrap samples. If 0, then no confidence intervals are calculated}
+\item{bootSamples}{The number of bootstrap samples; if 0, then no confidence intervals
+are calculated.}
 
 \item{alpha}{The alpha level for the confidence intervals.}
 }
@@ -32,8 +37,8 @@ A list with three dataframes: one with the individual-level reproductive numbers
  number. ADD MORE DETAILS ON COLUMNS
 }
 \description{
-Uses probabilities to calculate the individual-level, time-level and overall average
-effective reproductive numbers for an outbreak.
+Uses relative transmission probabilities to calculate the individual-level,
+time-level and overall average effective reproductive numbers for an outbreak.
 }
 \details{
 Add details section

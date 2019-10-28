@@ -10,7 +10,10 @@ calcRt(riData, dateVar, timeFrame = c("days", "weeks", "months",
 \arguments{
 \item{riData}{The name of the dateset with individual-level reproductive numbers.}
 
-\item{timeFrame}{The time frame used to calculate Rt. One of "days", "weeks", "months", "years".}
+\item{dateVar}{The variable name (in quotes) of the dates that the individuals are observed
+(dataframe \code{riData}  must have a variable called \code{<dateVar>}).}
+
+\item{timeFrame}{The time frame used to calculate Rt.}
 }
 \value{
 Time-level dataframe with the following variables: timeRank = the rank of the time interval

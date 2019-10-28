@@ -92,7 +92,7 @@ pairData <- pairData1 %>% mutate(snpDist = ifelse(individualID.1 %in% trainingID
                                           individualID.2 %in% trainingID, snpDist, NA))
 
 #Adding these datasets to the package
-use_data(indData, pairData, overwrite = TRUE)
+#use_data(indData, pairData, overwrite = TRUE)
 
 
 #Applying my function to get pairData
@@ -106,7 +106,7 @@ pairDataD <- indToPair(indData = indData, indIDVar = "individualID", separator =
 
 ## Use the pairData dataset which represents a TB-like outbreak
 # First create a dataset of ordered pairs
-orderedPair <- pairData2[pairData2$infectionDiffY > 0, ]
+orderedPair <- pairData[pairData$infectionDiffY > 0, ]
 
 ## Create a variable called snpClose that will define probable links
 # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
@@ -187,7 +187,7 @@ colBreaks <- c(-0.01, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1)
 clustRes <- (allProbs
              %>% group_by(individualID.2)
              %>% group_modify(~ findClustersKD(.x, pVar = "pScaled",
-                                               binWidth = 0.04, minGap = 0))
+                                               binWidth = 0.03, minGap = 0))
 )
 table(clustRes$cluster)
 topClust <- clustRes %>% filter(cluster == 1)
@@ -217,13 +217,48 @@ pheatmap(t(net.adj), cluster_rows = FALSE, cluster_cols = FALSE,
          display_numbers = t(net.trans), number_color = "white",
          fontsize_number = 7)
 
+
+#Network of true pairs
+net_true <- delete.edges(net, E(net)[transmission == FALSE])
+net_top <- delete.edges(net, E(net)[cluster == 2])
+set.seed(10001)
+l <- layout.fruchterman.reingold(net_true)
+par(mar = c(0, 0, 0.2, 0))
+
+plot(net_true, vertex.size = 7, vertex.label.cex = 0.7,
+     vertex.color = "gray", vertex.frame.color = "dark gray",
+     edge.width = 2, edge.arrow.size = 0.4, layout = l,
+     edge.color = brewer.pal(9,"Blues")[E(net_true)$pGroup])
+
 #Network of top cluster
 par(mar = c(0, 0, 0.2, 0))
-net_top <- delete.edges(net, E(net)[cluster == 2])
 plot(net_top, vertex.size = 7, vertex.label.cex = 0.7,
-     vertex.color = "gray",
-     vertex.frame.color = "dark gray",
-     edge.width = 2, edge.arrow.size = 0.4,
+     vertex.color = "gray", vertex.frame.color = "dark gray",
+     edge.width = 2, edge.arrow.size = 0.4, layout = l,
      edge.color = brewer.pal(9,"Blues")[E(net_top)$pGroup])
+
+#Network of true and top cluster
+net_truetop <- delete.edges(net, E(net)[cluster == 2 | transmission == FALSE])
+par(mar = c(0, 0, 0.2, 0))
+plot(net_truetop, vertex.size = 7, vertex.label.cex = 0.7,
+     vertex.color = "gray", vertex.frame.color = "dark gray",
+     edge.width = 2, edge.arrow.size = 0.4, layout = l,
+     edge.color = brewer.pal(9,"Blues")[E(net_truetop)$pGroup])
+
+#Network of true and not top cluster
+net_truenottop <- delete.edges(net, E(net)[cluster == 1 | transmission == FALSE])
+par(mar = c(0, 0, 0.2, 0))
+plot(net_truenottop, vertex.size = 7, vertex.label.cex = 0.7,
+     vertex.color = "gray", vertex.frame.color = "dark gray",
+     edge.width = 2, edge.arrow.size = 0.4, layout = l,
+     edge.color = brewer.pal(9,"Blues")[E(net_truenottop)$pGroup])
+
+#Full network
+plot(net, vertex.size = 7, vertex.label.cex = 0.7,
+     vertex.color = "gray", vertex.frame.color = "dark gray",
+     edge.width = 2, edge.arrow.size = 0.4, layout = l,
+     edge.color = brewer.pal(9,"Blues")[E(net)$pGroup])
+
+
 
 

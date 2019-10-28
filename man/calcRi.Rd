@@ -4,10 +4,18 @@
 \alias{calcRi}
 \title{Calculates Ri}
 \usage{
-calcRi(probs, pVar, indIDVar, dateVar)
+calcRi(probs, indIDVar, dateVar, pVar)
 }
 \arguments{
 \item{probs}{The name of the dateset with transmission probabilities}
+
+\item{indIDVar}{The variable name (in quotes) of the individual ID varaibles 
+(dataframe \code{probs} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
+
+\item{dateVar}{The variable name (in quotes) of the dates that the individuals are observed
+(dataframe \code{probs}  must have variables called \code{<dateVar>.1} and \code{<dateVar>.2}).}
+
+\item{pVar}{The variable name (in quotes) of the transmission probabilities.}
 }
 \value{
 Individual-level dataframe with the following variables: indID, date, Ri,

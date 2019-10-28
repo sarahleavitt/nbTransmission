@@ -4,55 +4,60 @@
 #' \code{calcProbabilities} uses naive Bayes and an interative estimation procedure to calculate relative
 #'  transmission probabilities
 #'
-#' This algorithm takes a dataset of ordered possible infector-infectee pairs in an infectious disease
-#'  cluster and estimates the relative probability the cases are linked by direct transmission.
+#' This algorithm takes a dataset of ordered possible infector-infectee pairs in an
+#' infectious disease cluster and estimates the relative probability the cases are
+#' linked by direct transmission using a classification technique called naive Bayes (NB).
 #' 
-#' The algorithm used a classification technique called naive Bayes (NB). NB is a simple machine learning
-#' method that uses Bayes rule to estimate the probability of an outcome in a prediction dataset
-#' given a set of \code{covariates} from the observed frequencies in a training dataset.
-#' The covariates could be spatial, clinical, demographic, and temporal characteristics of the cases.
+#' NB is a simple machine learning algorithm that uses Bayes rule to estimate the
+#' probability of an outcome in a prediction dataset given a set of covariates from
+#' the observed frequencies in a training dataset.
 #' 
-#' Then a subset of cases with pathogen WGS or contact investigation data are used to create a training
-#' dataset of probable links and non/links. These probable links and non/links are defined by \code{goldStdVar}
-#' which should be a logical vector with \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
-#' the pair cannot be used to train (does not have the information or is indeterminate). 
+#' A subset of cases with pathogen WGS or contact investigation data are used to create
+#' a training dataset of probable links and non/links. These probable links and 
+#' non/links are defined by \code{goldStdVar} which should be a logical vector with
+#' \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
+#' the pair cannot be used to train (does not have the information or is indeterminate).
+#' The covariates can be any categorical variables and could represent
+#' spatial, clinical, demographic, and temporal characteristics of the cases. 
 #' 
-#' Because the outcomes in our training set represent probable and not certain transmission events
-#' and a given case could have mulitple probable infectors, we use an iterative estimation procedure.
-#' This procedure randomly chooses one link of all of the possible links to include in the training
-#' dataset \code{nReps} times, and then uses \code{mxn} cross validation to give all pairs a turn 
+#' Because the outcomes in the training set represent probable and not certain 
+#' transmission events and a given case could have mulitple probable infectors, 
+#' we use an iterative estimation procedure. This procedure randomly chooses one
+#' link of all of the possible links to include in the training dataset \code{nReps}
+#' times, and then uses \code{mxn} cross prediction to give all pairs a turn 
 #' in the prediction dataset.
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
-#' @param indIDVar The variable name (in quotes) of the individual ID variable.
-#' @param pairIDVar The variable name (in quotes) of the edge ID variable.
+#' @param indIDVar The variable name (in quotes) of the individual ID variables 
+#' (dataframe \code{orderedPair} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
+#' @param pairIDVar The variable name (in quotes) of the pair ID variable.
 #' @param goldStdVar The variable name (in quotes) that of logical vector defining training links/non-links
-#' @param covariates A character vector containing the covariate variable names.
+#' @param covariates A character vector containing the covariate variable names (in quotes).
+#' All covariates need to be categorical factor variables.
 #' @param label An optional label string for the run.
 #' @param l Laplace smoothing parameter that is added to each cell.
-#' @param n The number of folds for nxm cross valindIDation.
-#' @param m The number of times to create n folds in nxm cross valindIDation.
-#' @param nReps The number of times to randomly select one infector.
+#' @param n The number of folds for nxm cross prediction.
+#' @param m The number of times to create n folds in nxm cross prediction.
+#' @param nReps The number of times to randomly select the "true" infector.
 #'
 #' @return List containing two dataframes:
 #' \enumerate{
-#'   \item \code{probabilities} - a dataframe of transmission probabilities with the
-#'    following columns:
+#'   \item \code{probabilities} - a dataframe of transmission probabilities. Column names:
 #'      \itemize{
-#'        \item \code{label} - the optional label of the run
-#'        \item \code{pAvg} - the mean transmission probability for the pair over all runs
+#'        \item \code{label} - the optional label of the run.
+#'        \item \code{<pairIDVar>} - the pairID variable with the name specified.
+#'        \item \code{pAvg} - the mean transmission probability for the pair over all runs.
 #'        \item \code{pSD} - the standard deviation of the transmission probability for the pair
-#'         over all runs
-#'        \item \code{pScaled} - the mean relative transmission probability for the pair over
+#'         over all runs.
+#'        \item \code{pScaled} - the mean relative transmission probability for the pair over.
 #'         all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
 #'        \item \code{pRank} - the rank of the probability of the the pair out of all pairs for that
-#'        infectee
+#'        infectee (in case of ties all values have the minimum rank of the group).
 #'        \item \code{nSamples} - the number of probability estimates that contributed to pAvg. This
-#'        represents the number of validation datasets this pair was included in over the \code{nxm}
-#'        cross validation repeated \code{nReps} times.
-#'        \item \code{pairIDVar} - the pairID variable with the name specified
+#'        represents the number of prediction datasets this pair was included in over the \code{nxm}
+#'        cross prediction repeated \code{nReps} times.
 #'      }
-#'   \item \code{estimates} - a dataframe with the effect estimates with the following columns:
+#'   \item \code{estimates} - a dataframe with the effect estimates. Column names:
 #'      \itemize{
 #'        \item \code{level} - the covariate name and level
 #'        \item \code{label} - the optional label of the run
@@ -147,7 +152,7 @@ calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
   
   
 
-  #### Cross-Validation Procedure ####
+  #### Cross-prediction Procedure ####
   
   #Initializing dataframes to hold results and coefficients
   rAll <- data.frame("p" = numeric(), pairIDVar = character())
@@ -157,7 +162,7 @@ calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
   for (k in 1:nReps){
     
     #Randomly choosing the "true" infector from all possible
-    #Calculating probabilities using mxn cross validation
+    #Calculating probabilities using mxn cross prediction
     cvResults <- runCV(posTrain, posLinks, orderedPair,
                        indIDVar, pairIDVar, goldStdVar, 
                        covariates, l, n, m)
@@ -279,13 +284,13 @@ runCV <- function(posTrain, posLinks, orderedPair,
     training$p <- ifelse(training[, goldStdVar] == FALSE, 0,
                   ifelse(training[, "linked"] == TRUE, 1, NA))
 
-    #Creating the validation dataset
-    validation <- dplyr::full_join(orderedPair, links, by = c(pairIDVar, indIDVar2))
-    validation <- validation[!validation[, pairIDVar] %in% training[, pairIDVar], ]
-    validation[is.na(validation$linked), "linked"] <- FALSE
+    #Creating the prediction dataset
+    prediction <- dplyr::full_join(orderedPair, links, by = c(pairIDVar, indIDVar2))
+    prediction <- prediction[!prediction[, pairIDVar] %in% training[, pairIDVar], ]
+    prediction[is.na(prediction$linked), "linked"] <- FALSE
     
     #Calculating probabilities for one split
-    sim <- performNB(training, validation, obsIDVar = pairIDVar,
+    sim <- performNB(training, prediction, obsIDVar = pairIDVar,
                      goldStdVar = "linked", covariates, l)
     
     #Combining the results from fold run with the previous folds

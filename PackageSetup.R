@@ -144,3 +144,72 @@ names(rFinal$RiDf)
 names(rFinal$RtDf)
 names(rFinal$RtAvgDf)
 
+
+################# Comparing performNB to naiveBayes #####################
+
+library(e1071)
+
+data(HouseVotes84, package = "mlbench")
+model <- naiveBayes(Class ~ ., data = HouseVotes84)
+predict(model, HouseVotes84[1:10,])
+predict(model, HouseVotes84[1:10,], type = "raw")
+pred <- predict(model, HouseVotes84)
+table(pred, HouseVotes84$Class)
+
+hv84 <- HouseVotes84 %>% mutate(id = 1:n(),
+                                ClassTF = Class == "republican")
+table(hv84$ClassTF)
+
+pred2 <- performNB(hv84, hv84, obsIDVar = "id", goldStdVar = "ClassTF",
+                   covariates = paste0("V", 1:16), l = 0)
+pred2[[1]][1:10,]
+
+
+
+############### Creating an adapted iris dataset for performNB example ##############
+
+data(iris)
+
+table(iris$Species)
+
+qplot(iris$Sepal.Length, fill = iris$Species)
+qplot(iris$Sepal.Width, fill = iris$Species)
+qplot(iris$Petal.Length, fill = iris$Species)
+qplot(iris$Petal.Width, fill = iris$Species)
+
+irisNew <- iris
+irisNew$id <- seq(1:nrow(irisNew))
+irisNew$spVirginica <- irisNew$Species == "virginica"
+table(irisNew$spVirginica)
+
+irisNew$Sepal.Length.Cat <- factor(cut(irisNew$Sepal.Length, c(0, 5, 6, 7, Inf)),
+                                   labels = c("<=5.0", "5.1-6.0", "6.1-7.0", "7.1+"))
+table(irisNew$Sepal.Length.Cat)
+
+
+irisNew$Sepal.Width.Cat <- factor(cut(irisNew$Sepal.Width, c(0, 2.5, 3, 3.5, Inf)),
+                                  labels = c("<=2.5", "2.6-3.0", "3.1-3.5", "3.6+"))
+table(irisNew$Sepal.Width.Cat)
+
+
+irisNew$Petal.Length.Cat <- factor(cut(irisNew$Petal.Length, c(0, 2, 4, 6, Inf)),
+                                   labels = c("<=2.0", "2.1-4.0", "4.1-6.0", "6.0+"))
+table(irisNew$Petal.Length.Cat)
+
+
+irisNew$Petal.Width.Cat <- factor(cut(irisNew$Petal.Width, c(0, 1, 2, Inf)),
+                                  labels = c("<=1.0", "1.1-2.0", "2.1+"))
+table(irisNew$Petal.Width.Cat)
+
+use_data(irisNew, overwrite = TRUE)
+
+
+pred <- performNB(irisNew, irisNew, obsIDVar = "id", goldStdVar = "spVirginica",
+                  covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
+                                 "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
+irisResults <- merge(irisNew, pred$probabilities, by = "id")
+tapply(irisResults$p, irisResults$Species, summary)
+
+
+
+

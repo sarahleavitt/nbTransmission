@@ -4,33 +4,87 @@
 \alias{performNB}
 \title{Perform Naive Bayes}
 \usage{
-performNB(training, validation, obsIDVar, goldStdVar, covariates, l = 1)
+performNB(training, prediction, obsIDVar, goldStdVar, covariates, l = 1)
 }
 \arguments{
 \item{training}{The training dataset name.}
 
-\item{validation}{The validation dataset name.}
+\item{prediction}{The prediction dataset name.}
 
 \item{obsIDVar}{The variable name (in quotes) of the observation ID variable.}
 
-\item{goldStdVar}{The variable name (in quotes) that will define event status
-in the training dataset.}
+\item{goldStdVar}{The variable name (in quotes) of the outcome in the training dataset
+(needs to be a logical variable with value \code{TRUE} for observations with
+ the outcome of interest.}
 
-\item{covariates}{A character vector containing the covariate variable names.}
+\item{covariates}{A character vector containing the covariate variable names.
+All covariates need to be categorical factor variables.}
 
-\item{l}{Laplace smoothing parameter that is added to each cell (default is 1).}
+\item{l}{Laplace smoothing parameter that is added to each cell
+(a value of 0 indicates no smoothing).}
 }
 \value{
-List containing two dataframes: "probs" containing both training and validation 
-observations with the two columns: obsIDVar and p and "coeff" with the coefficient values.
+List containing two dataframes: 
+\enumerate{
+  \item \code{probabilities} - a dataframe combining \code{training} and \code{prediction}
+   with predictied probabilities for the \code{prediction} dataframe. Column names:
+     \itemize{
+       \item \code{<obsIDVar>} - the observation ID variable with the name specified
+       \item \code{p} - the probability that \code{<goldStdVar> = TRUE} for observations in the
+       \code{prediction} dataset.
+     }
+  \item \code{estimates} - a dataframe with the effect estimates derived from the training dataset.
+  Column names:
+     \itemize{
+       \item \code{level} - the covariate name and level
+       \item \code{ratio} - the value of the likelihood ratio (will change to OR)
+     }
+}
 }
 \description{
-Calculates predicted probabilities using naive Bayes
+\code{performNB} Calculates the posterior probabilities of a dichotomous class
+variable given a set of covariates using Bayes rule.
 }
 \details{
-Add details section
+The main purpose of this function is to be used by \code{calcProbabilities} to 
+estimate the relative transmission probability between individuals in an infectious
+disease outbreak. However, it can be used more generally to estimate the probability
+of any dichotomous outcome given a set of categorical covariates.
+
+The function needs a training dataset with the outcome variable (\code{goldStdVar})
+which is \code{TRUE} for those who have the value of interest and \code{FALSE}
+for those who do not. The probability of having the outcome 
+(\code{<goldStdVar> = TRUE}) is predicted in the prediction dataset.
 }
 \examples{
-#Insert example here
+## Use iris dataset and predict if a flower is of the specices "virginica".
+
+data(iris)
+irisNew <- iris
+## Creating an id variable
+irisNew$id <- seq(1:nrow(irisNew))
+## Creating logical variable indicating if the flower is of the species virginica
+irisNew$spVirginica <- irisNew$Species == "virginica"
+
+## Creating categorical/factor versions of the covariates
+irisNew$Sepal.Length.Cat <- factor(cut(irisNew$Sepal.Length, c(0, 5, 6, 7, Inf)),
+                                 labels = c("<=5.0", "5.1-6.0", "6.1-7.0", "7.1+"))
+
+irisNew$Sepal.Width.Cat <- factor(cut(irisNew$Sepal.Width, c(0, 2.5, 3, 3.5, Inf)),
+                                 labels = c("<=2.5", "2.6-3.0", "3.1-3.5", "3.6+"))
+
+irisNew$Petal.Length.Cat <- factor(cut(irisNew$Petal.Length, c(0, 2, 4, 6, Inf)),
+                                 labels = c("<=2.0", "2.1-4.0", "4.1-6.0", "6.0+"))
+
+irisNew$Petal.Width.Cat <- factor(cut(irisNew$Petal.Width, c(0, 1, 2, Inf)),
+                               labels = c("<=1.0", "1.1-2.0", "2.1+"))
+
+## Using NB to predict if the species is virginica
+## (training and predicting on same dataset)
+pred <- performNB(irisNew, irisNew, obsIDVar = "id", goldStdVar = "spVirginica",
+covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
+               "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
+irisResults <- merge(irisNew, pred$probabilities, by = "id")
+tapply(irisResults$p, irisResults$Species, summary)
 
 }
