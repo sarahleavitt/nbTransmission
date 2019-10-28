@@ -29,7 +29,7 @@ List containing two dataframes:
   \item \code{probabilities} - a dataframe combining \code{training} and \code{prediction}
    with predictied probabilities for the \code{prediction} dataframe. Column names:
      \itemize{
-       \item \code{<obsIDVar>} - the observation ID variable with the name specified
+       \item \code{<obsIDVar>} - the observation ID with the name specified
        \item \code{p} - the probability that \code{<goldStdVar> = TRUE} for observations in the
        \code{prediction} dataset.
      }
@@ -42,11 +42,11 @@ List containing two dataframes:
 }
 }
 \description{
-\code{performNB} Calculates the posterior probabilities of a dichotomous class
+The function \code{performNB} Calculates the posterior probabilities of a dichotomous class
 variable given a set of covariates using Bayes rule.
 }
 \details{
-The main purpose of this function is to be used by \code{calcProbabilities} to 
+The main purpose of this function is to be used by \code{\link{calcProbabilities}} to 
 estimate the relative transmission probability between individuals in an infectious
 disease outbreak. However, it can be used more generally to estimate the probability
 of any dichotomous outcome given a set of categorical covariates.
@@ -87,4 +87,7 @@ covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
 irisResults <- merge(irisNew, pred$probabilities, by = "id")
 tapply(irisResults$p, irisResults$Species, summary)
 
+}
+\seealso{
+\code{\link{calcProbabilities}}
 }

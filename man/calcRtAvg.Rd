@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcR.R
 \name{calcRtAvg}
 \alias{calcRtAvg}
-\title{Calculates Average Rt}
+\title{Estimates the average effective reproductive number}
 \usage{
 calcRtAvg(rtData, rangeForAvg = NULL)
 }
@@ -13,9 +13,21 @@ calcRtAvg(rtData, rangeForAvg = NULL)
 average effective reproductive number.}
 }
 \value{
-The value of the average time-level reproductive number for the outbreak within
-"rangeForAvg"
+A dataframe with the average effective reproductive. Column names:
+     \itemize{
+       \item \code{RtAvg} - the average time-level reproductive number between the range
+        specified in \code{rangeForAvg}.
+     }
 }
 \description{
-Uses probabilities to calculate the average time-level effective reproductive number.
+Averages the time-level reproductive numbers within a certain range to estimate the overall
+reproductive number for an oubreak.
+}
+\details{
+This function is meant to be called by \code{\link{calcR}}
+which estimates the individual-level and time-level, and average reproductive numbers,
+but it can also be run directly.
+}
+\seealso{
+\code{\link{calcR}}
 }

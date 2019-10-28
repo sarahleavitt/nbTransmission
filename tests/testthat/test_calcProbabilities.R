@@ -46,8 +46,8 @@ test_that("Descriptive error messages returned",{
  expect_error(calcProbWrapper(orderedPair, indIDVar = "garbage"),
               "garbage.1 is not in the dataframe.")
  
- #Removing individualID.2
- orderedPair2 <- orderedPair %>% select(-individualID.2)
+ #Removing individualID.2 column
+ orderedPair2 <- orderedPair[!names(orderedPair) %in% c("individualID.2")]
  expect_error(calcProbWrapper(orderedPair2, indIDVar = "individualID"),
               "individualID.2 is not in the dataframe.")
  

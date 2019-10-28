@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcR.R
 \name{calcRt}
 \alias{calcRt}
-\title{Calculates Rt}
+\title{Estimates time-level reproductive numbers}
 \usage{
 calcRt(riData, dateVar, timeFrame = c("days", "weeks", "months",
   "years"))
@@ -16,10 +16,23 @@ calcRt(riData, dateVar, timeFrame = c("days", "weeks", "months",
 \item{timeFrame}{The time frame used to calculate Rt.}
 }
 \value{
-Time-level dataframe with the following variables: timeRank = the rank of the time interval
-used to calculate the reproductive number and Rt = the reproductive number for that time interval.
+A dataframe with the time-level reproductive numbers. Column names:
+     \itemize{
+       \item \code{time} - the time frame corresponding to the reproductive number estimate 
+       (day for "days" and "weeks", month for "months", year for "years").
+       \item \code{timeRank} - the rank of the time frame.
+       \item \code{Rt} - the time-level reproductive number for this time frame.
+     }
 }
 \description{
-Uses probabilities to calculate the time-level effective reproductive number from individual-level
-reproductive numbers
+The function \code{calcRt} estimates the time-level effective reproductive number
+from individual-level reproductive numbers.
+}
+\details{
+This function is meant to be called by \code{\link{calcR}}
+which estimates the individual-level and time-level, and average reproductive numbers, 
+but it can also be run directly.
+}
+\seealso{
+\code{\link{calcR}}
 }

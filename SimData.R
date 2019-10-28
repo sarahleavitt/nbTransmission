@@ -137,26 +137,26 @@ simEvaluate(allProbs)
 
 rInitial <- calcR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
                   pVar = "pScaled", timeFrame = "months")
-rt <- rInitial[[2]]
+rt <- rInitial$RtDf
 
 #Cutting the outbreak
 totalTime <- max(rt$timeRank, na.rm = TRUE) - min(rt$timeRank, na.rm = TRUE)
-monthCut1 <- ceiling(0.1 * totalTime)
-monthCut2 <- ceiling(0.7 * totalTime)
+monthCut1 <- ceiling(0.15 * totalTime)
+monthCut2 <- ceiling(0.85 * totalTime)
 
 ggplot(data = rt, aes(x = timeRank, y = Rt)) +
   geom_point() +
   geom_line() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +
   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7) +
   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7)
 
 rFinal <- calcR(allProbs, dateVar = "infectionDate",
                      indIDVar = "individualID", pVar = "pScaled",
                      timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
-                     bootSamples = 100, alpha = 0.05)
+                     bootSamples = 10, alpha = 0.05)
 
-rFinal[[3]]
+rFinal$RtAvgDf
 
 ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
   geom_point() +
@@ -164,8 +164,6 @@ ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
   geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
   scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
   scale_x_continuous(name = "Infection Year") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
   geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +

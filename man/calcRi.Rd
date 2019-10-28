@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcR.R
 \name{calcRi}
 \alias{calcRi}
-\title{Calculates Ri}
+\title{Estimates individual-level reproductive numbers}
 \usage{
 calcRi(probs, indIDVar, dateVar, pVar)
 }
@@ -10,17 +10,33 @@ calcRi(probs, indIDVar, dateVar, pVar)
 \item{probs}{The name of the dateset with transmission probabilities}
 
 \item{indIDVar}{The variable name (in quotes) of the individual ID varaibles 
-(dataframe \code{probs} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
+(dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+and \code{<indIDVar>.2}).}
 
-\item{dateVar}{The variable name (in quotes) of the dates that the individuals are observed
-(dataframe \code{probs}  must have variables called \code{<dateVar>.1} and \code{<dateVar>.2}).}
+\item{dateVar}{The variable name (in quotes) of the dates that the individuals
+are observed (dataframe \code{probs}  must have variables called \code{<dateVar>.1}
+and \code{<dateVar>.2}).}
 
 \item{pVar}{The variable name (in quotes) of the transmission probabilities.}
 }
 \value{
-Individual-level dataframe with the following variables: indID, date, Ri,
-     iden, nInfectors, nInfectees
+A dataframe with the individual-level reproductive numbers. Column names:
+     \itemize{
+       \item \code{<indIDVar>} - the individual ID with name specified.
+       \item \code{<dateVar>} - the date the individual was observed with name specified.
+       \item \code{Ri} - the individual-level reproductive number.
+       \item \code{nInfectees} - the number of possible infectees for this individual.
+     }
 }
 \description{
-Uses probabilities to calculate the individual-level reproductive number
+The function \code{calcRi} uses relative transmission probabilities to estimate the
+individual-level reproductive number.
+}
+\details{
+This function is meant to be called by \code{\link{calcR}}
+which estimates the individual-level, time-level, and average reproductive numbers, 
+but it can also be run directly.
+}
+\seealso{
+\code{\link{calcR}}
 }

@@ -32,18 +32,127 @@ are calculated.}
 \item{alpha}{The alpha level for the confidence intervals.}
 }
 \value{
-A list with three dataframes: one with the individual-level reproductive numbers,
- one with the time-level reproductive numbers, and one with the average effective reproductive
- number. ADD MORE DETAILS ON COLUMNS
+A list with three dataframes:
+\enumerate{
+  \item \code{RiDf} - a dataframe with the individual-level reproductive numbers. Column names:
+     \itemize{
+       \item \code{<indIDVar>} - the individual ID with name specified.
+       \item \code{<dateVar>} - the date the individual was observed with name specified.
+       \item \code{Ri} - the individual-level reproductive number.
+       \item \code{nInfectees} - the number of possible infectees for this individual.
+     }
+  \item \code{RtDf} - a dataframe with the time-level reproductive numbers. Column names:
+     \itemize{
+       \item \code{time} - the time frame corresponding to the reproductive number estimate 
+       (day for "days" and "weeks", month for "months", year for "years").
+       \item \code{timeRank} - the rank of the time frame.
+       \item \code{Rt} - the time-level reproductive number for this time frame.
+       \item \code{ciLower} - lower bound of confidence interval for Rt
+        (only if bootSamples > 0).
+       \item \code{ciUpper} - upper bound of confidence interval for Rt 
+       (only if bootSamples > 0).
+     }
+  \item \code{RtAvgDf} - a dataframe with the average effective reproductive. Column names:
+     \itemize{
+       \item \code{RtAvg} - the average time-level reproductive number between the range
+        specified in \code{rangeForAvg}.
+       \item \code{ciLower} - lower bound of confidence interval for Rt
+        (only if bootSamples > 0).
+       \item \code{ciUpper} - upper bound of confidence interval for Rt 
+       (only if bootSamples > 0).
+     }
+}
 }
 \description{
-Uses relative transmission probabilities to calculate the individual-level,
-time-level and overall average effective reproductive numbers for an outbreak.
+The function \code{calcR} uses the relative transmission probabilities to estimate
+the individual-level, time-level, and average effective reproductive numbers
+for an outbreak.
 }
 \details{
-Add details section
+The effective reproductive number is the average number of cases an infectious case
+will produce in a population of both susceptible and non-susceptibe individuals.
+The rational behind this reproductive number estimation is Wallinga and Teunis (2004)
+where the individual-level reproductive number is estimated by summing
+the relative probability that the individual infected any other individual.
+
+If \eqn{p_{ij}} equals the relative probability that case \eqn{i} infected
+case \eqn{j}, then the individual-level reproductive number (\eqn{R_i}) is calculated by:
+
+\deqn{\sum_{m \ne i} {p_{im}}}
+
+The time-level reproductive number is then estimated by averaging the individual-level
+reproductive numbers for all individuals observed in the time frame (can specify days,
+weeks, months, years).
+
+Finally, the time-level reproductive numbers are averaged to
+estimate the average effective reproductive number within \code{rangeForAvg}.
+To get the best estimate of the average effective reproductive number, one should
+only consider the stable portion of the outbreak (exclude the beginning and end).
+
+If \code{bootSamples > 0}, bootstrap confidence intervals will be estimated for
+both the time-level and average reproductive numbers.
 }
 \examples{
-#Insert example here
 
+## Use the pairData dataset which represents a TB-like outbreak
+# First create a dataset of ordered pairs
+orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+
+## Create a variable called snpClose that will define probable links
+# (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+# will not be used to train.
+orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+                        ifelse(orderedPair$snpDist > 12, FALSE, NA))
+table(orderedPair$snpClose)
+
+## Running the algorithm
+#NOTE should run with nReps > 1
+covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
+resGen <- calcProbabilities(orderedPair = orderedPair,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = covariates,
+                            label = "SNPs", l = 1,
+                            n = 10, m = 1, nReps = 1)
+                            
+## Merging the probabilities back with the pair-level data
+allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+
+## Getting initial estimates of the reproductive number
+# (ithout specifying rangeForAvg and without confidence intervals)
+rInitial <- calcR(allProbs, dateVar = "infectionDate",
+               indIDVar = "individualID", pVar = "pScaled",
+               timeFrame = "months")
+               
+## Finding the stable portion of the outbreak for rangeForAvg
+rt <- rInitial$RtDf
+totalTime <- max(rt$timeRank, na.rm = TRUE) - min(rt$timeRank, na.rm = TRUE)
+monthCut1 <- ceiling(0.15 * totalTime)
+monthCut2 <- ceiling(0.85 * totalTime)
+
+## NOT RUN ##
+# ggplot(data = rt, aes(x = timeRank, y = Rt)) +
+#   geom_point() +
+#   geom_line() +
+#   geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +
+#   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7) +
+#   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7)
+  
+## Finding the final reproductive number estimates with confidence intervals
+# NOTE should run with bootSamples > 10.
+rFinal <- calcR(allProbs, dateVar = "infectionDate",
+             indIDVar = "individualID", pVar = "pScaled",
+             timeFrame = "months",
+             rangeForAvg = c(monthCut1, monthCut2),
+             bootSamples = 10, alpha = 0.05)
+rFinal$RtAvgDf
+  
+  
+
+}
+\references{
+Wallinga J, Teunis P. Different epidemic curves for severe acute respiratory syndrome reveal
+similar impacts of control measures. American Journal of epidemiology.
+2004 Sep 15;160(6):509-16.
 }

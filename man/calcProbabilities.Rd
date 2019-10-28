@@ -36,7 +36,7 @@ List containing two dataframes:
   \item \code{probabilities} - a dataframe of transmission probabilities. Column names:
      \itemize{
        \item \code{label} - the optional label of the run.
-       \item \code{<pairIDVar>} - the pairID variable with the name specified.
+       \item \code{<pairIDVar>} - the pair ID with the name specified.
        \item \code{pAvg} - the mean transmission probability for the pair over all runs.
        \item \code{pSD} - the standard deviation of the transmission probability for the pair
         over all runs.
@@ -56,13 +56,13 @@ List containing two dataframes:
        \item \code{ratioMin} - the min value of the likelihood ratio across runs
        \item \code{ratioMax} - the max value of the likelihood ratio across runs
        \item \code{ratioSD} - the standard deviation of the likelihood ratio across runs
-       \item \code{nSamples} - the number of samples included in the stats::average: \code{n*m*nReps}
+       \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
      }
 }
 }
 \description{
-\code{calcProbabilities} uses naive Bayes and an interative estimation procedure to calculate relative
- transmission probabilities
+The function \code{calcProbabilities} uses naive Bayes and an interative estimation
+procedure to calculate relative transmission probabilities
 }
 \details{
 This algorithm takes a dataset of ordered possible infector-infectee pairs in an
@@ -101,6 +101,7 @@ orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
 table(orderedPair$snpClose)
 
 ## Running the algorithm
+#NOTE should run with nReps > 1.
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 resGen <- calcProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
@@ -108,10 +109,9 @@ resGen <- calcProbabilities(orderedPair = orderedPair,
                             goldStdVar = "snpClose",
                             covariates = covariates,
                             label = "SNPs", l = 1,
-                            n = 10, m = 1, nReps = 10)
+                            n = 10, m = 1, nReps = 1)
                             
 ## Merging the probabilities back with the pair-level data
 allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
-
 
 }
