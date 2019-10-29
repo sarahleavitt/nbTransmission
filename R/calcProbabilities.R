@@ -99,9 +99,8 @@
 
 
 
-nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
-                              covariates, label = "", l = 1,
-                              n = 10, m = 1, nReps = 10){
+nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covariates,
+                            label = "", l = 1, n = 10, m = 1, nReps = 10){
   
   orderedPair <- as.data.frame(orderedPair)
   #Creating variables with the individual indID variable
