@@ -61,10 +61,10 @@
 #'      \itemize{
 #'        \item \code{level} - the covariate name and level
 #'        \item \code{label} - the optional label of the run
-#'        \item \code{ratioMean} - the mean value of the likelihood ratio across runs
-#'        \item \code{ratioMin} - the min value of the likelihood ratio across runs
-#'        \item \code{ratioMax} - the max value of the likelihood ratio across runs
-#'        \item \code{ratioSD} - the standard deviation of the likelihood ratio across runs
+#'        \item \code{oddsMean} - the mean value of the likelihood odds across runs
+#'        \item \code{oddsMin} - the min value of the likelihood odds across runs
+#'        \item \code{oddsMax} - the max value of the likelihood odds across runs
+#'        \item \code{oddsSD} - the standard deviation of the likelihood odds across runs
 #'        \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
 #'      }
 #' }
@@ -154,8 +154,10 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
   #Initializing dataframes to hold results and coefficients
   rAll <- data.frame("p" = numeric(), pairIDVar = character())
   names(rAll) <- c("p", pairIDVar)
-  cAll <- data.frame("level" = character(), "ratio" = numeric())
+  cAll <- data.frame("level" = character(), "odds" = numeric())
 
+  
+  pb <- utils::txtProgressBar(min = 0, max = nReps, style = 3)
   for (k in 1:nReps){
     
     #Randomly choosing the "true" infector from all possible
@@ -165,6 +167,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                        covariates, l, n, m)
     rAll <- rbind(rAll, cvResults$rFolds)
     cAll <- rbind(cAll, cvResults$cFolds)
+    utils::setTxtProgressBar(pb, k)
   }
   
   
@@ -207,11 +210,11 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                  INDICES = list(cAll$level),
                  FUN = function(x){
                    data.frame("level" = unique(x$level),
-                              "ratioMean" = mean(x$ratio, na.rm = TRUE),
-                              "ratioMin" = min(x$ratio, na.rm = TRUE),
-                              "ratioMax" = max(x$ratio, na.rm = TRUE),
-                              "ratioSD" = stats::sd(x$ratio, na.rm = TRUE),
-                              "nSamples" = sum(!is.na(x$ratio)),
+                              "oddsMean" = mean(x$odds, na.rm = TRUE),
+                              "oddsMin" = min(x$odds, na.rm = TRUE),
+                              "oddsMax" = max(x$odds, na.rm = TRUE),
+                              "oddsSD" = stats::sd(x$odds, na.rm = TRUE),
+                              "nSamples" = sum(!is.na(x$odds)),
                               "label" = label)
                  })
   coeff <- do.call(rbind, coeffL)
@@ -223,9 +226,8 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
 
 
 
-runCV <- function(posTrain, posLinks, orderedPair,
-                  indIDVar, pairIDVar, goldStdVar,
-                  covariates, l, n, m){
+runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
+                  goldStdVar, covariates, l, n, m){
   
   #Creating variables with the individual indID variable
   indIDVar1 <- paste0(indIDVar, ".1")
@@ -258,7 +260,7 @@ runCV <- function(posTrain, posLinks, orderedPair,
   #Initializing dataframes to hold results and coefficients
   rFolds <- data.frame("p" = numeric(), pairIDVar = character())
   names(rFolds) <- c("p", pairIDVar)
-  cFolds <- data.frame("level" = character(), "ratio" = numeric())
+  cFolds <- data.frame("level" = character(), "odds" = numeric())
   
   #Running the methods for all of the CV Folds
   for (i in 1:length(cv_splits)){

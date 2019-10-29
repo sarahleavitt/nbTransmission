@@ -112,7 +112,7 @@ orderedPair <- pairData[pairData$infectionDiffY > 0, ]
 # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
 # will not be used to train.
 orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
-                               ifelse(orderedPair$snpDist > 12, FALSE, NA))
+                               ifelse(orderedPair$snpDist > 10, FALSE, NA))
 table(orderedPair$snpClose, useNA = "ifany")
 
 ## Running the algorithm
@@ -163,7 +163,7 @@ ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
   geom_line() +
   geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
   scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
-  scale_x_continuous(name = "Infection Year") +
+  scale_x_continuous(name = "Infection Month") +
   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
   geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +

@@ -112,8 +112,8 @@
 #' ## Finding the stable portion of the outbreak for rangeForAvg
 #' rt <- rInitial$RtDf
 #' totalTime <- max(rt$timeRank, na.rm = TRUE) - min(rt$timeRank, na.rm = TRUE)
-#' monthCut1 <- ceiling(0.15 * totalTime)
-#' monthCut2 <- ceiling(0.85 * totalTime)
+#' monthCut1 <- ceiling(0.1 * totalTime)
+#' monthCut2 <- ceiling(0.8 * totalTime)
 #' 
 #' ## NOT RUN ##
 #' # ggplot(data = rt, aes(x = timeRank, y = Rt)) +

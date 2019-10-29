@@ -4,7 +4,7 @@
 #' The function \code{performNB} Calculates the posterior probabilities of a dichotomous class
 #' variable given a set of covariates using Bayes rule.
 #' 
-#' The main purpose of this function is to be used by \code{\link{calcProbabilities}} to 
+#' The main purpose of this function is to be used by \code{\link{nbProbabilities}} to 
 #' estimate the relative transmission probability between individuals in an infectious
 #' disease outbreak. However, it can be used more generally to estimate the probability
 #' of any dichotomous outcome given a set of categorical covariates.
@@ -39,10 +39,10 @@
 #'   Column names:
 #'      \itemize{
 #'        \item \code{level} - the covariate name and level
-#'        \item \code{ratio} - the value of the likelihood ratio (will change to OR)
+#'        \item \code{odds} - the value of the likelihood odds (will change to OR)
 #'      }
 #' }
-#' @seealso \code{\link{calcProbabilities}}
+#' @seealso \code{\link{nbProbabilities}}
 #'
 #' @examples
 #' ## Use iris dataset and predict if a flower is of the specices "virginica".
@@ -140,7 +140,7 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
     classTab <- prop.table(table(training[, goldStdVar]) + l)
     
     #Initializing the coefficient dataframe
-    coeff <- data.frame("level" = character(), "ratio" = numeric())
+    coeff <- data.frame("level" = character(), "odds" = numeric())
     
     #Looping through all covariates and finding frequencies in training data
     for(i in 1:length(covariates)){
@@ -162,10 +162,10 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
       results[, paste0(Var, "_F")] <- ifelse(is.na(results$covariate), 1,
                                              Tab[as.numeric(results$covariate), 1]) ^ W
       
-      #Saving the P(X|Outcome = TRUE, W) / P(X|Outcome = FALSE, W)
-      ratio <- Tab[, 2] / Tab[, 1]
-      level <- paste(Var, names(ratio), sep = ":")
-      cTemp <- cbind.data.frame(level, ratio, stringsAsFactors = FALSE)
+      #Saving the odds: P(Outcome = TRUE|X=x, W) / P(Outcome = FALSE|X=x, W)
+      odds <- Tab[, 2] / Tab[, 1]
+      level <- paste(Var, names(odds), sep = ":")
+      cTemp <- cbind.data.frame(level, odds, stringsAsFactors = FALSE)
       coeff <- rbind(coeff, cTemp)
     }
     
