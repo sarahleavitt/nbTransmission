@@ -22,11 +22,11 @@ Imports:
     lubridate,
     poisbinom,
     stats,
-    utils,
-    rlang
+    utils
 Suggests: 
     knitr,
     rmarkdown,
     testthat,
+    rlang,
     ggplot2
 VignetteBuilder: knitr
