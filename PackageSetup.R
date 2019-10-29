@@ -66,13 +66,13 @@ covariates <- c("Study", "Nationality", "Sex", "Age", "SmearPos", "HIV",
                 "SubstanceAbuse", "Residence", "Milieu", "TimeCat")
 
 orderedHam <- orderedHam %>% rename(edgeID2 = edgeID)
-resHam <- calcProbabilities(orderedPair = orderedHam, indIDVar = "individualID", pairIDVar = "edgeID2",
+resHam <- nbProbabilities(orderedPair = orderedHam, indIDVar = "individualID", pairIDVar = "edgeID2",
                              goldStdVar = "SameGroup", covariates = covariates, label = "HamCont",
                              n = 10, m = 1, nReps = 5)
 
 resHam2 <- full_join(orderedHam, resHam[[1]], by = "edgeID2")
 
-rInitial <- calcR(resHam2, dateVar = "IsolationDate", indIDVar = "individualID",
+rInitial <- estimateR(resHam2, dateVar = "IsolationDate", indIDVar = "individualID",
                   pVar = "pScaled", timeFrame = "months", bootSamples = 0)
 rt <- rInitial[[2]]
 
@@ -81,7 +81,7 @@ totalTime <- max(rt$timeRank) - min(rt$timeRank)
 monthCut1 <- ceiling(0.1 * totalTime)
 monthCut2 <- ceiling(0.9 * totalTime)
 
-rFinal <- calcR(resHam2, dateVar = "IsolationDate",
+rFinal <- estimateR(resHam2, dateVar = "IsolationDate",
                      indIDVar = "individualID", pVar = "pScaled",
                      timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
                      bootSamples = 1000, alpha = 0.05)
@@ -106,7 +106,7 @@ table(orderedPair$snpClose)
 
 ## Running the algorithm
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-resGen <- calcProbabilities(orderedPair = orderedPair,
+resGen <- nbProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
                             pairIDVar = "pairID",
                             goldStdVar = "snpClose",
@@ -120,7 +120,7 @@ summary(allProbs$pScaled)
 
 
 
-rInitial <- calcR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
+rInitial <- estimateR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
                   pVar = "pScaled", timeFrame = "months", bootSamples = 0)
 rt <- rInitial[[2]]
 names(rInitial)
@@ -133,7 +133,7 @@ totalTime <- max(rt$timeRank) - min(rt$timeRank)
 monthCut1 <- ceiling(0.1 * totalTime)
 monthCut2 <- ceiling(0.7 * totalTime)
 
-rFinal <- calcR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
+rFinal <- estimateR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
                 pVar = "pScaled", timeFrame = "months",
                 rangeForAvg = c(monthCut1, monthCut2),
                 bootSamples = 1000, alpha = 0.05)

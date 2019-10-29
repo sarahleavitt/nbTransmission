@@ -1,7 +1,7 @@
 
 #' Calculates the effective reproductive number
 #'
-#' The function \code{calcR} uses the relative transmission probabilities to estimate
+#' The function \code{estimateR} uses the relative transmission probabilities to estimate
 #' the individual-level, time-level, and average effective reproductive numbers
 #' for an outbreak.
 #' 
@@ -105,7 +105,7 @@
 #' 
 #' ## Getting initial estimates of the reproductive number
 #' # (ithout specifying rangeForAvg and without confidence intervals)
-#' rInitial <- calcR(allProbs, dateVar = "infectionDate",
+#' rInitial <- estimateR(allProbs, dateVar = "infectionDate",
 #'                indIDVar = "individualID", pVar = "pScaled",
 #'                timeFrame = "months")
 #'                
@@ -125,7 +125,7 @@
 #'   
 #' ## Finding the final reproductive number estimates with confidence intervals
 #' # NOTE should run with bootSamples > 10.
-#' rFinal <- calcR(allProbs, dateVar = "infectionDate",
+#' rFinal <- estimateR(allProbs, dateVar = "infectionDate",
 #'              indIDVar = "individualID", pVar = "pScaled",
 #'              timeFrame = "months",
 #'              rangeForAvg = c(monthCut1, monthCut2),
@@ -142,7 +142,7 @@
 #' 
 #' @export
 
-calcR <- function(probs, indIDVar, dateVar, pVar,
+estimateR <- function(probs, indIDVar, dateVar, pVar,
                    timeFrame = c("days", "months", "weeks", "years"),
                    rangeForAvg = NULL, bootSamples = 0, alpha = 0.05){
   
@@ -154,13 +154,13 @@ calcR <- function(probs, indIDVar, dateVar, pVar,
   dateVar2 <-  paste0(dateVar, ".2")
   
   #Calculating the individual-level reproductive number
-  riEst <- calcRi(probs, pVar = pVar, indIDVar = indIDVar, dateVar = dateVar)
+  riEst <- estimateRi(probs, pVar = pVar, indIDVar = indIDVar, dateVar = dateVar)
   
   #Calculating the time-level reproductibe number
-  rtEst <- calcRt(riEst, dateVar = dateVar, timeFrame = timeFrame)
+  rtEst <- estimateRt(riEst, dateVar = dateVar, timeFrame = timeFrame)
   
   #Calculating the average effective reproductive number
-  rtAvgEst <- calcRtAvg(rtEst, rangeForAvg)
+  rtAvgEst <- estimateRtAvg(rtEst, rangeForAvg)
   
   if(bootSamples == 0){
     return(list("RiDf" = riEst, "RtDf" = rtEst, "RtAvgDf" = rtAvgEst))}
@@ -174,7 +174,7 @@ calcR <- function(probs, indIDVar, dateVar, pVar,
     bootRt <- data.frame(c("timeRank" = integer(), "Rt" = numeric(),
                            "time" = character()), "rep" = integer())
     for(i in 1:bootSamples){
-      oneRep <- calcRt(simulateRi(probs, riEst, pVar = pVar, indIDVar = indIDVar),
+      oneRep <- estimateRt(simulateRi(probs, riEst, pVar = pVar, indIDVar = indIDVar),
                        dateVar = dateVar, timeFrame = "months")
       oneRep$rep <- i
       bootRt <- rbind(bootRt, oneRep)
@@ -206,7 +206,7 @@ calcR <- function(probs, indIDVar, dateVar, pVar,
     
     #Calculating RtAvg for each bootstrap Rt sample
     bootRtAvgL <- by(bootRt, INDICES = list(bootRt$rep),
-                    FUN = calcRtAvg, rangeForAvg = rangeForAvg)
+                    FUN = estimateRtAvg, rangeForAvg = rangeForAvg)
     bootRtAvg <- do.call(c, bootRtAvgL)
     
     #Calculating the CI values
@@ -223,10 +223,10 @@ calcR <- function(probs, indIDVar, dateVar, pVar,
 
 #' Estimates individual-level reproductive numbers
 #'
-#' The function \code{calcRi} uses relative transmission probabilities to estimate the
+#' The function \code{estimateRi} uses relative transmission probabilities to estimate the
 #' individual-level reproductive number.
 #' 
-#' This function is meant to be called by \code{\link{calcR}}
+#' This function is meant to be called by \code{\link{estimateR}}
 #' which estimates the individual-level, time-level, and average reproductive numbers, 
 #' but it can also be run directly.
 #'
@@ -247,12 +247,12 @@ calcR <- function(probs, indIDVar, dateVar, pVar,
 #'        \item \code{nInfectees} - the number of possible infectees for this individual.
 #'      }
 #'      
-#' @seealso \code{\link{calcR}}
+#' @seealso \code{\link{estimateR}}
 #' 
 #' @export
 
 
-calcRi <- function(probs, indIDVar, dateVar, pVar){
+estimateRi <- function(probs, indIDVar, dateVar, pVar){
   
   probs <- as.data.frame(probs)
   #Creating variables with the individual indID and date variables
@@ -288,10 +288,10 @@ calcRi <- function(probs, indIDVar, dateVar, pVar){
 
 #' Estimates time-level reproductive numbers
 #'
-#' The function \code{calcRt} estimates the time-level effective reproductive number
+#' The function \code{estimateRt} estimates the time-level effective reproductive number
 #' from individual-level reproductive numbers.
 #' 
-#' This function is meant to be called by \code{\link{calcR}}
+#' This function is meant to be called by \code{\link{estimateR}}
 #' which estimates the individual-level and time-level, and average reproductive numbers, 
 #' but it can also be run directly.
 #'
@@ -308,11 +308,11 @@ calcRi <- function(probs, indIDVar, dateVar, pVar){
 #'        \item \code{Rt} - the time-level reproductive number for this time frame.
 #'      }
 #' 
-#' @seealso \code{\link{calcR}}
+#' @seealso \code{\link{estimateR}}
 #' 
 #' @export
 
-calcRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months", "years")){
+estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months", "years")){
   
   #### Creating ranks for the time interval ####
   
@@ -378,7 +378,7 @@ calcRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months", "ye
 #' Averages the time-level reproductive numbers within a certain range to estimate the overall
 #' reproductive number for an oubreak.
 #' 
-#' This function is meant to be called by \code{\link{calcR}}
+#' This function is meant to be called by \code{\link{estimateR}}
 #' which estimates the individual-level and time-level, and average reproductive numbers,
 #' but it can also be run directly.
 #'
@@ -392,12 +392,12 @@ calcRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months", "ye
 #'         specified in \code{rangeForAvg}.
 #'      }
 #' 
-#' @seealso \code{\link{calcR}}
+#' @seealso \code{\link{estimateR}}
 #'  
 #' @export
 
 
-calcRtAvg <- function(rtData, rangeForAvg = NULL){
+estimateRtAvg <- function(rtData, rangeForAvg = NULL){
   
   #Printing a note if you do not specify a range for the average 
   if(is.null(rangeForAvg)){

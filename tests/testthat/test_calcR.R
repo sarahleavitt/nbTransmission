@@ -15,14 +15,14 @@ table(orderedPair$snpClose)
 
 ## Running the algorithm
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-resGen <- calcProbabilities(orderedPair = orderedPair, indIDVar = "individualID",
+resGen <- nbProbabilities(orderedPair = orderedPair, indIDVar = "individualID",
                             pairIDVar = "pairID", goldStdVar = "snpClose",
                             covariates = covariates, nReps = 1)
 allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 
 #Creating a function with defaults equal to my simulated data
-calcRWrapper <- function(orderedPair,
+estimateRWrapper <- function(orderedPair,
                          dateVar = "infectionDate",
                          indIDVar = "individualID",
                          pVar = "pScaled",
@@ -31,7 +31,7 @@ calcRWrapper <- function(orderedPair,
                          bootSamples = 0,
                          alpha = 0.05){
   
-  rList <- calcR(allProbs, dateVar = dateVar, indIDVar = indIDVar,
+  rList <- estimateR(allProbs, dateVar = dateVar, indIDVar = indIDVar,
               pVar = pVar, timeFrame = timeFrame, rangeForAvg = rangeForAvg,
               bootSamples = bootSamples, alpha = alpha)
   
@@ -39,17 +39,17 @@ calcRWrapper <- function(orderedPair,
 }
 
 #Run with range specified and no CI
-rDataR <- calcRWrapper(allProbs, rangeForAvg = c(10, 100))
+rDataR <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100))
 #Run with range specified and CI
-rDataRC <- calcRWrapper(allProbs, rangeForAvg = c(10, 100), bootSamples = 10)
+rDataRC <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100), bootSamples = 10)
 
 #Run with no range specified and no CI
-#rData <- calcRWrapper(allProbs)
+#rData <- estimateRWrapper(allProbs)
 #Run with no range specified and CI
-#rDataC <- calcRWrapper(allProbs, bootSamples = 10)
+#rDataC <- estimateRWrapper(allProbs, bootSamples = 10)
 
 
-test_that("calcR returns a list of three dataframes for valid input",{
+test_that("estimateR returns a list of three dataframes for valid input",{
   
   expect_true(is.data.frame(rDataR[[1]]))
   expect_true(is.data.frame(rDataR[[2]]))

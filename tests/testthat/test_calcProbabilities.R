@@ -1,5 +1,5 @@
 
-context("calcProbabilities Function")
+context("nbProbabilities Function")
 library(nbTransmission)
 
 ## Use the pairData dataset which represents a TB-like outbreak
@@ -16,14 +16,14 @@ covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 ## Running the algorithm
 
 #Creating a function with defaults equal to my simulated data
-calcProbWrapper <- function(orderedPair,
+nbProbWrapper <- function(orderedPair,
                             indIDVar = "individualID",
                             pairIDVar = "pairID",
                             goldStdVar = "snpClose",
                             covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
                             nReps = 1){
   
-  resGen <- calcProbabilities(orderedPair = orderedPair,
+  resGen <- nbProbabilities(orderedPair = orderedPair,
                               indIDVar = indIDVar,
                               pairIDVar = pairIDVar,
                               goldStdVar = goldStdVar,
@@ -33,9 +33,9 @@ calcProbWrapper <- function(orderedPair,
 }
 
 
-test_that("calcProbabilities returns a list of two dataframes for valid input",{
+test_that("nbProbabilities returns a list of two dataframes for valid input",{
   
-  resGen <- calcProbWrapper(orderedPair)
+  resGen <- nbProbWrapper(orderedPair)
   expect_true(is.data.frame(resGen[[1]]))
   expect_true(is.data.frame(resGen[[2]]))
 })
@@ -43,18 +43,18 @@ test_that("calcProbabilities returns a list of two dataframes for valid input",{
 
 test_that("Descriptive error messages returned",{
 
- expect_error(calcProbWrapper(orderedPair, indIDVar = "garbage"),
+ expect_error(nbProbWrapper(orderedPair, indIDVar = "garbage"),
               "garbage.1 is not in the dataframe.")
  
  #Removing individualID.2 column
  orderedPair2 <- orderedPair[!names(orderedPair) %in% c("individualID.2")]
- expect_error(calcProbWrapper(orderedPair2, indIDVar = "individualID"),
+ expect_error(nbProbWrapper(orderedPair2, indIDVar = "individualID"),
               "individualID.2 is not in the dataframe.")
  
- expect_error(calcProbWrapper(orderedPair, pairIDVar = "garbage"),
+ expect_error(nbProbWrapper(orderedPair, pairIDVar = "garbage"),
               "garbage is not in the dataframe.")
  
- expect_error(calcProbWrapper(orderedPair, goldStdVar = "garbage"),
+ expect_error(nbProbWrapper(orderedPair, goldStdVar = "garbage"),
               "garbage is not in the dataframe.")
   
 })

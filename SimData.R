@@ -117,7 +117,7 @@ table(orderedPair$snpClose, useNA = "ifany")
 
 ## Running the algorithm
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-resGen <- calcProbabilities(orderedPair = orderedPair,
+resGen <- nbProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
                             pairIDVar = "pairID",
                             goldStdVar = "snpClose",
@@ -135,7 +135,7 @@ simEvaluate(allProbs)
 
 ## Calculating reproductive number ##
 
-rInitial <- calcR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
+rInitial <- estimateR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
                   pVar = "pScaled", timeFrame = "months")
 rt <- rInitial$RtDf
 
@@ -151,7 +151,7 @@ ggplot(data = rt, aes(x = timeRank, y = Rt)) +
   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7) +
   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7)
 
-rFinal <- calcR(allProbs, dateVar = "infectionDate",
+rFinal <- estimateR(allProbs, dateVar = "infectionDate",
                      indIDVar = "individualID", pVar = "pScaled",
                      timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
                      bootSamples = 10, alpha = 0.05)

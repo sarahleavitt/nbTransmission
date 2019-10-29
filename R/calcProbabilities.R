@@ -1,7 +1,7 @@
 
 #' Calculates Relative Transmission Probabilities
 #'
-#' The function \code{calcProbabilities} uses naive Bayes and an interative estimation
+#' The function \code{nbProbabilities} uses naive Bayes and an interative estimation
 #' procedure to calculate relative transmission probabilities
 #'
 #' This algorithm takes a dataset of ordered possible infector-infectee pairs in an
@@ -84,7 +84,7 @@
 #' ## Running the algorithm
 #' #NOTE should run with nReps > 1.
 #' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-#' resGen <- calcProbabilities(orderedPair = orderedPair,
+#' resGen <- nbProbabilities(orderedPair = orderedPair,
 #'                             indIDVar = "individualID",
 #'                             pairIDVar = "pairID",
 #'                             goldStdVar = "snpClose",
@@ -99,7 +99,7 @@
 
 
 
-calcProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
+nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar,
                               covariates, label = "", l = 1,
                               n = 10, m = 1, nReps = 10){
   
