@@ -179,7 +179,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                                pAvg = mean(!!rlang::sym("p"), na.rm = TRUE),
                                pSD = stats::sd(!!rlang::sym("p"), na.rm = TRUE),
                                nSamples = sum(!is.na(!!rlang::sym("p"))),
-                               label = "label")
+                               label = first(label))
   sumData2 <- dplyr::ungroup(sumData2)
   
   probs <- as.data.frame(dplyr::full_join(sumData2, orderedPair, by = pairIDVar))
