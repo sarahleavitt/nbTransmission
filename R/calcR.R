@@ -29,12 +29,12 @@
 #' both the time-level and average reproductive numbers.
 #' 
 #' 
-#' @param probs The name of the dateset with transmission probabilities
+#' @param df The name of the dateset with transmission probabilities
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param dateVar The name (in quotes) of the columns with the dates that the individuals are
-#' observed (dataframe \code{probs} must have variables called \code{<dateVar>.1} and
+#' observed (dataframe \code{df} must have variables called \code{<dateVar>.1} and
 #' \code{<dateVar>.2}).
 #' @param pVar The column name (in quotes) of the transmission probabilities.
 #' @param timeFrame The time frame used to calculate Rt.
@@ -144,11 +144,11 @@
 #' 
 #' @export
 
-estimateR <- function(probs, indIDVar, dateVar, pVar,
+estimateR <- function(df, indIDVar, dateVar, pVar,
                    timeFrame = c("days", "months", "weeks", "years"),
                    rangeForAvg = NULL, bootSamples = 0, alpha = 0.05){
   
-  probs <- as.data.frame(probs)
+  df <- as.data.frame(df)
   #Creating variables with the individual ID and date variables
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
@@ -156,7 +156,7 @@ estimateR <- function(probs, indIDVar, dateVar, pVar,
   dateVar2 <-  paste0(dateVar, ".2")
   
   #Calculating the individual-level reproductive number
-  riEst <- estimateRi(probs, pVar = pVar, indIDVar = indIDVar, dateVar = dateVar)
+  riEst <- estimateRi(df, pVar = pVar, indIDVar = indIDVar, dateVar = dateVar)
   
   #Calculating the time-level reproductibe number
   rtEst <- estimateRt(riEst, dateVar = dateVar, timeFrame = timeFrame)
@@ -176,7 +176,7 @@ estimateR <- function(probs, indIDVar, dateVar, pVar,
     bootRt <- data.frame(c("timeRank" = integer(), "Rt" = numeric(),
                            "time" = character()), "rep" = integer())
     for(i in 1:bootSamples){
-      oneRep <- estimateRt(simulateRi(probs, riEst, pVar = pVar, indIDVar = indIDVar),
+      oneRep <- estimateRt(simulateRi(df, riEst, pVar = pVar, indIDVar = indIDVar),
                        dateVar = dateVar, timeFrame = "months")
       oneRep$rep <- i
       bootRt <- rbind(bootRt, oneRep)
@@ -232,12 +232,12 @@ estimateR <- function(probs, indIDVar, dateVar, pVar,
 #' which estimates the individual-level, time-level, and average reproductive numbers, 
 #' but it can also be run directly.
 #'
-#' @param probs The name of the dateset with transmission probabilities
+#' @param df The name of the dateset with transmission probabilities
 #' @param indIDVar The variable name (in quotes) of the individual ID varaibles 
-#' (dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
 #' and \code{<indIDVar>.2}).
 #' @param dateVar The variable name (in quotes) of the dates that the individuals
-#' are observed (dataframe \code{probs}  must have variables called \code{<dateVar>.1}
+#' are observed (dataframe \code{df}  must have variables called \code{<dateVar>.1}
 #' and \code{<dateVar>.2}).
 #' @param pVar The variable name (in quotes) of the transmission probabilities.
 #'
@@ -254,9 +254,9 @@ estimateR <- function(probs, indIDVar, dateVar, pVar,
 #' @export
 
 
-estimateRi <- function(probs, indIDVar, dateVar, pVar){
+estimateRi <- function(df, indIDVar, dateVar, pVar){
   
-  probs <- as.data.frame(probs)
+  df <- as.data.frame(df)
   #Creating variables with the individual indID and date variables
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
@@ -266,13 +266,13 @@ estimateRi <- function(probs, indIDVar, dateVar, pVar){
   #### Calculating individual-level reproductive number ####
   
   #Summing the scaled probabilties to get individual-level reproductive numer
-  sumP <- stats::aggregate(probs[, pVar], by = list(probs[, indIDVar1]), sum)
+  sumP <- stats::aggregate(df[, pVar], by = list(df[, indIDVar1]), sum)
   names(sumP) <- c(indIDVar, "Ri")
   #Finding the number of possible infectors per infectee
-  nInf <- as.data.frame(table(probs[, indIDVar1]))
+  nInf <- as.data.frame(table(df[, indIDVar1]))
   names(nInf) <- c(indIDVar, "nInfectees")
   #Extracting the date of infection for each infectee
-  dateInfo <- probs[!duplicated(probs[, indIDVar1]), c(indIDVar1, dateVar1)]
+  dateInfo <- df[!duplicated(df[, indIDVar1]), c(indIDVar1, dateVar1)]
   names(dateInfo) <- c(indIDVar, dateVar)
   
   #Combining these variables to create Ri data frame
@@ -418,15 +418,15 @@ estimateRtAvg <- function(rtData, rangeForAvg = NULL){
 
 
 #Function that simulates Ri from the probabilities
-simulateRi <- function(probs, riEst, pVar, indIDVar){
+simulateRi <- function(df, riEst, pVar, indIDVar){
   
   #Creating variables with the individual indID and date variables
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
   #Making a matrix of probabilities for speedy calculation
-  probsM <- unclass(stats::xtabs(probs[, pVar] ~ probs[, indIDVar1] + probs[, indIDVar2]))
-  Ri <- apply(probsM, 1, function(x) poisbinom::rpoisbinom(n = 1, pp = x))
+  dfM <- unclass(stats::xtabs(df[, pVar] ~ df[, indIDVar1] + df[, indIDVar2]))
+  Ri <- apply(dfM, 1, function(x) poisbinom::rpoisbinom(n = 1, pp = x))
   riNew <- cbind.data.frame(names(Ri), Ri, stringsAsFactors = "FALSE")
   names(riNew) <- c(indIDVar, "Ri")
   

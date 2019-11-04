@@ -4,17 +4,17 @@
 \alias{estimateRi}
 \title{Estimates individual-level reproductive numbers}
 \usage{
-estimateRi(probs, indIDVar, dateVar, pVar)
+estimateRi(df, indIDVar, dateVar, pVar)
 }
 \arguments{
-\item{probs}{The name of the dateset with transmission probabilities}
+\item{df}{The name of the dateset with transmission probabilities}
 
 \item{indIDVar}{The variable name (in quotes) of the individual ID varaibles 
-(dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+(dataframe \code{df} must have variables called \code{<indIDVar>.1}
 and \code{<indIDVar>.2}).}
 
 \item{dateVar}{The variable name (in quotes) of the dates that the individuals
-are observed (dataframe \code{probs}  must have variables called \code{<dateVar>.1}
+are observed (dataframe \code{df}  must have variables called \code{<dateVar>.1}
 and \code{<dateVar>.2}).}
 
 \item{pVar}{The variable name (in quotes) of the transmission probabilities.}

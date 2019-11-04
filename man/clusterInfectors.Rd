@@ -4,14 +4,14 @@
 \alias{clusterInfectors}
 \title{Clusters the infectors based on their transmission probabilities}
 \usage{
-clusterInfectors(probs, indIDVar, pVar, clustMethod = c("n", "kd",
+clusterInfectors(df, indIDVar, pVar, clustMethod = c("n", "kd",
   "hc_absolute", "hc_relative"), cutoff)
 }
 \arguments{
-\item{probs}{The name of the dateset with transmission probabilities.}
+\item{df}{The name of the dateset with transmission probabilities.}
 
 \item{indIDVar}{The name (in quotes) of the individual ID columns
-(dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+(dataframe \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
 
 \item{pVar}{The name (in quotes) of the column with transmission probabilities.}
@@ -21,7 +21,7 @@ clusterInfectors(probs, indIDVar, pVar, clustMethod = c("n", "kd",
 \item{cutoff}{The cutoff for clustering (see details).}
 }
 \value{
-The original data frame (\code{probs}) with a new column called \code{cluster}
+The original data frame (\code{df}) with a new column called \code{cluster}
 which is a factor variable with value \code{1} if the infector is in the top cluster
 or \code{2} if the infector is in the bottom cluster.
 }

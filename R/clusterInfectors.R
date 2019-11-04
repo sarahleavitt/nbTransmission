@@ -33,16 +33,16 @@
 #' are reassigned to the bottom cluster (indicating no real clustering).
 #' 
 #' 
-#' @param probs The name of the dateset with transmission probabilities.
+#' @param df The name of the dateset with transmission probabilities.
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param pVar The name (in quotes) of the column with transmission probabilities.
 #' @param clustMethod The method used to cluster the infectors (see details).
 #' @param cutoff The cutoff for clustering (see details).
 #' 
 #'
-#' @return The original data frame (\code{probs}) with a new column called \code{cluster}
+#' @return The original data frame (\code{df}) with a new column called \code{cluster}
 #' which is a factor variable with value \code{1} if the infector is in the top cluster
 #' or \code{2} if the infector is in the bottom cluster.
 #' 
@@ -109,31 +109,31 @@
 
 
 
-clusterInfectors <- function(probs, indIDVar, pVar,
+clusterInfectors <- function(df, indIDVar, pVar,
                              clustMethod = c("n", "kd", "hc_absolute", "hc_relative"),
                              cutoff){
   
-  probs <- as.data.frame(probs)
+  df <- as.data.frame(df)
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
   #Ranking the probabilities for each possible infector
   #Ties are set to the minimum rank of that group
-  probs <- probs[order(probs[, indIDVar2], -probs[, pVar]), ]
-  probs$pRank <- stats::ave(-probs[, pVar], probs[, indIDVar2], 
+  df <- df[order(df[, indIDVar2], -df[, pVar]), ]
+  df$pRank <- stats::ave(-df[, pVar], df[, indIDVar2], 
                              FUN = function(x){
                                rank(x, ties.method = "min") 
                              })
   
   #Adding the number of infectors
-  nInf <- as.data.frame(table(probs[, indIDVar2]))
+  nInf <- as.data.frame(table(df[, indIDVar2]))
   names(nInf) <- c(indIDVar2, "nInfectors")
-  probs2 <- merge(probs, nInf, by = indIDVar2, all = TRUE)
+  df2 <- merge(df, nInf, by = indIDVar2, all = TRUE)
   
   #Splitting the dataframe to those who have one infector and multiple infectors
-  multInf <- probs2[probs2$nInfectors > 1, ]
-  oneInf <- probs2[probs2$nInfectors == 1, ]
+  multInf <- df2[df2$nInfectors > 1, ]
+  oneInf <- df2[df2$nInfectors == 1, ]
   
   #If there is one infector, it should be in the top cluster
   oneInf$cluster <- 1

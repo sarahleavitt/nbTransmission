@@ -4,19 +4,19 @@
 \alias{estimateR}
 \title{Estimates the effective reproductive number}
 \usage{
-estimateR(probs, indIDVar, dateVar, pVar, timeFrame = c("days", "months",
+estimateR(df, indIDVar, dateVar, pVar, timeFrame = c("days", "months",
   "weeks", "years"), rangeForAvg = NULL, bootSamples = 0,
   alpha = 0.05)
 }
 \arguments{
-\item{probs}{The name of the dateset with transmission probabilities}
+\item{df}{The name of the dateset with transmission probabilities}
 
 \item{indIDVar}{The name (in quotes) of the individual ID columns
-(dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+(dataframe \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
 
 \item{dateVar}{The name (in quotes) of the columns with the dates that the individuals are
-observed (dataframe \code{probs} must have variables called \code{<dateVar>.1} and
+observed (dataframe \code{df} must have variables called \code{<dateVar>.1} and
 \code{<dateVar>.2}).}
 
 \item{pVar}{The column name (in quotes) of the transmission probabilities.}

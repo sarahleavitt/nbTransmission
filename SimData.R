@@ -224,11 +224,12 @@ performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
 
 ## Creating Plots ##
 
+colBreaks <- c(-0.01, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1)
+
 nodes <- (indData
           %>% select(individualID, infectionDate)
           %>% arrange(infectionDate)
 )
-colBreaks <- c(-0.01, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1)
 
 #Clustering the infectors
 clustRes <- (allProbs
@@ -247,7 +248,7 @@ edges <- (clustRes
           %>% arrange(pScaled)
 )
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = T)
-E(net)$pGroup <- cut(E(net)$pScaled, breaks = colBreaks, labels = 1:9)
+E(net)$pGroup <- cut(E(net)$pScaled, breaks = probBreaks, labels = 1:9)
 #First get adjacency version of the network using pScaled
 net.adj <- get.adjacency(net, attr = "pScaled", sparse = FALSE)
 

@@ -22,16 +22,16 @@
 #' \code{clustMethod = "none"}. However, if the probabilities are from a algorithm such as
 #' \code{\link{nbProbabilities}}, then it is recommeneded to use a clustering method
 #' and only include the top cluster of infectors for infectees which have such a cluster.
-#' This can be specified by using the \code{clustMethod} and \code{cutoff} arguements which
+#' This can be specified by using the \code{clustMethod} and \code{cutoff} arguments which
 #' are passed into \code{\link{clusterInfectors}}. See the details of this function for
 #' a description of the different clustering methods.
 #' 
 #' The method can be performed with any serial interval distribution,
 #' but this version of this function assumes that the serial interval has a gamma distribution.
-#' The function does allow for a shifted gamma distribution. The \code{shift} arguement
+#' The function does allow for a shifted gamma distribution. The \code{shift} argument
 #' defines how much the gamma distribution should be shifted. Any observed serial intervals
 #' that are less than this shift will have probability 0. This parameter should be used if 
-#' there is a clinically lower bound for the possible serial interval. If this arguement
+#' there is a clinically lower bound for the possible serial interval. If this argument
 #' is not specified then a standard gamma function is used. The units of the
 #' estimated gamma distribution will be defined by the units of the provided
 #' \code{<timeDiffVar>} column. The value of the \code{shift} should be in the same units.
@@ -42,9 +42,9 @@
 #' 
 #' 
 #' 
-#' @param probs The name of the dateset with transmission probabilities.
+#' @param df The name of the dateset with transmission probabilities.
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param timeDiffVar The name (in quotes) of the column with the difference
 #' in time between symptom onset (or its proxy) for the pair of cases. The
@@ -134,12 +134,12 @@
 #' @export
  
 
-estimateSI <- function(probs, indIDVar, timeDiffVar, pVar,
+estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
                        clustMethod = c("none", "n", "kd", 
                                        "hc_absolute", "hc_relative"),
                        cutoff = NA, initialPars, shift = 0, epsilon = 0.00001){
   
-  probs <- as.data.frame(probs)
+  df <- as.data.frame(df)
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
@@ -148,9 +148,9 @@ estimateSI <- function(probs, indIDVar, timeDiffVar, pVar,
   #the probabilities based on clustMethod and cutoff, then restricting to
   #just the top cluster to be used for estimation
   if(clustMethod == "none"){
-    topClust <- probs
+    topClust <- df
   }else{
-    clustRes <- clusterInfectors(probs, indIDVar = indIDVar, pVar = pVar,
+    clustRes <- clusterInfectors(df, indIDVar = indIDVar, pVar = pVar,
                                  clustMethod = clustMethod, cutoff = cutoff)
     topClust <- clustRes[clustRes$cluster == 1, ]
   }
@@ -206,7 +206,7 @@ estimateSI <- function(probs, indIDVar, timeDiffVar, pVar,
 #' 
 #' @param df The name of the dateset with transmission probabilities.
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param timeDiffVar The name (in quotes) of the column with the difference
 #' in time between symptom onset (or its proxy) for the pair of cases. The

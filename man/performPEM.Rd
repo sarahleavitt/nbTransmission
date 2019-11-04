@@ -11,7 +11,7 @@ performPEM(df, indIDVar, timeDiffVar, pVar, initialPars, shift = 0,
 \item{df}{The name of the dateset with transmission probabilities.}
 
 \item{indIDVar}{The name (in quotes) of the individual ID columns
-(dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+(dataframe \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
 
 \item{timeDiffVar}{The name (in quotes) of the column with the difference

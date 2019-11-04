@@ -4,15 +4,15 @@
 \alias{estimateSI}
 \title{Estimates the serial interval distribution}
 \usage{
-estimateSI(probs, indIDVar, timeDiffVar, pVar, clustMethod = c("none",
-  "n", "kd", "hc_absolute", "hc_relative"), cutoff = NA, initialPars,
+estimateSI(df, indIDVar, timeDiffVar, pVar, clustMethod = c("none", "n",
+  "kd", "hc_absolute", "hc_relative"), cutoff = NA, initialPars,
   shift = 0, epsilon = 1e-05)
 }
 \arguments{
-\item{probs}{The name of the dateset with transmission probabilities.}
+\item{df}{The name of the dateset with transmission probabilities.}
 
 \item{indIDVar}{The name (in quotes) of the individual ID columns
-(dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+(dataframe \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
 
 \item{timeDiffVar}{The name (in quotes) of the column with the difference

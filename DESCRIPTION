@@ -25,9 +25,12 @@ Imports:
     stats,
     utils
 Suggests: 
+    ggplot2,
+    igraph,
     knitr,
+    pheatmap,
+    RColorBrewer,
     rmarkdown,
     testthat,
-    tidyr,
-    ggplot2
+    tidyr
 VignetteBuilder: knitr
