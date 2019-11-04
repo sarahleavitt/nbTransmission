@@ -22,7 +22,7 @@
 \item{Z1}{Pair-level covariate derived from X1: 1 if match, 0 if not match}
 \item{Z2}{Pair-level covariate derived from X2: 1 if match, 0 if not match}
 \item{Z3}{Pair-level covariate derived from X3: 1 if a-a, 2 if b-b, 3 if a-b, 4 if b-a}
-\item{Z4}{Pair-level covariate derived from X4: 3 if match, 2 if adjacent, 1 otherwise}
+\item{Z4}{Pair-level covariate derived from X4: 1 if match, 2 if adjacent, 2 otherwise}
 }}
 \usage{
 pairData

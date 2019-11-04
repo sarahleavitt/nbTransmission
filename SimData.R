@@ -158,19 +158,68 @@ rFinal <- estimateR(allProbs, dateVar = "infectionDate",
 
 rFinal$RtAvgDf
 
-ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
-  scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
-  scale_x_continuous(name = "Infection Month") +
-  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
-  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
-  geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +
-  geom_hline(data = rFinal[[3]], aes(yintercept = ciLower), linetype = 2, 
-             size = 0.7, color = "black") +
-  geom_hline(data = rFinal[[3]], aes(yintercept = ciUpper), linetype = 2, 
-             size = 0.7, color = "black")
+
+
+
+## Clustering Probabilities ##
+
+## Clustering using top n
+# Top cluster includes infectors with highest 3 probabilities
+clust1 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "n", cutoff = 3)
+table(clust1$cluster)
+
+## Clustering using hierarchical clustering
+
+# Cluster all infectees, do not force gap to be certain size
+clust2 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "hc_absolute", cutoff = 0)
+table(clust2$cluster)
+
+# Absolute difference: gap between top and bottom clusters is more than 0.05
+clust3 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "hc_absolute", cutoff = 0.05)
+table(clust3$cluster)
+
+# Relative difference: gap between top and bottom clusters is more than double any other gap
+clust4 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "hc_relative", cutoff = 2)
+table(clust4$cluster)
+
+## Clustering using kernel density estimation
+# Using a small binwidth of 0.01
+clust5 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "kd", cutoff = 0.01)
+table(clust5$cluster)
+
+
+## Estimating the Serial Interval ##
+
+#Using wrapper
+estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+           pVar = "pScaled", clustMethod = "none", initialPars = c(2, 2))
+
+estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+           initialPars = c(2, 2))
+
+#Using a shift
+estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+           initialPars = c(2, 2), shift = 0.25)
+
+
+#Using clusterInfectors and performPEM
+performPEM(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+           pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)
+
+allClust <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+                             clustMethod = "hc_absolute", cutoff = 0.05)
+
+performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
+           timeDiffVar = "infectionDiffY", pVar = "pScaled",
+           initialPars = c(2, 2), shift = 0, plot = TRUE)
+
 
 
 ## Creating Plots ##
@@ -257,6 +306,21 @@ plot(net, vertex.size = 7, vertex.label.cex = 0.7,
      edge.width = 2, edge.arrow.size = 0.4, layout = l,
      edge.color = brewer.pal(9,"Blues")[E(net)$pGroup])
 
+
+#Plot of reproductive number over time
+ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
+  geom_point() +
+  geom_line() +
+  geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
+  scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
+  scale_x_continuous(name = "Infection Month") +
+  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
+  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
+  geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +
+  geom_hline(data = rFinal[[3]], aes(yintercept = ciLower), linetype = 2, 
+             size = 0.7, color = "black") +
+  geom_hline(data = rFinal[[3]], aes(yintercept = ciUpper), linetype = 2, 
+             size = 0.7, color = "black")
 
 
 

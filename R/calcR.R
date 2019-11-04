@@ -1,5 +1,5 @@
 
-#' Calculates the effective reproductive number
+#' Estimates the effective reproductive number
 #'
 #' The function \code{estimateR} uses the relative transmission probabilities to estimate
 #' the individual-level, time-level, and average effective reproductive numbers
@@ -30,13 +30,13 @@
 #' 
 #' 
 #' @param probs The name of the dateset with transmission probabilities
-#' @param indIDVar The variable name (in quotes) of the individual ID varaibles
-#' (dataframe \code{probs} 
-#' must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
-#' @param dateVar The variable name (in quotes) of the dates that the individuals are
-#' observed (dataframe \code{probs}  must have variables called \code{<dateVar>.1} and
+#' @param indIDVar The name (in quotes) of the individual ID columns
+#' (dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+#'  and \code{<indIDVar>.2}).
+#' @param dateVar The name (in quotes) of the columns with the dates that the individuals are
+#' observed (dataframe \code{probs} must have variables called \code{<dateVar>.1} and
 #' \code{<dateVar>.2}).
-#' @param pVar The variable name (in quotes) of the transmission probabilities.
+#' @param pVar The column name (in quotes) of the transmission probabilities.
 #' @param timeFrame The time frame used to calculate Rt.
 #' @param rangeForAvg A vector with the start and ending time period to be used to calculate
 #' the average effective reproductive number.
@@ -92,7 +92,7 @@
 #' ## Running the algorithm
 #' #NOTE should run with nReps > 1
 #' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-#' resGen <- calcProbabilities(orderedPair = orderedPair,
+#' resGen <- nbProbabilities(orderedPair = orderedPair,
 #'                             indIDVar = "individualID",
 #'                             pairIDVar = "pairID",
 #'                             goldStdVar = "snpClose",
@@ -130,15 +130,17 @@
 #'              timeFrame = "months",
 #'              rangeForAvg = c(monthCut1, monthCut2),
 #'              bootSamples = 10, alpha = 0.05)
-
+#'
 #' rFinal$RtAvgDf
-#'   
-#'   
+#' 
+#' @seealso \code{\link{nbProbabilities}} \code{\link{estimateRi}}
+#'  \code{\link{estimateRt}} \code{\link{estimateRtAvg}}
+#' 
 #' 
 #' @references 
-#' Wallinga J, Teunis P. Different epidemic curves for severe acute respiratory syndrome reveal
-#' similar impacts of control measures. American Journal of epidemiology.
-#' 2004 Sep 15;160(6):509-16.
+#' Wallinga J, Teunis P. Different epidemic curves for severe acute respiratory
+#' syndrome reveal similar impacts of control measures.
+#' \emph{American Journal of Epidemiology}. 2004 Sep 15;160(6):509-16.
 #' 
 #' @export
 
@@ -147,7 +149,7 @@ estimateR <- function(probs, indIDVar, dateVar, pVar,
                    rangeForAvg = NULL, bootSamples = 0, alpha = 0.05){
   
   probs <- as.data.frame(probs)
-  #Creating variables with the individual indID and date variables
+  #Creating variables with the individual ID and date variables
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   dateVar1 <- paste0(dateVar, ".1")
@@ -247,7 +249,7 @@ estimateR <- function(probs, indIDVar, dateVar, pVar,
 #'        \item \code{nInfectees} - the number of possible infectees for this individual.
 #'      }
 #'      
-#' @seealso \code{\link{estimateR}}
+#' @seealso \code{\link{estimateR}} \code{\link{estimateRt}} \code{\link{estimateRtAvg}}
 #' 
 #' @export
 
@@ -308,7 +310,7 @@ estimateRi <- function(probs, indIDVar, dateVar, pVar){
 #'        \item \code{Rt} - the time-level reproductive number for this time frame.
 #'      }
 #' 
-#' @seealso \code{\link{estimateR}}
+#' @seealso \code{\link{estimateR}} \code{\link{estimateRi}} \code{\link{estimateRtAvg}}
 #' 
 #' @export
 
@@ -392,7 +394,7 @@ estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months",
 #'         specified in \code{rangeForAvg}.
 #'      }
 #' 
-#' @seealso \code{\link{estimateR}}
+#' @seealso \code{\link{estimateR}} \code{\link{estimateRi}} \code{\link{estimateRt}}
 #'  
 #' @export
 

@@ -52,10 +52,10 @@ List containing two dataframes:
      \itemize{
        \item \code{level} - the covariate name and level
        \item \code{label} - the optional label of the run
-       \item \code{ratioMean} - the mean value of the likelihood ratio across runs
-       \item \code{ratioMin} - the min value of the likelihood ratio across runs
-       \item \code{ratioMax} - the max value of the likelihood ratio across runs
-       \item \code{ratioSD} - the standard deviation of the likelihood ratio across runs
+       \item \code{oddsMean} - the mean value of the likelihood odds across runs
+       \item \code{oddsMin} - the min value of the likelihood odds across runs
+       \item \code{oddsMax} - the max value of the likelihood odds across runs
+       \item \code{oddsSD} - the standard deviation of the likelihood odds across runs
        \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
      }
 }

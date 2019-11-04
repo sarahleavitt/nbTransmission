@@ -18,6 +18,7 @@ BugReports: https://github.com/sv1205/nbTransmission/issues
 LazyData: true
 Imports: 
     dplyr,
+    rlang,
     caret,
     lubridate,
     poisbinom,
@@ -27,6 +28,6 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    rlang,
+    tidyr,
     ggplot2
 VignetteBuilder: knitr

@@ -38,5 +38,5 @@ which estimates the individual-level, time-level, and average reproductive numbe
 but it can also be run directly.
 }
 \seealso{
-\code{\link{estimateR}}
+\code{\link{estimateR}} \code{\link{estimateRt}} \code{\link{estimateRtAvg}}
 }

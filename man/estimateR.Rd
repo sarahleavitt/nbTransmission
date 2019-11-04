@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcR.R
 \name{estimateR}
 \alias{estimateR}
-\title{Calculates the effective reproductive number}
+\title{Estimates the effective reproductive number}
 \usage{
 estimateR(probs, indIDVar, dateVar, pVar, timeFrame = c("days", "months",
   "weeks", "years"), rangeForAvg = NULL, bootSamples = 0,
@@ -11,15 +11,15 @@ estimateR(probs, indIDVar, dateVar, pVar, timeFrame = c("days", "months",
 \arguments{
 \item{probs}{The name of the dateset with transmission probabilities}
 
-\item{indIDVar}{The variable name (in quotes) of the individual ID varaibles
-(dataframe \code{probs} 
-must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
+\item{indIDVar}{The name (in quotes) of the individual ID columns
+(dataframe \code{probs} must have variables called \code{<indIDVar>.1}
+ and \code{<indIDVar>.2}).}
 
-\item{dateVar}{The variable name (in quotes) of the dates that the individuals are
-observed (dataframe \code{probs}  must have variables called \code{<dateVar>.1} and
+\item{dateVar}{The name (in quotes) of the columns with the dates that the individuals are
+observed (dataframe \code{probs} must have variables called \code{<dateVar>.1} and
 \code{<dateVar>.2}).}
 
-\item{pVar}{The variable name (in quotes) of the transmission probabilities.}
+\item{pVar}{The column name (in quotes) of the transmission probabilities.}
 
 \item{timeFrame}{The time frame used to calculate Rt.}
 
@@ -108,7 +108,7 @@ table(orderedPair$snpClose)
 ## Running the algorithm
 #NOTE should run with nReps > 1
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-resGen <- calcProbabilities(orderedPair = orderedPair,
+resGen <- nbProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
                             pairIDVar = "pairID",
                             goldStdVar = "snpClose",
@@ -128,8 +128,8 @@ rInitial <- estimateR(allProbs, dateVar = "infectionDate",
 ## Finding the stable portion of the outbreak for rangeForAvg
 rt <- rInitial$RtDf
 totalTime <- max(rt$timeRank, na.rm = TRUE) - min(rt$timeRank, na.rm = TRUE)
-monthCut1 <- ceiling(0.15 * totalTime)
-monthCut2 <- ceiling(0.85 * totalTime)
+monthCut1 <- ceiling(0.1 * totalTime)
+monthCut2 <- ceiling(0.8 * totalTime)
 
 ## NOT RUN ##
 # ggplot(data = rt, aes(x = timeRank, y = Rt)) +
@@ -146,13 +146,16 @@ rFinal <- estimateR(allProbs, dateVar = "infectionDate",
              timeFrame = "months",
              rangeForAvg = c(monthCut1, monthCut2),
              bootSamples = 10, alpha = 0.05)
+
 rFinal$RtAvgDf
-  
-  
 
 }
 \references{
-Wallinga J, Teunis P. Different epidemic curves for severe acute respiratory syndrome reveal
-similar impacts of control measures. American Journal of epidemiology.
-2004 Sep 15;160(6):509-16.
+Wallinga J, Teunis P. Different epidemic curves for severe acute respiratory
+syndrome reveal similar impacts of control measures.
+\emph{American Journal of Epidemiology}. 2004 Sep 15;160(6):509-16.
+}
+\seealso{
+\code{\link{nbProbabilities}} \code{\link{estimateRi}}
+ \code{\link{estimateRt}} \code{\link{estimateRtAvg}}
 }

@@ -164,8 +164,16 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
       
       #Saving the odds: P(Outcome = TRUE|X=x, W) / P(Outcome = FALSE|X=x, W)
       odds <- Tab[, 2] / Tab[, 1]
-      level <- paste(Var, names(odds), sep = ":")
-      cTemp <- cbind.data.frame(level, odds, stringsAsFactors = FALSE)
+      or <- odds/odds[1]
+      num <- W * table(training[, Var], training[, goldStdVar]) + l
+      se <- NA
+      for(i in 1:(nrow(num) - 1)){
+        numTab <- num[c(1, i+1), ]
+        se <- c(se, sqrt(sum(1/numTab)))
+      }
+      level <- paste(Var, names(or), sep = ":")
+      cTemp <- cbind.data.frame(level, or, se, stringsAsFactors = FALSE)
+
       coeff <- rbind(coeff, cTemp)
     }
     
@@ -184,3 +192,4 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
   
   return(list("probabilities" = probs, "estimates" = coeff))
 }
+

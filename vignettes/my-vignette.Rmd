@@ -27,7 +27,7 @@ devtools::install_github('sarahleavitt/nbTransmission')
 
 Then you can load the package by running:
 
-```{r setup}
+```{r setup2}
 library('nbTransmission')
 ```
 
@@ -63,7 +63,11 @@ str(indData)
 Now we need to create a dataset of all ordered pairs of cases to analyze. The package includes a function called indToPair which will do exactly this. The function takes an individual-level dataset and creates a pair-level dataset. You tell the function the name of the ID column and the resulting dataset will have an pair ID column that combines the two individual IDs. It will also include all other columns with the suffixes ".1" and ".2" corresponding to the two individuals in the pair. If you specify a date column it will also find the time difference between the pairs and if you set ordered to TRUE, it will only include pairs where the date for individual 1 is before individual 2. Here is how you would use this function and the result.
 
 ```{r indToPair}
-pairDataRaw <- indToPair(indData, indIDVar = "individualID", separator = "_", dateVar = "infectionDate", ordered = FALSE)
+pairDataRaw <- indToPair(indData,
+                         indIDVar = "individualID",
+                         separator = "_",
+                         dateVar = "infectionDate",
+                         ordered = FALSE)
 str(pairDataRaw)
 ```
 
@@ -119,7 +123,7 @@ pairDataOrdered$snpClose <- ifelse(pairDataOrdered$snpDist < 3, TRUE,
 prop.table(table(pairDataOrdered$snpClose, useNA = "ifany"))
 ```
 
-Now we can use the function nbTransmission to calculate the relative transmission probabilities for all pairs, training the model using the WGS data. I want to highlight a few things about the function arguments. For indIDVar, the function looks for that value with the suffix ".1" and ".2" in the pair dataframe (which would have been automatically created if you used indToPair to create the pair-level dataframe). The options n, m, and nReps indicate how many times the iterative procedure. This procedure randomly chooses one link of all of the possible links to include in the training dataset nReps times, and then uses mxn cross prediction for each training dataset to give all pairs a turn in the prediction dataset. Therefore in total you run naive Bayes nReps * n * m times. I reccommend using n = 10 and nReps >= 10. 
+Now we can use the function nbTransmission to calculate the relative transmission probabilities for all pairs, training the model using the WGS data. I want to highlight a few things about the function arguments. For indIDVar, the function looks for that value with the suffix ".1" and ".2" in the pair dataframe (which would have been automatically created if you used indToPair to create the pair-level dataframe). The options n, m, and nReps indicate how many times the iterative procedure. This procedure randomly chooses one link of all of the possible links to include in the training dataset nReps times, and then uses mxn cross prediction for each training dataset to give all pairs a turn in the prediction dataset. Therefore in total you run naive Bayes nReps * n * m times. **In this tutorial, nReps = 1 for computational efficiency but nReps should be at least 10.** 
 
 ```{r probabilities, results="hide"}
 resGen <- nbProbabilities(orderedPair = pairDataOrdered,
@@ -167,9 +171,11 @@ VISUALIZATIONS
 One way to use the probabilities is to estimate the reproductive number. This package includes a function estimateR which estimates the individual-level, time-level, and overall average effective reproductive numbers. 
 
 ```{r rInitial}
-rInitial <- estimateR(allProbs, dateVar = "infectionDate",
-               indIDVar = "individualID", pVar = "pScaled",
-               timeFrame = "months")
+rInitial <- estimateR(allProbs,
+                      dateVar = "infectionDate",
+                      indIDVar = "individualID",
+                      pVar = "pScaled",
+                      timeFrame = "months")
 str(rInitial)
 ```
 

@@ -37,7 +37,7 @@ List containing two dataframes:
   Column names:
      \itemize{
        \item \code{level} - the covariate name and level
-       \item \code{ratio} - the value of the likelihood ratio (will change to OR)
+       \item \code{odds} - the value of the likelihood odds (will change to OR)
      }
 }
 }
@@ -46,7 +46,7 @@ The function \code{performNB} Calculates the posterior probabilities of a dichot
 variable given a set of covariates using Bayes rule.
 }
 \details{
-The main purpose of this function is to be used by \code{\link{calcProbabilities}} to 
+The main purpose of this function is to be used by \code{\link{nbProbabilities}} to 
 estimate the relative transmission probability between individuals in an infectious
 disease outbreak. However, it can be used more generally to estimate the probability
 of any dichotomous outcome given a set of categorical covariates.
@@ -89,5 +89,5 @@ tapply(irisResults$p, irisResults$Species, summary)
 
 }
 \seealso{
-\code{\link{calcProbabilities}}
+\code{\link{nbProbabilities}}
 }

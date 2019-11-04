@@ -179,7 +179,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                                pAvg = mean(!!rlang::sym("p"), na.rm = TRUE),
                                pSD = stats::sd(!!rlang::sym("p"), na.rm = TRUE),
                                nSamples = sum(!is.na(!!rlang::sym("p"))),
-                               label = first(label))
+                               label = dplyr::first(label))
   sumData2 <- dplyr::ungroup(sumData2)
   
   probs <- as.data.frame(dplyr::full_join(sumData2, orderedPair, by = pairIDVar))
@@ -210,11 +210,11 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                  INDICES = list(cAll$level),
                  FUN = function(x){
                    data.frame("level" = unique(x$level),
-                              "oddsMean" = mean(x$odds, na.rm = TRUE),
-                              "oddsMin" = min(x$odds, na.rm = TRUE),
-                              "oddsMax" = max(x$odds, na.rm = TRUE),
-                              "oddsSD" = stats::sd(x$odds, na.rm = TRUE),
-                              "nSamples" = sum(!is.na(x$odds)),
+                              "oddsMean" = mean(x$or, na.rm = TRUE),
+                              "oddsMin" = min(x$or, na.rm = TRUE),
+                              "oddsMax" = max(x$or, na.rm = TRUE),
+                              "oddsSD" = stats::sd(x$or, na.rm = TRUE),
+                              "nSamples" = sum(!is.na(x$or)),
                               "label" = label)
                  })
   coeff <- do.call(rbind, coeffL)
