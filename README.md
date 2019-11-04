@@ -11,15 +11,17 @@ transmission paramaters such as the serial interval and reproductive number.
 The ideal use of this package is for infectious disease dataset with metadata on the
 majority of cases but more informative data such as contact tracing or pathogen whole
 genome sequencing (WGS) on only a subset of cases. The packages' algorithm allows
-a researcher to infer transmission patterns amongst all cases and not just those
-with the discrimatory information.  
+a researcher to infer transmission patterns among all cases and not just those
+with the WGS or contact investigation data.  
 
 Naive Bayes is a simple machine learning method that uses Bayes rule to estimate 
 the probability of an outcome in a prediction dataset given a set of covariates 
-from the observed frequencies in a training dataset. The covariates could be spatial,
-clinical, demographic, and temporal characteristics of the cases. Then a subset 
+from the observed frequencies in a training dataset. In this application, the outcome
+is whether a pair is linked by direct transmission and the covariates could be spatial,
+clinical, demographic, and temporal characteristics of the pairs of cases. A subset 
 of cases with pathogen WGS or contact investigation data are used to create a
- training dataset of probable links and non/links.  
+training dataset of probable transmission links and non/links and the relative probability
+of a transmission link is estimated for all pairs.
  
 ## Installation
 
