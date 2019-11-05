@@ -11,12 +11,12 @@ estimateRt(riData, dateVar, timeFrame = c("days", "weeks", "months",
 \item{riData}{The name of the dateset with individual-level reproductive numbers.}
 
 \item{dateVar}{The variable name (in quotes) of the dates that the individuals are observed
-(dataframe \code{riData}  must have a variable called \code{<dateVar>}).}
+(data frame \code{riData}  must have a variable called \code{<dateVar>}).}
 
 \item{timeFrame}{The time frame used to calculate Rt.}
 }
 \value{
-A dataframe with the time-level reproductive numbers. Column names:
+A data frame with the time-level reproductive numbers. Column names:
      \itemize{
        \item \code{time} - the time frame corresponding to the reproductive number estimate 
        (day for "days" and "weeks", month for "months", year for "years").

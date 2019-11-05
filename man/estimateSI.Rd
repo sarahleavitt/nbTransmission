@@ -9,10 +9,12 @@ estimateSI(df, indIDVar, timeDiffVar, pVar, clustMethod = c("none", "n",
   shift = 0, epsilon = 1e-05, bootSamples = 0, alpha = 0.05)
 }
 \arguments{
-\item{df}{The name of the dateset with transmission probabilities.}
+\item{df}{The name of the dateset with transmission probabilities (column \code{pVar}),
+individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}), and difference
+in time between the pair of cases (column \code{timeDiffVar})}
 
 \item{indIDVar}{The name (in quotes) of the individual ID columns
-(dataframe \code{df} must have variables called \code{<indIDVar>.1}
+(data frame \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
 
 \item{timeDiffVar}{The name (in quotes) of the column with the difference
@@ -22,8 +24,10 @@ SI distribution.}
 
 \item{pVar}{The column name (in quotes) of the transmission probabilities.}
 
-\item{clustMethod}{The method used to cluster the infectors
-(see \code{\link{clusterInfectors}}).}
+\item{clustMethod}{The method used to cluster the infectors; one of 
+\code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
+not specifying a value means use all pairs with no clustering.
+(see \code{\link{clusterInfectors}} for detials on clustering methods).}
 
 \item{cutoff}{The cutoff for clustering (see \code{\link{clusterInfectors}}).}
 
@@ -43,7 +47,7 @@ are calculated.}
 \item{alpha}{The alpha level for the confidence intervals.}
 }
 \value{
-A dataframe with one row and the following columns:
+A data frame with one row and the following columns:
 \itemize{
    \item \code{nInd} - the number of infectees who have SIs included
    in the SI estimate.
@@ -56,7 +60,7 @@ A dataframe with one row and the following columns:
    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
    the SI (\code{shape * scale ^ 2})
  }
- If bootSamples > 0, then the dataframe also includes the following columns:
+ If bootSamples > 0, then the data frame also includes the following columns:
  \itemize{
     \item \code{shapeCILB} and \code{shapeCIUB} - lower bound and upper bounds
     of the bootstrap confidence interval for the shape parameter

@@ -10,17 +10,17 @@ estimateRi(df, indIDVar, dateVar, pVar)
 \item{df}{The name of the dateset with transmission probabilities}
 
 \item{indIDVar}{The variable name (in quotes) of the individual ID varaibles 
-(dataframe \code{df} must have variables called \code{<indIDVar>.1}
+(data frame \code{df} must have variables called \code{<indIDVar>.1}
 and \code{<indIDVar>.2}).}
 
 \item{dateVar}{The variable name (in quotes) of the dates that the individuals
-are observed (dataframe \code{df}  must have variables called \code{<dateVar>.1}
+are observed (data frame \code{df}  must have variables called \code{<dateVar>.1}
 and \code{<dateVar>.2}).}
 
 \item{pVar}{The variable name (in quotes) of the transmission probabilities.}
 }
 \value{
-A dataframe with the individual-level reproductive numbers. Column names:
+A data frame with the individual-level reproductive numbers. Column names:
      \itemize{
        \item \code{<indIDVar>} - the individual ID with name specified.
        \item \code{<dateVar>} - the date the individual was observed with name specified.

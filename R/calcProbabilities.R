@@ -29,7 +29,7 @@
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
 #' @param indIDVar The variable name (in quotes) of the individual ID variables 
-#' (dataframe \code{orderedPair} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
+#' (data frame \code{orderedPair} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
 #' @param pairIDVar The variable name (in quotes) of the pair ID variable.
 #' @param goldStdVar The variable name (in quotes) that of logical vector defining training links/non-links
 #' @param covariates A character vector containing the covariate variable names (in quotes).
@@ -40,9 +40,9 @@
 #' @param m The number of times to create n folds in nxm cross prediction.
 #' @param nReps The number of times to randomly select the "true" infector.
 #'
-#' @return List containing two dataframes:
+#' @return List containing two data frames:
 #' \enumerate{
-#'   \item \code{probabilities} - a dataframe of transmission probabilities. Column names:
+#'   \item \code{probabilities} - a data frame of transmission probabilities. Column names:
 #'      \itemize{
 #'        \item \code{label} - the optional label of the run.
 #'        \item \code{<pairIDVar>} - the pair ID with the name specified.
@@ -57,7 +57,7 @@
 #'        represents the number of prediction datasets this pair was included in over the \code{nxm}
 #'        cross prediction repeated \code{nReps} times.
 #'      }
-#'   \item \code{estimates} - a dataframe with the effect estimates. Column names:
+#'   \item \code{estimates} - a data frame with the effect estimates. Column names:
 #'      \itemize{
 #'        \item \code{level} - the covariate name and level
 #'        \item \code{label} - the optional label of the run
@@ -93,7 +93,7 @@
 #'                             n = 10, m = 1, nReps = 1)
 #'                             
 #' ## Merging the probabilities back with the pair-level data
-#' allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+#' nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 #' 
 #' @export
 
@@ -107,24 +107,24 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
-  #Checking that the named variables are in the dataframe
+  #Checking that the named variables are in the data frame
   if(!indIDVar1 %in% names(orderedPair)){
-    stop(paste0(indIDVar1, " is not in the dataframe."))
+    stop(paste0(indIDVar1, " is not in the data frame."))
   }
   if(!indIDVar2 %in% names(orderedPair)){
-    stop(paste0(indIDVar2, " is not in the dataframe."))
+    stop(paste0(indIDVar2, " is not in the data frame."))
   }
   if(!pairIDVar %in% names(orderedPair)){
-    stop(paste0(pairIDVar, " is not in the dataframe."))
+    stop(paste0(pairIDVar, " is not in the data frame."))
   }
   if(!goldStdVar %in% names(orderedPair)){
-    stop(paste0(goldStdVar, " is not in the dataframe."))
+    stop(paste0(goldStdVar, " is not in the data frame."))
   }
   
-  #Checking that the covariates are in the dataframe
+  #Checking that the covariates are in the data frame
   covarTest <- covariates %in% names(orderedPair)
   if(FALSE %in% covarTest){
-    stop("At least one of the covariates is not in the dataframe.")
+    stop("At least one of the covariates is not in the data frame.")
   }
   
   #Checking that all of the covariates are factors
@@ -151,7 +151,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
 
   #### Cross-prediction Procedure ####
   
-  #Initializing dataframes to hold results and coefficients
+  #Initializing data frames to hold results and coefficients
   rAll <- data.frame("p" = numeric(), pairIDVar = character())
   names(rAll) <- c("p", pairIDVar)
   cAll <- data.frame("level" = character(), "odds" = numeric())
@@ -257,7 +257,7 @@ runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
   #Creating the cross-valindIDation folds for that part of the training dataset
   cv_splits <- caret::createMultiFolds(trainingFull2$linked, k = n, times = m)
   
-  #Initializing dataframes to hold results and coefficients
+  #Initializing data frames to hold results and coefficients
   rFolds <- data.frame("p" = numeric(), pairIDVar = character())
   names(rFolds) <- c("p", pairIDVar)
   cFolds <- data.frame("level" = character(), "odds" = numeric())

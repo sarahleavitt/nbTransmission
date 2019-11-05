@@ -11,7 +11,7 @@ nbProbabilities(orderedPair, indIDVar, pairIDVar, goldStdVar, covariates,
 \item{orderedPair}{The name of the ordered pair-level dataset with the covariates.}
 
 \item{indIDVar}{The variable name (in quotes) of the individual ID variables 
-(dataframe \code{orderedPair} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
+(data frame \code{orderedPair} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
 
 \item{pairIDVar}{The variable name (in quotes) of the pair ID variable.}
 
@@ -31,9 +31,9 @@ All covariates need to be categorical factor variables.}
 \item{nReps}{The number of times to randomly select the "true" infector.}
 }
 \value{
-List containing two dataframes:
+List containing two data frames:
 \enumerate{
-  \item \code{probabilities} - a dataframe of transmission probabilities. Column names:
+  \item \code{probabilities} - a data frame of transmission probabilities. Column names:
      \itemize{
        \item \code{label} - the optional label of the run.
        \item \code{<pairIDVar>} - the pair ID with the name specified.
@@ -48,7 +48,7 @@ List containing two dataframes:
        represents the number of prediction datasets this pair was included in over the \code{nxm}
        cross prediction repeated \code{nReps} times.
      }
-  \item \code{estimates} - a dataframe with the effect estimates. Column names:
+  \item \code{estimates} - a data frame with the effect estimates. Column names:
      \itemize{
        \item \code{level} - the covariate name and level
        \item \code{label} - the optional label of the run
@@ -112,6 +112,6 @@ resGen <- nbProbabilities(orderedPair = orderedPair,
                             n = 10, m = 1, nReps = 1)
                             
 ## Merging the probabilities back with the pair-level data
-allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 }

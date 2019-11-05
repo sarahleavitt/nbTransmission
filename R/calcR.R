@@ -29,12 +29,14 @@
 #' both the time-level and average reproductive numbers using parametric bootstrapping.
 #' 
 #' 
-#' @param df The name of the dateset with transmission probabilities
+#' @param df The name of the dateset with transmission probabilities (column \code{pVar}),
+#' individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}), and the dates of
+#' observation (columns \code{<dateVar>.1} and \code{<dateVar>.2})
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param dateVar The name (in quotes) of the columns with the dates that the individuals are
-#' observed (dataframe \code{df} must have variables called \code{<dateVar>.1} and
+#' observed (data frame \code{df} must have variables called \code{<dateVar>.1} and
 #' \code{<dateVar>.2}).
 #' @param pVar The column name (in quotes) of the transmission probabilities.
 #' @param timeFrame The time frame used to calculate Rt.
@@ -44,16 +46,16 @@
 #' are calculated.
 #' @param alpha The alpha level for the confidence intervals.
 #'
-#' @return A list with three dataframes:
+#' @return A list with five elements:
 #'\enumerate{
-#'   \item \code{RiDf} - a dataframe with the individual-level reproductive numbers. Column names:
+#'   \item \code{RiDf} - a data frame with the individual-level reproductive numbers. Column names:
 #'      \itemize{
 #'        \item \code{<indIDVar>} - the individual ID with name specified.
 #'        \item \code{<dateVar>} - the date the individual was observed with name specified.
 #'        \item \code{Ri} - the individual-level reproductive number.
 #'        \item \code{nInfectees} - the number of possible infectees for this individual.
 #'      }
-#'   \item \code{RtDf} - a dataframe with the time-level reproductive numbers. Column names:
+#'   \item \code{RtDf} - a data frame with the time-level reproductive numbers. Column names:
 #'      \itemize{
 #'        \item \code{time} - the time frame corresponding to the reproductive number estimate 
 #'        (day for "days" and "weeks", month for "months", year for "years").
@@ -64,7 +66,7 @@
 #'        \item \code{ciUpper} - upper bound of confidence interval for Rt 
 #'        (only if bootSamples > 0).
 #'      }
-#'   \item \code{RtAvgDf} - a dataframe with the average effective reproductive. Column names:
+#'   \item \code{RtAvgDf} - a data frame with the average effective reproductive. Column names:
 #'      \itemize{
 #'        \item \code{RtAvg} - the average time-level reproductive number between the range
 #'         specified in \code{rangeForAvg}.
@@ -73,38 +75,18 @@
 #'        \item \code{ciUpper} - upper bound of confidence interval for Rt 
 #'        (only if bootSamples > 0).
 #'      }
+#'   \item \code{timeFrame} - a vector with the timeFrame input
+#'   \item \code{rangeForAvg} - a vector with the rangeForAvg input
 #' }
 #' 
 #' 
 #' @examples
 #' 
-#' ## Use the pairData dataset which represents a TB-like outbreak
-#' # First create a dataset of ordered pairs
-#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
-#' 
-#' ## Create a variable called snpClose that will define probable links
-#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
-#' # will not be used to train.
-#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
-#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
-#' table(orderedPair$snpClose)
-#' 
-#' ## Running the algorithm
-#' #NOTE should run with nReps > 1
-#' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-#' resGen <- nbProbabilities(orderedPair = orderedPair,
-#'                             indIDVar = "individualID",
-#'                             pairIDVar = "pairID",
-#'                             goldStdVar = "snpClose",
-#'                             covariates = covariates,
-#'                             label = "SNPs", l = 1,
-#'                             n = 10, m = 1, nReps = 1)
-#'                             
-#' ## Merging the probabilities back with the pair-level data
-#' allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+#' ## Use the nbResults data frame included in the package which has the results
+#' of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Getting initial estimates of the reproductive number
-#' # (ithout specifying rangeForAvg and without confidence intervals)
+#' # (ithout specifying nbResults and without confidence intervals)
 #' rInitial <- estimateR(allProbs, dateVar = "infectionDate",
 #'                indIDVar = "individualID", pVar = "pScaled",
 #'                timeFrame = "months")
@@ -125,7 +107,7 @@
 #'   
 #' ## Finding the final reproductive number estimates with confidence intervals
 #' # NOTE should run with bootSamples > 10.
-#' rFinal <- estimateR(allProbs, dateVar = "infectionDate",
+#' rFinal <- estimateR(nbResults, dateVar = "infectionDate",
 #'              indIDVar = "individualID", pVar = "pScaled",
 #'              timeFrame = "months",
 #'              rangeForAvg = c(monthCut1, monthCut2),
@@ -165,7 +147,8 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
   rtAvgEst <- estimateRtAvg(rtEst, rangeForAvg)
   
   if(bootSamples == 0){
-    return(list("RiDf" = riEst, "RtDf" = rtEst, "RtAvgDf" = rtAvgEst))}
+    return(list("RiDf" = riEst, "RtDf" = rtEst, "RtAvgDf" = rtAvgEst,
+                "timeFrame" = timeFrame, "rangeForAvg" = rangeForAvg))}
   
   if (bootSamples > 0){
     
@@ -217,7 +200,8 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
     ciDataRtAvg <- cbind.data.frame(rtAvgEst, ciLower, ciUpper, row.names = NULL)
     names(ciDataRtAvg) <- c("RtAvg", "ciLower", "ciUpper")
     
-    return(list("RiDf" = riEst, "RtDf" = ciDataRt, "RtAvgDf" = ciDataRtAvg))
+    return(list("RiDf" = riEst, "RtDf" = ciDataRt, "RtAvgDf" = ciDataRtAvg,
+                "timeFrame" = timeFrame, "rangeForAvg" = rangeForAvg))
   }
 }
 
@@ -234,14 +218,14 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
 #'
 #' @param df The name of the dateset with transmission probabilities
 #' @param indIDVar The variable name (in quotes) of the individual ID varaibles 
-#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #' and \code{<indIDVar>.2}).
 #' @param dateVar The variable name (in quotes) of the dates that the individuals
-#' are observed (dataframe \code{df}  must have variables called \code{<dateVar>.1}
+#' are observed (data frame \code{df}  must have variables called \code{<dateVar>.1}
 #' and \code{<dateVar>.2}).
 #' @param pVar The variable name (in quotes) of the transmission probabilities.
 #'
-#' @return A dataframe with the individual-level reproductive numbers. Column names:
+#' @return A data frame with the individual-level reproductive numbers. Column names:
 #'      \itemize{
 #'        \item \code{<indIDVar>} - the individual ID with name specified.
 #'        \item \code{<dateVar>} - the date the individual was observed with name specified.
@@ -299,10 +283,10 @@ estimateRi <- function(df, indIDVar, dateVar, pVar){
 #'
 #' @param riData The name of the dateset with individual-level reproductive numbers.
 #' @param dateVar The variable name (in quotes) of the dates that the individuals are observed
-#' (dataframe \code{riData}  must have a variable called \code{<dateVar>}).
+#' (data frame \code{riData}  must have a variable called \code{<dateVar>}).
 #' @param timeFrame The time frame used to calculate Rt.
 #'
-#' @return A dataframe with the time-level reproductive numbers. Column names:
+#' @return A data frame with the time-level reproductive numbers. Column names:
 #'      \itemize{
 #'        \item \code{time} - the time frame corresponding to the reproductive number estimate 
 #'        (day for "days" and "weeks", month for "months", year for "years").
@@ -339,7 +323,7 @@ estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months",
   
   #I need to deal with weeks differently so that I can figure out the proper time frame
   if(timeFrame == "weeks"){
-    #Creating a dataframe of week labels and their ranks
+    #Creating a data frame of week labels and their ranks
     timeDf <- cbind.data.frame(time = format(times, "%Y-%m-%d"),
                                timeRank = 1:length(times), stringsAsFactors = FALSE)
     
@@ -364,7 +348,7 @@ estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months",
   names(meanRi) <- c("timeRank", "Rt")
   #Extracting the time for each Rt value
   timeInfo <- riDataFinal[!duplicated(riDataFinal$timeRank), c("timeRank", "time")]
-  #Combining these dataframes to create Rt data frame
+  #Combining these data frames to create Rt data frame
   rt <- merge(meanRi, timeInfo, by = "timeRank", all = TRUE)
   
   #Ordering columns
@@ -388,7 +372,7 @@ estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months",
 #' @param rangeForAvg A vector with the start and ending time period to be used to calculate the
 #' average effective reproductive number.
 #'
-#' @return A dataframe with the average effective reproductive. Column names:
+#' @return A data frame with the average effective reproductive. Column names:
 #'      \itemize{
 #'        \item \code{RtAvg} - the average time-level reproductive number between the range
 #'         specified in \code{rangeForAvg}.

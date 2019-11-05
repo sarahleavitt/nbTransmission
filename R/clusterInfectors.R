@@ -33,9 +33,10 @@
 #' are reassigned to the bottom cluster (indicating no real clustering).
 #' 
 #' 
-#' @param df The name of the dateset with transmission probabilities.
+#' @param df The name of the dateset with transmission probabilities (column \code{pVar}),
+#' individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}).
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param pVar The name (in quotes) of the column with transmission probabilities.
 #' @param clustMethod The method used to cluster the infectors (see details).
@@ -49,57 +50,35 @@
 #' 
 #' @examples
 #' 
-#' ## Use the pairData dataset which represents a TB-like outbreak
-#' # First create a dataset of ordered pairs
-#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
-#' 
-#' ## Create a variable called snpClose that will define probable links
-#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
-#' # will not be used to train.
-#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
-#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
-#' table(orderedPair$snpClose)
-#' 
-#' ## Running the algorithm
-#' # NOTE should run with nReps > 1
-#' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-#' resGen <- nbProbabilities(orderedPair = orderedPair,
-#'                             indIDVar = "individualID",
-#'                             pairIDVar = "pairID",
-#'                             goldStdVar = "snpClose",
-#'                             covariates = covariates,
-#'                             label = "SNPs", l = 1,
-#'                             n = 10, m = 1, nReps = 1)
-#'                             
-#' ## Merging the probabilities back with the pair-level data
-#' allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+#' ## Use the nbResults data frame included in the package which has the results
+#' of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Clustering using top n
 #' # Top cluster includes infectors with highest 3 probabilities
-#' clust1 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+#' clust1 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
 #'                            clustMethod = "n", cutoff = 3)
 #' table(clust1$cluster)
 #' 
 #' ## Clustering using hierarchical clustering
 #'
 #' # Cluster all infectees, do not force gap to be certain size
-#' clust2 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+#' clust2 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
 #'                            clustMethod = "hc_absolute", cutoff = 0)
 #' table(clust2$cluster)
 #' 
 #' # Absolute difference: gap between top and bottom clusters is more than 0.05
-#' clust3 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+#' clust3 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
 #'                            clustMethod = "hc_absolute", cutoff = 0.05)
 #' table(clust3$cluster)
 #'
 #' # Relative difference: gap between top and bottom clusters is more than double any other gap
-#' clust4 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+#' clust4 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
 #'                            clustMethod = "hc_relative", cutoff = 2)
 #' table(clust4$cluster)
 #'
 #' ## Clustering using kernel density estimation
 #' # Using a small binwidth of 0.01
-#' clust5 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+#' clust5 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
 #'                            clustMethod = "kd", cutoff = 0.01)
 #' table(clust5$cluster)
 #' 
@@ -131,7 +110,7 @@ clusterInfectors <- function(df, indIDVar, pVar,
   names(nInf) <- c(indIDVar2, "nInfectors")
   df2 <- merge(df, nInf, by = indIDVar2, all = TRUE)
   
-  #Splitting the dataframe to those who have one infector and multiple infectors
+  #Splitting the data frame to those who have one infector and multiple infectors
   multInf <- df2[df2$nInfectors > 1, ]
   oneInf <- df2[df2$nInfectors == 1, ]
   

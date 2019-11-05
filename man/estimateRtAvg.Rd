@@ -13,7 +13,7 @@ estimateRtAvg(rtData, rangeForAvg = NULL)
 average effective reproductive number.}
 }
 \value{
-A dataframe with the average effective reproductive. Column names:
+A data frame with the average effective reproductive. Column names:
      \itemize{
        \item \code{RtAvg} - the average time-level reproductive number between the range
         specified in \code{rangeForAvg}.

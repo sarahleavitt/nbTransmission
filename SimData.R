@@ -1,3 +1,4 @@
+
 ## Created Simulated Dataset ##
 
 setwd("~/Boston University/Dissertation/nbTransmission")
@@ -116,6 +117,7 @@ orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
 table(orderedPair$snpClose, useNA = "ifany")
 
 ## Running the algorithm
+set.seed(0)
 covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 resGen <- nbProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
@@ -123,19 +125,21 @@ resGen <- nbProbabilities(orderedPair = orderedPair,
                             goldStdVar = "snpClose",
                             covariates = covariates,
                             label = "SNPs", l = 1,
-                            n = 10, m = 1, nReps = 10)
+                            n = 10, m = 1, nReps = 50)
 
 ## Merging the probabilities back with the pair-level data
-allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 #Evaluating simulation
-simEvaluate(allProbs)
+simEvaluate(nbResults)
+
+use_data(nbResults, overwrite = TRUE)
 
 
 
 ## Calculating reproductive number ##
 
-rInitial <- estimateR(allProbs, dateVar = "infectionDate", indIDVar = "individualID",
+rInitial <- estimateR(nbResults, dateVar = "infectionDate", indIDVar = "individualID",
                   pVar = "pScaled", timeFrame = "months")
 rt <- rInitial$RtDf
 
@@ -151,10 +155,10 @@ ggplot(data = rt, aes(x = timeRank, y = Rt)) +
   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7) +
   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7)
 
-rFinal <- estimateR(allProbs, dateVar = "infectionDate",
+rFinal <- estimateR(nbResults, dateVar = "infectionDate",
                      indIDVar = "individualID", pVar = "pScaled",
                      timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
-                     bootSamples = 10, alpha = 0.05)
+                     bootSamples = 1000, alpha = 0.05)
 
 rFinal$RtAvgDf
 
@@ -165,30 +169,30 @@ rFinal$RtAvgDf
 
 ## Clustering using top n
 # Top cluster includes infectors with highest 3 probabilities
-clust1 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+clust1 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                            clustMethod = "n", cutoff = 3)
 table(clust1$cluster)
 
 ## Clustering using hierarchical clustering
 
 # Cluster all infectees, do not force gap to be certain size
-clust2 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+clust2 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                            clustMethod = "hc_absolute", cutoff = 0)
 table(clust2$cluster)
 
 # Absolute difference: gap between top and bottom clusters is more than 0.05
-clust3 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+clust3 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                            clustMethod = "hc_absolute", cutoff = 0.05)
 table(clust3$cluster)
 
 # Relative difference: gap between top and bottom clusters is more than double any other gap
-clust4 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+clust4 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                            clustMethod = "hc_relative", cutoff = 2)
 table(clust4$cluster)
 
 ## Clustering using kernel density estimation
 # Using a small binwidth of 0.01
-clust5 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+clust5 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                            clustMethod = "kd", cutoff = 0.01)
 table(clust5$cluster)
 
@@ -196,28 +200,28 @@ table(clust5$cluster)
 ## Estimating the Serial Interval ##
 
 #Using wrapper
-estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "none", initialPars = c(2, 2))
 
-estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
            initialPars = c(2, 2), bootSamples = 0)
 
-estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
            initialPars = c(2, 2), bootSamples = 5)
 
 #Using a shift
-estimateSIPars(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+estimateSIPars(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
            initialPars = c(2, 2), shift = 0.25)
 
 
 #Using clusterInfectors and performPEM
-performPEM(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+performPEM(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)
 
-allClust <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+allClust <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
                              clustMethod = "hc_absolute", cutoff = 0.05)
 
 performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
@@ -236,7 +240,7 @@ nodes <- (indData
 )
 
 #Clustering the infectors
-clustRes <- (allProbs
+clustRes <- (nbResults
              %>% group_by(individualID.2)
              %>% group_modify(~ findClustersKD(.x, pVar = "pScaled",
                                                binWidth = 0.03, minGap = 0))

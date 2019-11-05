@@ -26,6 +26,7 @@ Imports:
     utils
 Suggests: 
     ggplot2,
+    Hmisc,
     igraph,
     knitr,
     pheatmap,

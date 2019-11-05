@@ -46,17 +46,21 @@
 #' 
 #' 
 #' 
-#' @param df The name of the dateset with transmission probabilities.
+#' @param df The name of the dateset with transmission probabilities (column \code{pVar}),
+#' individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}), and difference
+#' in time between the pair of cases (column \code{timeDiffVar})
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param timeDiffVar The name (in quotes) of the column with the difference
 #' in time between symptom onset (or its proxy) for the pair of cases. The
 #' units of this variable (hours, days, years) defines the units of the resulting
 #' SI distribution.
 #' @param pVar The column name (in quotes) of the transmission probabilities.
-#' @param clustMethod The method used to cluster the infectors
-#' (see \code{\link{clusterInfectors}}).
+#' @param clustMethod The method used to cluster the infectors; one of 
+#' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
+#' not specifying a value means use all pairs with no clustering.
+#' (see \code{\link{clusterInfectors}} for detials on clustering methods).
 #' @param cutoff The cutoff for clustering (see \code{\link{clusterInfectors}}).
 #' @param initialPars A vector of length two with the shape and scale 
 #' to initialize the gamma distribution parameters.
@@ -70,7 +74,7 @@
 #' @param alpha The alpha level for the confidence intervals.
 #' 
 #'
-#' @return A dataframe with one row and the following columns:
+#' @return A data frame with one row and the following columns:
 #' \itemize{
 #'    \item \code{nInd} - the number of infectees who have SIs included
 #'    in the SI estimate.
@@ -83,7 +87,7 @@
 #'    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
 #'    the SI (\code{shape * scale ^ 2})
 #'  }
-#'  If bootSamples > 0, then the dataframe also includes the following columns:
+#'  If bootSamples > 0, then the data frame also includes the following columns:
 #'  \itemize{
 #'     \item \code{shapeCILB} and \code{shapeCIUB} - lower bound and upper bounds
 #'     of the bootstrap confidence interval for the shape parameter
@@ -169,6 +173,11 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
+  
+  #If clustMethod is not specified, setting it to "none"
+  if(length(clustMethod) > 1){
+    clustMethod <- "none"
+  }
 
   #Finding the point estimate for the serial interval parameters
   siEst <- estimateSIPars(df, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
@@ -312,7 +321,7 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #' 
 #' @param df The name of the dateset with transmission probabilities.
 #' @param indIDVar The name (in quotes) of the individual ID columns
-#' (dataframe \code{df} must have variables called \code{<indIDVar>.1}
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param timeDiffVar The name (in quotes) of the column with the difference
 #' in time between symptom onset (or its proxy) for the pair of cases. The
@@ -330,7 +339,7 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #' parameter estimates at each iteration.
 #' 
 #'
-#' @return A dataframe with one row and the following columns:
+#' @return A data frame with one row and the following columns:
 #' \itemize{
 #'    \item \code{nInd} - the number of infectees who have SIs included
 #'    in the SI estimate.
@@ -347,39 +356,17 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #' 
 #' @examples
 #' 
-#' ## Use the pairData dataset which represents a TB-like outbreak
-#' # First create a dataset of ordered pairs
-#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
-#' 
-#' ## Create a variable called snpClose that will define probable links
-#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
-#' # will not be used to train.
-#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
-#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
-#' table(orderedPair$snpClose)
-#' 
-#' ## Running the algorithm
-#' #NOTE should run with nReps > 1
-#' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-#' resGen <- nbProbabilities(orderedPair = orderedPair,
-#'                             indIDVar = "individualID",
-#'                             pairIDVar = "pairID",
-#'                             goldStdVar = "snpClose",
-#'                             covariates = covariates,
-#'                             label = "SNPs", l = 1,
-#'                             n = 10, m = 1, nReps = 1)
-#'                             
-#' ## Merging the probabilities back with the pair-level data
-#' allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+#' ## Use the nbResults data frame included in the package which has the results
+#' of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Estimating the serial interval
 #' 
 #' # Using all pairs and plotting the parameters
-#' performPEM(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' performPEM(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #' pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)
 #'
 #' # Clustering the probabilities first
-#' allClust <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
+#' allClust <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
 #'                             clustMethod = "hc_absolute", cutoff = 0.05)
 #' 
 #' performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
@@ -388,7 +375,7 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #'            
 #' # The above is equivalent to the following code using the function estimateSI()
 #' # though the plot will not be printed and more details will be added
-#' estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #'           initialPars = c(2, 2))
 #' 
@@ -415,7 +402,7 @@ performPEM <- function(df, indIDVar, timeDiffVar, pVar, initialPars,
   #Naming the columns correctly
   dfNew <- as.data.frame(df[, c(indIDVar1, indIDVar2, timeDiffVar, pVar)])
   
-  #Initializing the dataframe with the starting parameters
+  #Initializing the data frame with the starting parameters
   i <- 1
   params <- as.data.frame(t(c(i, initialPars[1], initialPars[2], NA, NA)))
   names(params) <- c("iteration", "shape", "scale", "diff.shape", "diff.scale")
@@ -431,7 +418,7 @@ performPEM <- function(df, indIDVar, timeDiffVar, pVar, initialPars,
                                                            params[i, "scale"]),
                               shift = shift)
     
-    #Adding the new estimate to the dataframe
+    #Adding the new estimate to the data frame
     params <- rbind(params, paramsNew)
     params[i+1, "iteration"] <- i+1
     params[i+1, "diff.shape"] <- abs(params[i+1, "shape"] - params[i, "shape"])
