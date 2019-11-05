@@ -40,6 +40,10 @@
 #' \code{c(<shape>, <scale>)}. These parameters should result in a gamma distribution
 #' that is on the desired scale, set by the \code{<timeDiffVar>} column.
 #' 
+#' If \code{bootSamples > 0}, bootstrap confidence intervals will be estimated for
+#' both the shape and scale parameters as well as the mean, median, and mode of the
+#' distribution using cluster bootstrapping.
+#' 
 #' 
 #' 
 #' @param df The name of the dateset with transmission probabilities.
@@ -61,6 +65,9 @@
 #' standard gamma distribution.
 #' @param epsilon The difference between successive estimates of the shape and
 #' scale parameters that indicates convergence.
+#' @param bootSamples The number of bootstrap samples; if 0, then no confidence intervals
+#' are calculated.
+#' @param alpha The alpha level for the confidence intervals.
 #' 
 #'
 #' @return A dataframe with one row and the following columns:
@@ -75,6 +82,19 @@
 #'    (\code{qgamma(0.5, shape, scale) + shift)})
 #'    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
 #'    the SI (\code{shape * scale ^ 2})
+#'  }
+#'  If bootSamples > 0, then the dataframe also includes the following columns:
+#'  \itemize{
+#'     \item \code{shapeCILB} and \code{shapeCIUB} - lower bound and upper bounds
+#'     of the bootstrap confidence interval for the shape parameter
+#'     \item \code{scaleCILB} and \code{scaleCIUB} - lower bound and upper bounds
+#'     of the bootstrap confidence interval for the scale parameter
+#'     \item \code{meanCILB} and \code{meanCIUB} - lower bound and upper bounds
+#'     of the bootstrap confidence interval for the mean of the SI distribution
+#'     \item \code{medianCILB} and \code{medianCIUB} - lower bound and upper bounds
+#'     of the bootstrap confidence interval for the median of the SI distribution
+#'     \item \code{sdCILB} and \code{sdCIUB} - lower bound and upper bounds
+#'     of the bootstrap confidence interval for the sd of the SI distribution
 #'  }
 #' 
 #' 
@@ -122,6 +142,11 @@
 #' pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #' initialPars = c(2, 2), shift = 0.25)
 #' 
+#' ## Adding confidence intervals
+#' # NOTE should run with bootSamples > 5.
+#' estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+#'           initialPars = c(2, 2), bootSamples = 5) 
 #' 
 #' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
 #'  \code{\link{performPEM}}
@@ -135,6 +160,86 @@
  
 
 estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
+                       clustMethod = c("none", "n", "kd", 
+                                       "hc_absolute", "hc_relative"),
+                       cutoff = NA, initialPars, shift = 0, epsilon = 0.00001,
+                       bootSamples = 0, alpha = 0.05){
+  
+  df <- as.data.frame(df)
+  #Creating variables with the individual ID
+  indIDVar1 <- paste0(indIDVar, ".1")
+  indIDVar2 <- paste0(indIDVar, ".2")
+
+  #Finding the point estimate for the serial interval parameters
+  siEst <- estimateSIPars(df, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
+                             pVar = pVar, clustMethod = clustMethod, cutoff = cutoff,
+                             initialPars = initialPars, shift = shift, epsilon = epsilon)  
+  
+  #If bootSamples > 0, estimate bootstrap confidence intervals on the parameters
+  if(bootSamples > 0){
+    
+    bootSI <- NULL
+    pb <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
+    
+    for(i in 1:bootSamples){
+      
+      #Find a random sample of infectees
+      ids <- sample(unique(df[, indIDVar2]),
+                    size = length(unique(df[, indIDVar2])),
+                    replace = TRUE)
+      #Need to create a new ID because people can now be included twice 
+      newID2 <- 1:length(ids)
+      idDf <- cbind.data.frame(ids, newID2)
+      names(idDf) <- c(indIDVar2, "newID2")
+      
+      #For each time a case is in the bootstrap sample, adding all infectors
+      counts <- table(ids)
+      probsBoot <- NULL
+      for(j in 1:nrow(idDf)){
+        indData <- df[df[, indIDVar2 ] == idDf[j, indIDVar2], ]
+        indData$newID2 <- idDf[j, "newID2"]
+        probsBoot <- rbind(probsBoot, indData)
+      }
+      #Renaming the new ID variable to the old ID name so that the function works
+      names(probsBoot)[names(probsBoot) == indIDVar2] <- "oldID2" 
+      names(probsBoot)[names(probsBoot) == "newID2"] <- indIDVar2
+        
+      siNew <- estimateSIPars(probsBoot, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
+                                pVar = pVar, clustMethod = clustMethod, cutoff = cutoff,
+                                initialPars = initialPars, shift = shift, epsilon = epsilon) 
+      
+      bootSI <- bind_rows(bootSI, siNew)
+      utils::setTxtProgressBar(pb, i)
+    }
+    
+    #Finding the CI bounds
+    shapeCILB <- siEst$shape - (stats::quantile(bootSI$shape, 1-alpha/2, na.rm = TRUE) - siEst$shape)
+    shapeCIUB <- siEst$shape - (stats::quantile(bootSI$shape, alpha/2, na.rm = TRUE) - siEst$shape)
+    scaleCILB <- siEst$scale - (stats::quantile(bootSI$scale, 1-alpha/2, na.rm = TRUE) - siEst$scale)
+    scaleCIUB <- siEst$scale - (stats::quantile(bootSI$scale, alpha/2, na.rm = TRUE) - siEst$scale)
+    meanCILB <- siEst$meanSI - (stats::quantile(bootSI$meanSI, 1-alpha/2, na.rm = TRUE) - siEst$meanSI)
+    meanCIUB <- siEst$meanSI - (stats::quantile(bootSI$meanSI, alpha/2, na.rm = TRUE) - siEst$meanSI)
+    medianCILB <- siEst$medianSI - (stats::quantile(bootSI$medianSI, 1-alpha/2, na.rm = TRUE) - siEst$medianSI)
+    medianCIUB <- siEst$medianSI - (stats::quantile(bootSI$medianSI, alpha/2, na.rm = TRUE) - siEst$medianSI)
+    sdCILB <- siEst$sdSI - (stats::quantile(bootSI$sdSI, 1-alpha/2, na.rm = TRUE) - siEst$sdSI)
+    sdCIUB <- siEst$sdSI - (stats::quantile(bootSI$sdSI, alpha/2, na.rm = TRUE) - siEst$sdSI)
+    
+    siCI <- cbind(siEst, shapeCILB, shapeCIUB, scaleCILB, scaleCIUB,
+                  meanCILB, meanCIUB, medianCILB, medianCIUB, sdCILB, sdCIUB)
+    
+    return(siCI)
+    
+  }else{
+    return(siEst)
+  }
+}
+  
+
+
+
+# Function run inside estimateSI to allow for bootstrap CI; not run on its own.
+
+estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
                        clustMethod = c("none", "n", "kd", 
                                        "hc_absolute", "hc_relative"),
                        cutoff = NA, initialPars, shift = 0, epsilon = 0.00001){
@@ -172,18 +277,19 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
     }, error = function(e){
       print(c(clustMethod, cutoff))
       cat("ERROR :", conditionMessage(e), "\n")})
-  }else(print("Fewer than 15 individuals meet this threshold"))
-
-  
-  siData <- as.data.frame(nInd)
-  
-  if(!is.null(pars)){
-    siData <- cbind.data.frame(siData, pars)
-    siData$meanSI <- siData$shape * siData$scale + shift
-    siData$medianSI <- stats::qgamma(0.5, shape = siData$shape,
-                              scale = siData$scale) + shift
-    siData$sdSI <- sqrt(siData$shape * siData$scale ^ 2)
+  }else{
+    print("Fewer than 15 individuals meet this threshold")
+    pars <- cbind.data.frame("shape" = NA, "scale" = NA)
   }
+
+  siData <- cbind.data.frame(nInd, pars)
+  
+  #Adding summary measures
+  siData$meanSI <- siData$shape * siData$scale + shift
+  siData$medianSI <- stats::qgamma(0.5, shape = siData$shape,
+                                   scale = siData$scale) + shift
+  siData$sdSI <- sqrt(siData$shape * siData$scale ^ 2)
+  
     
   return(siData)
 }

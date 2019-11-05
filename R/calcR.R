@@ -26,7 +26,7 @@
 #' only consider the stable portion of the outbreak (exclude the beginning and end).
 #' 
 #' If \code{bootSamples > 0}, bootstrap confidence intervals will be estimated for
-#' both the time-level and average reproductive numbers.
+#' both the time-level and average reproductive numbers using parametric bootstrapping.
 #' 
 #' 
 #' @param df The name of the dateset with transmission probabilities

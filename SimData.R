@@ -201,10 +201,14 @@ estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 
 estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-           initialPars = c(2, 2))
+           initialPars = c(2, 2), bootSamples = 0)
+
+estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+           initialPars = c(2, 2), bootSamples = 5)
 
 #Using a shift
-estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+estimateSIPars(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
            initialPars = c(2, 2), shift = 0.25)
 

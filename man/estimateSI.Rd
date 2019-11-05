@@ -6,7 +6,7 @@
 \usage{
 estimateSI(df, indIDVar, timeDiffVar, pVar, clustMethod = c("none", "n",
   "kd", "hc_absolute", "hc_relative"), cutoff = NA, initialPars,
-  shift = 0, epsilon = 1e-05)
+  shift = 0, epsilon = 1e-05, bootSamples = 0, alpha = 0.05)
 }
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities.}
@@ -36,6 +36,11 @@ standard gamma distribution.}
 
 \item{epsilon}{The difference between successive estimates of the shape and
 scale parameters that indicates convergence.}
+
+\item{bootSamples}{The number of bootstrap samples; if 0, then no confidence intervals
+are calculated.}
+
+\item{alpha}{The alpha level for the confidence intervals.}
 }
 \value{
 A dataframe with one row and the following columns:
@@ -50,6 +55,19 @@ A dataframe with one row and the following columns:
    (\code{qgamma(0.5, shape, scale) + shift)})
    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
    the SI (\code{shape * scale ^ 2})
+ }
+ If bootSamples > 0, then the dataframe also includes the following columns:
+ \itemize{
+    \item \code{shapeCILB} and \code{shapeCIUB} - lower bound and upper bounds
+    of the bootstrap confidence interval for the shape parameter
+    \item \code{scaleCILB} and \code{scaleCIUB} - lower bound and upper bounds
+    of the bootstrap confidence interval for the scale parameter
+    \item \code{meanCILB} and \code{meanCIUB} - lower bound and upper bounds
+    of the bootstrap confidence interval for the mean of the SI distribution
+    \item \code{medianCILB} and \code{medianCIUB} - lower bound and upper bounds
+    of the bootstrap confidence interval for the median of the SI distribution
+    \item \code{sdCILB} and \code{sdCIUB} - lower bound and upper bounds
+    of the bootstrap confidence interval for the sd of the SI distribution
  }
 }
 \description{
@@ -75,16 +93,16 @@ All pairs of cases can be used in the estimation process by setting
 \code{clustMethod = "none"}. However, if the probabilities are from a algorithm such as
 \code{\link{nbProbabilities}}, then it is recommeneded to use a clustering method
 and only include the top cluster of infectors for infectees which have such a cluster.
-This can be specified by using the \code{clustMethod} and \code{cutoff} arguements which
+This can be specified by using the \code{clustMethod} and \code{cutoff} arguments which
 are passed into \code{\link{clusterInfectors}}. See the details of this function for
 a description of the different clustering methods.
 
 The method can be performed with any serial interval distribution,
 but this version of this function assumes that the serial interval has a gamma distribution.
-The function does allow for a shifted gamma distribution. The \code{shift} arguement
+The function does allow for a shifted gamma distribution. The \code{shift} argument
 defines how much the gamma distribution should be shifted. Any observed serial intervals
 that are less than this shift will have probability 0. This parameter should be used if 
-there is a clinically lower bound for the possible serial interval. If this arguement
+there is a clinically lower bound for the possible serial interval. If this argument
 is not specified then a standard gamma function is used. The units of the
 estimated gamma distribution will be defined by the units of the provided
 \code{<timeDiffVar>} column. The value of the \code{shift} should be in the same units.
@@ -92,6 +110,10 @@ estimated gamma distribution will be defined by the units of the provided
 The algorithm requires initial parameters which should be specified as a vector: 
 \code{c(<shape>, <scale>)}. These parameters should result in a gamma distribution
 that is on the desired scale, set by the \code{<timeDiffVar>} column.
+
+If \code{bootSamples > 0}, bootstrap confidence intervals will be estimated for
+both the shape and scale parameters as well as the mean, median, and mode of the
+distribution using cluster bootstrapping.
 }
 \examples{
 
@@ -137,6 +159,11 @@ estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 initialPars = c(2, 2), shift = 0.25)
 
+## Adding confidence intervals
+# NOTE should run with bootSamples > 5.
+estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+          pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+          initialPars = c(2, 2), bootSamples = 5) 
 
 }
 \references{

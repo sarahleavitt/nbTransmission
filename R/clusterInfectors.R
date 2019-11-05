@@ -135,9 +135,6 @@ clusterInfectors <- function(df, indIDVar, pVar,
   multInf <- df2[df2$nInfectors > 1, ]
   oneInf <- df2[df2$nInfectors == 1, ]
   
-  #If there is one infector, it should be in the top cluster
-  oneInf$cluster <- 1
-  
   ## Using a constant number of infectors ##
   if(clustMethod == "n"){
     
@@ -152,8 +149,7 @@ clusterInfectors <- function(df, indIDVar, pVar,
     clustRes1 <- dplyr::group_by(multInf, !!rlang::sym(indIDVar2))
     clustRes <- dplyr::group_modify(clustRes1, ~ findClustersKD(.x, pVar = "pScaled",
                                                      cutoff = cutoff))
-    clustRes <- dplyr::ungroup(clustRes)
-    
+
   }
   
   ## Using hierarchical clustering ##
@@ -163,13 +159,21 @@ clusterInfectors <- function(df, indIDVar, pVar,
     clustRes <- dplyr::group_modify(clustRes1, ~ findClustersHC(.x, pVar = "pScaled",
                                                                  cutoff = cutoff,
                                                                  clustMethod = clustMethod))
-    clustRes <- dplyr::ungroup(clustRes)
   
   }
   
+  #Removing tibble formatting
+  clustRes <- as.data.frame(dplyr::ungroup(clustRes))
+  
   #Combining the clustering for those with more than one infector with those
   #who have one infector
-  clustRes2 <- rbind(oneInf, clustRes)
+  if(nrow(oneInf) > 0){
+    #If there is one infector, it should be in the top cluster
+    oneInf$cluster <- 1
+    clustRes2 <- rbind(oneInf, clustRes)
+  }else{
+    clustRes2 <- clustRes
+  }
   
   #Making the clusters a factor variable
   clustRes2$cluster <- factor(clustRes2$cluster, levels = c(1, 2))
