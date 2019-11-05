@@ -39,7 +39,8 @@
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param pVar The name (in quotes) of the column with transmission probabilities.
-#' @param clustMethod The method used to cluster the infectors (see details).
+#' @param clustMethod The method used to cluster the infectors; 
+#' one of \code{"n", "kd", "hc_absolute", "hc_relative"} (see details).
 #' @param cutoff The cutoff for clustering (see details).
 #' 
 #'
@@ -91,6 +92,10 @@
 clusterInfectors <- function(df, indIDVar, pVar,
                              clustMethod = c("n", "kd", "hc_absolute", "hc_relative"),
                              cutoff){
+  
+  if(length(clustMethod) > 1){
+    stop("Please provide a clustering method")
+  }
   
   df <- as.data.frame(df)
   #Creating variables with the individual ID
@@ -288,3 +293,4 @@ findClustersHC <- function(df, pVar, cutoff = 0.05,
   }
   return(df)
 }
+

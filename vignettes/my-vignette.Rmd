@@ -144,13 +144,13 @@ The results are a list with two dataframes, the first of which containing the av
 
 
 ```{r combine}
-allProbs <- merge(resGen$probabilities, pairDataOrdered, by = "pairID", all = TRUE)
-tapply(allProbs$pScaled, allProbs$transmission, summary)
+nbResults <- merge(resGen$probabilities, pairDataOrdered, by = "pairID", all = TRUE)
+tapply(nbResults$pScaled, nbResults$transmission, summary)
 ```
 
 ```{r results, fig.width=7, fig.height=3}
 library(ggplot2)
-ggplot(data = allProbs, aes(x = pScaled)) +
+ggplot(data = nbResults, aes(x = pScaled)) +
   geom_histogram(bins = 20) +
   facet_wrap(~transmission, scales = "free_y")
 ```
@@ -171,7 +171,7 @@ VISUALIZATIONS
 One way to use the probabilities is to estimate the reproductive number. This package includes a function estimateR which estimates the individual-level, time-level, and overall average effective reproductive numbers. 
 
 ```{r rInitial}
-rInitial <- estimateR(allProbs,
+rInitial <- estimateR(nbResults,
                       dateVar = "infectionDate",
                       indIDVar = "individualID",
                       pVar = "pScaled",
@@ -179,29 +179,21 @@ rInitial <- estimateR(allProbs,
 str(rInitial)
 ```
 
-Note the message that is printed when running this funciton without specifying rangeForAvg. In order to get a more accurate estimate of the average effective reproductive number, you only want to use the stable portion of the outbreak. You can use a plot of the Rt values over time to find this portion of the outbreak. In this case I want to exclude the first 10% and the last 20% of the outbreak.
+Note the message that is printed when running this funciton without specifying rangeForAvg. In order to get a more accurate estimate of the average effective reproductive number, you only want to use the stable portion of the outbreak. You can use a plot of the Rt values over time to find this portion of the outbreak. In this case I want to exclude start at month 25 and end at month 125 which is excluding about the first 10% and last 20% of the outbreak.
 
 ```{r cutting, fig.height = 3.5, fig.width = 6}
-rt <- rInitial$RtDf
-totalTime <- max(rt$timeRank, na.rm = TRUE) - min(rt$timeRank, na.rm = TRUE)
-monthCut1 <- ceiling(0.1 * totalTime)
-monthCut2 <- ceiling(0.8 * totalTime)
+cut1 <- 25
+cut2 <- 125
 
-ggplot(data = rt, aes(x = timeRank, y = Rt)) +
-  geom_point() +
-  geom_line() +
-  geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +
-  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7) +
-  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7)
+plotRt(rInitial)
 ```
 
 Then I can rerun the estimateR function specifying the range for the average and also asking for bootstrap confidence intervals.
 
 ```{r rFinal, results = "hide"}
-rFinal <- estimateR(allProbs, dateVar = "infectionDate",
+rFinal <- estimateR(nbResults, dateVar = "infectionDate",
              indIDVar = "individualID", pVar = "pScaled",
-             timeFrame = "months",
-             rangeForAvg = c(monthCut1, monthCut2),
+             timeFrame = "months", rangeForAvg = c(cut1, cut2),
              bootSamples = 10, alpha = 0.05)
 ```
 
@@ -215,19 +207,7 @@ Then you can plot the final results.
 REPLACE WITH VISUALIZATION FUNCTION ONCE WRITTEN
 
 ```{r, fig.height = 3.5, fig.width = 6}
-ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
-  scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
-  scale_x_continuous(name = "Infection Month") +
-  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
-  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
-  geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +
-  geom_hline(data = rFinal[[3]], aes(yintercept = ciLower), linetype = 2, 
-             size = 0.7, color = "black") +
-  geom_hline(data = rFinal[[3]], aes(yintercept = ciUpper), linetype = 2, 
-             size = 0.7, color = "black")
+plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)
 ```
 
 

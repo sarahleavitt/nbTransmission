@@ -17,7 +17,8 @@ individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
 
 \item{pVar}{The name (in quotes) of the column with transmission probabilities.}
 
-\item{clustMethod}{The method used to cluster the infectors (see details).}
+\item{clustMethod}{The method used to cluster the infectors; 
+one of \code{"n", "kd", "hc_absolute", "hc_relative"} (see details).}
 
 \item{cutoff}{The cutoff for clustering (see details).}
 }

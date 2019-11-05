@@ -4,7 +4,7 @@
 \name{nbResults}
 \alias{nbResults}
 \title{Dataset with results of \code{\link{nbProbabilities}}}
-\format{A data frame with 9900 rows and 17 variables:
+\format{A data frame with 9900 rows and 24 variables:
 \describe{
 \item{pairID}{A pair-level ID variable (the individual IDs separated by an '_').}
 \item{label}{The label for the run, here "SNPs".}

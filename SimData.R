@@ -125,7 +125,7 @@ resGen <- nbProbabilities(orderedPair = orderedPair,
                             goldStdVar = "snpClose",
                             covariates = covariates,
                             label = "SNPs", l = 1,
-                            n = 10, m = 1, nReps = 50)
+                            n = 10, m = 1, nReps = 5)
 
 ## Merging the probabilities back with the pair-level data
 nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
@@ -133,7 +133,7 @@ nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 #Evaluating simulation
 simEvaluate(nbResults)
 
-use_data(nbResults, overwrite = TRUE)
+#use_data(nbResults, overwrite = TRUE)
 
 
 
@@ -143,24 +143,48 @@ rInitial <- estimateR(nbResults, dateVar = "infectionDate", indIDVar = "individu
                   pVar = "pScaled", timeFrame = "months")
 rt <- rInitial$RtDf
 
+plotRt(rInitial, includeRtAvg = FALSE, includeRtCI = FALSE, includeRtAvgCI = FALSE)
+
 #Cutting the outbreak
 totalTime <- max(rt$timeRank, na.rm = TRUE) - min(rt$timeRank, na.rm = TRUE)
-monthCut1 <- ceiling(0.15 * totalTime)
-monthCut2 <- ceiling(0.85 * totalTime)
+cut1 <- ceiling(0.15 * totalTime)
+cut2 <- ceiling(0.85 * totalTime)
+
+cut1 <- 25
+cut2 <- 125
 
 ggplot(data = rt, aes(x = timeRank, y = Rt)) +
   geom_point() +
   geom_line() +
   geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +
-  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7) +
-  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7)
+  geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7) +
+  geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)
 
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
                      indIDVar = "individualID", pVar = "pScaled",
-                     timeFrame = "months", rangeForAvg = c(monthCut1, monthCut2),
-                     bootSamples = 1000, alpha = 0.05)
+                     timeFrame = "months", rangeForAvg = c(cut1, cut2),
+                     bootSamples = 100, alpha = 0.05)
 
 rFinal$RtAvgDf
+
+#Plot of reproductive number over time
+ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
+  geom_point() +
+  geom_line() +
+  geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
+  scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
+  scale_x_continuous(name = "Infection Month") +
+  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
+  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
+  geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +
+  geom_hline(data = rFinal[[3]], aes(yintercept = ciLower), linetype = 2, 
+             size = 0.7, color = "black") +
+  geom_hline(data = rFinal[[3]], aes(yintercept = ciUpper), linetype = 2, 
+             size = 0.7, color = "black")
+
+
+plotRt(rInitial, includeRtAvg = FALSE, includeRtCI = FALSE, includeRtAvgCI = FALSE)
+plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)
 
 
 
@@ -316,20 +340,20 @@ plot(net, vertex.size = 7, vertex.label.cex = 0.7,
      edge.color = brewer.pal(9,"Blues")[E(net)$pGroup])
 
 
-#Plot of reproductive number over time
-ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
-  scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
-  scale_x_continuous(name = "Infection Month") +
-  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
-  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
-  geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +
-  geom_hline(data = rFinal[[3]], aes(yintercept = ciLower), linetype = 2, 
-             size = 0.7, color = "black") +
-  geom_hline(data = rFinal[[3]], aes(yintercept = ciUpper), linetype = 2, 
-             size = 0.7, color = "black")
+nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+          pVar = "pScaled", clustMethod = "none")
 
+nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+          pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+          blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
+
+## Network of all pairs in color with the default probability breaks
+nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+pVar = "pScaled", clustMethod = "none")
+
+## Adding stars for the top cluster, in black and white, changing the probability breaks
+nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+          pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+          blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
 
 

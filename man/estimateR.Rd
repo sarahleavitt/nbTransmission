@@ -11,7 +11,7 @@ estimateR(df, indIDVar, dateVar, pVar, timeFrame = c("days", "months",
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities (column \code{pVar}),
 individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}), and the dates of
-observation (columns \code{<dateVar>.1} and \code{<dateVar>.2})}
+observation (columns \code{<dateVar>.1} and \code{<dateVar>.2}).}
 
 \item{indIDVar}{The name (in quotes) of the individual ID columns
 (data frame \code{df} must have variables called \code{<indIDVar>.1}
@@ -107,26 +107,23 @@ rInitial <- estimateR(allProbs, dateVar = "infectionDate",
                indIDVar = "individualID", pVar = "pScaled",
                timeFrame = "months")
                
-## Finding the stable portion of the outbreak for rangeForAvg
-rt <- rInitial$RtDf
-totalTime <- max(rt$timeRank, na.rm = TRUE) - min(rt$timeRank, na.rm = TRUE)
-monthCut1 <- ceiling(0.1 * totalTime)
-monthCut2 <- ceiling(0.8 * totalTime)
+## Finding the stable portion of the outbreak for rangeForAvg using plot
+cut1 <- 25
+cut2 <- 125
 
 ## NOT RUN ##
-# ggplot(data = rt, aes(x = timeRank, y = Rt)) +
+# ggplot(data = rInitial$RtDf, aes(x = timeRank, y = Rt)) +
 #   geom_point() +
 #   geom_line() +
 #   geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +
-#   geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7) +
-#   geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7)
+#   geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7) +
+#   geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)
   
 ## Finding the final reproductive number estimates with confidence intervals
 # NOTE should run with bootSamples > 10.
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
              indIDVar = "individualID", pVar = "pScaled",
-             timeFrame = "months",
-             rangeForAvg = c(monthCut1, monthCut2),
+             timeFrame = "months", rangeForAvg = c(cut1, cut2),
              bootSamples = 10, alpha = 0.05)
 
 rFinal$RtAvgDf

@@ -1,110 +1,60 @@
 
-#' Clusters the infectors based on their transmission probabilities
+#' Creates a heatmap of the relative transmission probabilities
 #'
-#' The function \code{clusterInfectors} uses either kernel density estimation or
-#' hierarchical clustering to cluster the infectors for each infectee. This clustering
-#' provides a way to separate out the few top possible infectors for each infectee
-#' if there is such a cluster.
+#' The function \code{nbHeatmap} creates a heatmap of the transmission probabilities.
+#' The rows are the possible infectors and the columns are the possible infectees both
+#' ordered by \code{<dateVar>}. The darker the square the higher the probability that
+#' the pair represented by that square is a transmission link. If a cluster method is specified 
+#' using \code{clustMethod} and \code{cutoff}, then stars will be drawn in the squares of the
+#' infectors in the top cluster.
 #' 
-#' This function provides a way to find the most likely infectors for each infectee
-#' using various clustering methods indicated by the \code{clustmethod}.
-#' The methods can be one of \code{c("n", "kd", "hc_constant", "hc_relative")}.
+#' Users have the option of specifying how the probabilities should be grouped into different
+#' color shades through the argument \code{probBreaks}. The probabilities are split into groups by
+#' using \code{probBreaks} as the \code{breaks} argument in \code{\link[base]{cut}} with the default options.
+#' The length of the vector should be between 3 and 10 and the first element should be less than 0 and 
+#' the last 1 so that all probabilities are guarenteed to be classified.
+#' The colors are defined with the code \code{brewer.pal(length(probBreaks) - 1, "Blues")}
+#' (where "Blues" is replaced by "Greys" if \code{blackAndWhite} is set to \code{TRUE}).
 #' 
-#' If \code{clustMethod == "n"} then this function simply assigns the top n possible 
-#' infectors in the top cluster where n is defined by the value of \code{cutoff}.
-#' 
-#' If \code{clustMethod == "kd"} then kernel density estimation is used to split the infectors.
-#' The density for the probabilities for all infectors is estimated using a binwidth defined
-#' by the value of \code{cutoff}. If the density is made up of at least two separate curves
-#' (separated by a region where the density drops to 0) then the infectors with probabilities
-#' greater than the lowest 0 region are assigned into the top cluster. If the density of the
-#' probabilities does not drop to 0 then all infectors are assigned into the bottom cluster.
-#' 
-#' If \code{clustMethod == "hc_absolute"} or \code{clustMethod == "hc_relative"}, then
-#' hierarchical clustering with minimum distance is used to split the possible infectors
-#' into two clusters. This method functionally splits the infectors by the largest gap
-#' in their probabilities.
-#' 
-#' Then if \code{clustMethod == "hc_absolute"}, those infectees
-#' where the gap between the two clusters is less than \code{cutoff} have all of their
-#' possible infectors reassigned to the bottom cluster (indicating no real clustering).
-#' If \code{clustMethod == "hc_relative"}, then all infectees where the gap between the two
-#' clusters is less than \code{cutoff} times the second largest gap in probabilities
-#' are reassigned to the bottom cluster (indicating no real clustering).
+#' \strong{NOTE: This plot will take long to run and may not look good with
+#'  larger outbreaks (>200 individuals)}
 #' 
 #' 
 #' @param df The name of the dateset with transmission probabilities (column \code{pVar}),
-#' individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}).
+#' individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}), and the dates of
+#' observation (columns \code{<dateVar>.1} and \code{<dateVar>.2}).
+#' @param indIDVar The name (in quotes) of the individual ID columns
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
+#'  and \code{<indIDVar>.2}).
 #' @param indIDVar The name (in quotes) of the individual ID columns
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param pVar The name (in quotes) of the column with transmission probabilities.
-#' @param clustMethod The method used to cluster the infectors (see details).
-#' @param cutoff The cutoff for clustering (see details).
-#' 
-#'
-#' @return The original data frame (\code{df}) with a new column called \code{cluster}
-#' which is a factor variable with value \code{1} if the infector is in the top cluster
-#' or \code{2} if the infector is in the bottom cluster.
+#' @param clustMethod The method used to cluster the infectors; one of 
+#' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
+#' not specifying a value means use all pairs with no clustering
+#' (see \code{\link{clusterInfectors}} for detials on clustering methods).
+#' @param cutoff The cutoff for clustering (see \code{\link{clusterInfectors}}).
+#' @param blackAndWhite A logical. If \code{TRUE}, then the squares are colored in greyscale,
+#' if \code{FALSE}, then the squares are colored with shades of blue.
+#' @param probBreaks A numeric vector containing between 3 and 10 elements specifying the
+#' boundaries used to classify the probabilities and color the squares.
+#' The first element should be less than 0 and the last should be 1.
 #' 
 #' 
 #' @examples
 #' 
-#' ## Use the pairData dataset which represents a TB-like outbreak
-#' # First create a dataset of ordered pairs
-#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
-#' 
-#' ## Create a variable called snpClose that will define probable links
-#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
-#' # will not be used to train.
-#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
-#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
-#' table(orderedPair$snpClose)
-#' 
-#' ## Running the algorithm
-#' # NOTE should run with nReps > 1
-#' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-#' resGen <- nbProbabilities(orderedPair = orderedPair,
-#'                             indIDVar = "individualID",
-#'                             pairIDVar = "pairID",
-#'                             goldStdVar = "snpClose",
-#'                             covariates = covariates,
-#'                             label = "SNPs", l = 1,
-#'                             n = 10, m = 1, nReps = 1)
-#'                             
-#' ## Merging the probabilities back with the pair-level data
-#' allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
-#' 
-#' ## Clustering using top n
-#' # Top cluster includes infectors with highest 3 probabilities
-#' clust1 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
-#'                            clustMethod = "n", cutoff = 3)
-#' table(clust1$cluster)
-#' 
-#' ## Clustering using hierarchical clustering
+#' ## Heatmap with no clustering in color with the default probability breaks
+#' nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#' pVar = "pScaled", clustMethod = "none")
 #'
-#' # Cluster all infectees, do not force gap to be certain size
-#' clust2 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
-#'                            clustMethod = "hc_absolute", cutoff = 0)
-#' table(clust2$cluster)
+#'## Adding stars for the top cluster, in black and white, changing the probability breaks
+#' nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+#'           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
 #' 
-#' # Absolute difference: gap between top and bottom clusters is more than 0.05
-#' clust3 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
-#'                            clustMethod = "hc_absolute", cutoff = 0.05)
-#' table(clust3$cluster)
-#'
-#' # Relative difference: gap between top and bottom clusters is more than double any other gap
-#' clust4 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
-#'                            clustMethod = "hc_relative", cutoff = 2)
-#' table(clust4$cluster)
-#'
-#' ## Clustering using kernel density estimation
-#' # Using a small binwidth of 0.01
-#' clust5 <- clusterInfectors(allProbs, indIDVar = "individualID", pVar = "pScaled",
-#'                            clustMethod = "kd", cutoff = 0.01)
-#' table(clust5$cluster)
 #' 
-#' @seealso \code{\link{nbProbabilities}}
+#' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
 #' 
 #' @export
 
@@ -115,9 +65,23 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
                       probBreaks = c(-0.01, 0.001, 0.005, 0.01,
                                      0.05, 0.1, 0.25, 0.5, 0.75, 1)){
   
+  
   #If clustMethod is not specified, setting it to "none"
   if(length(clustMethod) > 1){
     clustMethod <- "none"
+  }
+  
+  #Making sure probBreaks has the right form
+  if(probBreaks[1] > 0){
+    probBreaks <- c(-0.01, probBreaks)
+    print("First element of probBreaks is not negative so -0.01 was added to the beginning")
+  }
+  if(probBreaks[length(probBreaks)] != 1){
+    probBreaks <- c(-0.01, probBreaks)
+    print("Last element of probBreaks is not 1 so 1 was added to the end")
+  }
+  if(length(probBreaks) < 3 | length(probBreaks) > 10){
+    stop("Please make sure probBreaks has between 3 and 10 elements")
   }
   
   #Create a network of the probabilities
@@ -152,6 +116,64 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 }
 
 
+
+
+#' Creates a netowrk of the relative transmission probabilities
+#'
+#' The function \code{nNetwork} creates a heatmap of the transmission probabilities.
+#' The nodes are the individuals and the edges represent possible transmission pairs.
+#' The darker the edge, the higher the probability that the pair is a transmission link.
+#' If a cluster method is specified using \code{clustMethod} and \code{cutoff}, only edges
+#' that are in the top cluster of infectors will be drawn.
+#' 
+#' Users have the option of specifying how the probabilities should be grouped into different
+#' color shades through the argument \code{probBreaks}. The probabilities are split into groups by
+#' using \code{probBreaks} as the \code{breaks} argument in \code{\link[base]{cut}} with the default options.
+#' The length of the vector should be between 3 and 10 and the first element should be less than 0 and 
+#' the last 1 so that all probabilities are guarenteed to be classified.
+#' The colors are defined with the code \code{brewer.pal(length(probBreaks) - 1, "Blues")}
+#' (where "Blues" is replaced by "Greys" if \code{blackAndWhite} is set to \code{TRUE}).
+#' 
+#' 
+#' @param df The name of the dateset with transmission probabilities (column \code{pVar}),
+#' individual IDs (columns \code{<indIDVar>.1} and \code{<indIDVar>.2}), and the dates of
+#' observation (columns \code{<dateVar>.1} and \code{<dateVar>.2}).
+#' @param indIDVar The name (in quotes) of the individual ID columns
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
+#'  and \code{<indIDVar>.2}).
+#' @param indIDVar The name (in quotes) of the individual ID columns
+#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
+#'  and \code{<indIDVar>.2}).
+#' @param pVar The name (in quotes) of the column with transmission probabilities.
+#' @param clustMethod The method used to cluster the infectors; one of 
+#' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
+#' not specifying a value means use all pairs with no clustering
+#' (see \code{\link{clusterInfectors}} for detials on clustering methods).
+#' @param cutoff The cutoff for clustering (see \code{\link{clusterInfectors}}).
+#' @param blackAndWhite A logical. If \code{TRUE}, then the edges are colored in greyscale,
+#' if \code{FALSE}, then the edges are colored with shades of blue.
+#' @param probBreaks A numeric vector containing between 3 and 10 elements specifying the
+#' boundaries used to classify the probabilities and color the edges.
+#' The first element should be less than 0 and the last should be 1.
+#' 
+#' 
+#' @examples
+#' 
+#' ## Network of all pairs in color with the default probability breaks
+#' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#' pVar = "pScaled", clustMethod = "none")
+#'
+#'## Adding stars for the top cluster, in black and white, changing the probability breaks
+#' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+#'           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
+#' 
+#' 
+#' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
+#' 
+#' @export
+
+
 nbNetwork <- function(df, indIDVar, dateVar, pVar,
                       clustMethod = c("none", "n", "kd",
                                       "hc_absolute", "hc_relative"),
@@ -181,7 +203,7 @@ nbNetwork <- function(df, indIDVar, dateVar, pVar,
   
 }
 
-
+## Function that creates a network from probabilities; called by nbHeatmap and nbNetwork
 createNetwork <- function(df, indIDVar, dateVar, pVar,
                             clustMethod = c("none", "n", "kd",
                                             "hc_absolute", "hc_relative"),
@@ -251,12 +273,72 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
 
 
 
-rtPlot <- function(rData, includeRtAvg = TRUE,
-                   includeRtCI = TRUE, includeRtAvgCI = TRUE){
+
+#' Creates a plot of the effective reproductive number
+#'
+#' The function \code{plotRt} creates a plot of the effective reproductive number (Rt) over
+#' the course of the outbreak. Using various options, the plot can include the overall average
+#' Rt value for the outbreak and the confidence intervals.
+#' 
+#' The main input \code{rData} should be the output of \code{\link{estimateRt}} with the
+#' time-level reproductive numbers, overall average, range used to calculate that average,
+#' and time frame.
+#' 
+#' The options \code{includeRtCI} and \code{includeRtAvgCI} add confidence interval bounds
+#' to the plot. If set to true, \code{rData} should be from a call of \code{\link{estimateRt}}
+#' with \code{bootSamples > 0} so that confidence intervals are available.
+#' If \code{includeRtAvgCI} is set to \code{TRUE}, a line for the point estimate of the average
+#' Rt value will be drawn even if \code{includeRtAvg} is set to \code{FALSE}.
+#' 
+#' 
+#' @param rData A list that is the output of \code{\link{estimateR}}. It should contain
+#' the dataframes \code{RtDf}, \code{RtAvgDf}, and vectors \code{timeFrame} and \code{rangeForAvg}
+#' @param includeRtAvg A logical. If TRUE, a horizontal line will be drawn for the average
+#' Rt value over \code{rangeForAvg} and verticle lines will be drawn at the 
+#' \code{rangeForAvg} values.
+#' @param includeRtCI A logical. If TRUE, error bars will be added to the Rt values
+#' representing the bootstrap confidence intervals.
+#' @param includeRtAvgCI A logical. If TRUE, horizontal lines will be drawn around the Rt average
+#' line representing the bootstrap confidence interval.
+#' 
+#' 
+#' @examples
+#' 
+#' ## Use the nbResults data frame included in the package which has the results
+#' of the nbProbabilities() function on a TB-like outbreak.
+#' 
+#' ## Getting initial estimates of the reproductive number
+#' # (ithout specifying nbResults and without confidence intervals)
+#' rInitial <- estimateR(allProbs, dateVar = "infectionDate",
+#'                indIDVar = "individualID", pVar = "pScaled",
+#'                timeFrame = "months")
+#'                
+#' ## Finding the stable portion of the outbreak for rangeForAvg using the plot
+#' plotRt(rInitial)
+#' cut1 <- 25
+#' cut2 <- 125
+#' 
+#' ## Finding the final reproductive number estimates with confidence intervals
+#' # NOTE should run with bootSamples > 10.
+#' rFinal <- estimateR(nbResults, dateVar = "infectionDate",
+#'              indIDVar = "individualID", pVar = "pScaled",
+#'              timeFrame = "months", rangeForAvg = c(cut1, cut2),
+#'              bootSamples = 10, alpha = 0.05)
+#' 
+#' ## Ploting the final result              
+#' plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)
+#' 
+#' @seealso \code{\link{nbProbabilities}} \code{\link{estimateR}}
+#' 
+#' @export
+
+
+plotRt <- function(rData, includeRtAvg = FALSE,
+                   includeRtCI = FALSE, includeRtAvgCI = FALSE){
   
   #Translating the timeFrame into labels for the axes
   xlabel <- gsub("s$", "", Hmisc::capitalize(rData$timeFrame))
-  if(timeFrame == "days"){
+  if(rData$timeFrame == "days"){
     ylabel <- "Daily"
   }else{
     ylabel <- paste0(xlabel, "ly")
@@ -268,7 +350,7 @@ rtPlot <- function(rData, includeRtAvg = TRUE,
     geom_line() +
     scale_y_continuous(name = paste0(ylabel, " Effective Reproductive Number")) + 
     scale_x_continuous(name = paste0(xlabel, " of Observation")) +
-    theme_bw()
+    theme_bw() 
   
   #Adding confidence interval for Rt
   if(includeRtCI == TRUE){

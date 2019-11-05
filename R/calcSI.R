@@ -59,7 +59,7 @@
 #' @param pVar The column name (in quotes) of the transmission probabilities.
 #' @param clustMethod The method used to cluster the infectors; one of 
 #' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
-#' not specifying a value means use all pairs with no clustering.
+#' not specifying a value means use all pairs with no clustering
 #' (see \code{\link{clusterInfectors}} for detials on clustering methods).
 #' @param cutoff The cutoff for clustering (see \code{\link{clusterInfectors}}).
 #' @param initialPars A vector of length two with the shape and scale 
@@ -104,51 +104,29 @@
 #' 
 #' @examples
 #' 
-#' ## Use the pairData dataset which represents a TB-like outbreak
-#' # First create a dataset of ordered pairs
-#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
-#' 
-#' ## Create a variable called snpClose that will define probable links
-#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
-#' # will not be used to train.
-#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
-#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
-#' table(orderedPair$snpClose)
-#' 
-#' ## Running the algorithm
-#' # NOTE should run with nReps > 1
-#' covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-#' resGen <- nbProbabilities(orderedPair = orderedPair,
-#'                             indIDVar = "individualID",
-#'                             pairIDVar = "pairID",
-#'                             goldStdVar = "snpClose",
-#'                             covariates = covariates,
-#'                             label = "SNPs", l = 1,
-#'                             n = 10, m = 1, nReps = 1)
-#'                             
-#' ## Merging the probabilities back with the pair-level data
-#' allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+#' ## Use the nbResults data frame included in the package which has the results
+#' of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Estimating the serial interval
 #' 
 #' # Using all pairs
-#' estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #' pVar = "pScaled", clustMethod = "none", initialPars = c(2, 2))
 #'
 #' # Using hierarchical clustering with a 0.05 absolute difference cutoff
-#' estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #'           initialPars = c(2, 2))
 #'
 #' # Using a shifted gamma distribution:
 #' # not allowing serial intervals of less than 4 months (0.25 years)
-#' estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #' pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #' initialPars = c(2, 2), shift = 0.25)
 #' 
 #' ## Adding confidence intervals
 #' # NOTE should run with bootSamples > 5.
-#' estimateSI(allProbs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #'           initialPars = c(2, 2), bootSamples = 5) 
 #' 
