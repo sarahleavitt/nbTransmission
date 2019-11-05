@@ -210,10 +210,10 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                  INDICES = list(cAll$level),
                  FUN = function(x){
                    data.frame("level" = unique(x$level),
-                              "oddsMean" = mean(x$or, na.rm = TRUE),
-                              "oddsMin" = min(x$or, na.rm = TRUE),
-                              "oddsMax" = max(x$or, na.rm = TRUE),
-                              "oddsSD" = stats::sd(x$or, na.rm = TRUE),
+                              "orMean" = mean(x$or, na.rm = TRUE),
+                              "orMin" = min(x$or, na.rm = TRUE),
+                              "orMax" = max(x$or, na.rm = TRUE),
+                              "orSD" = stats::sd(x$or, na.rm = TRUE),
                               "nSamples" = sum(!is.na(x$or)),
                               "label" = label)
                  })

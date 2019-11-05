@@ -49,7 +49,7 @@ rDataRC <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100), bootSamples = 10
 #rDataC <- estimateRWrapper(allProbs, bootSamples = 10)
 
 
-test_that("estimateR returns a list of three dataframes for valid input",{
+test_that("estimateR returns a list of three data frames for valid input",{
   
   expect_true(is.data.frame(rDataR[[1]]))
   expect_true(is.data.frame(rDataR[[2]]))

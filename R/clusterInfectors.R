@@ -52,7 +52,7 @@
 #' @examples
 #' 
 #' ## Use the nbResults data frame included in the package which has the results
-#' of the nbProbabilities() function on a TB-like outbreak.
+#' ## of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Clustering using top n
 #' # Top cluster includes infectors with highest 3 probabilities

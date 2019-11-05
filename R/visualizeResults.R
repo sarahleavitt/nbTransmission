@@ -26,9 +26,9 @@
 #' @param indIDVar The name (in quotes) of the individual ID columns
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
-#' @param indIDVar The name (in quotes) of the individual ID columns
-#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
-#'  and \code{<indIDVar>.2}).
+#' @param dateVar The name (in quotes) of the columns with the dates that the individuals are
+#' observed (data frame \code{df} must have variables called \code{<dateVar>.1} and
+#' \code{<dateVar>.2}).
 #' @param pVar The name (in quotes) of the column with transmission probabilities.
 #' @param clustMethod The method used to cluster the infectors; one of 
 #' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
@@ -45,10 +45,12 @@
 #' @examples
 #' 
 #' ## Heatmap with no clustering in color with the default probability breaks
+#' par(mar = c(0, 0, 1, 0))
 #' nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 #' pVar = "pScaled", clustMethod = "none")
 #'
-#'## Adding stars for the top cluster, in black and white, changing the probability breaks
+#' ## Adding stars for the top cluster, in black and white, changing the probability breaks
+#' par(mar = c(0, 0, 1, 0))
 #' nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #'           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
@@ -89,10 +91,10 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
                        clustMethod = clustMethod, cutoff = cutoff, probBreaks = probBreaks)
   
   #First get adjacency version of the network using pScaled
-  net.adj <- get.adjacency(net, attr = pVar, sparse = FALSE)
+  net.adj <- igraph::get.adjacency(net, attr = pVar, sparse = FALSE)
   
   #Marking cluster 1 with a * if clustering was specified
-  net.trans <- get.adjacency(net, attr = "cluster", sparse = FALSE)
+  net.trans <- igraph::get.adjacency(net, attr = "cluster", sparse = FALSE)
   if(clustMethod == "none"){
     net.trans <- ifelse(net.trans == 1, "", "") 
   }else{
@@ -106,11 +108,10 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
     edgeCol = "Blues"
   }
   
-  par(mar = c(0, 0, 1, 0))
-  pheatmap(t(net.adj), cluster_rows = FALSE, cluster_cols = FALSE,
+  pheatmap::pheatmap(t(net.adj), cluster_rows = FALSE, cluster_cols = FALSE,
            border_color = NA, show_rownames = FALSE, show_colnames = FALSE,
-           col=brewer.pal(length(probBreaks) - 1, edgeCol), breaks = probBreaks,
-           display_numbers = t(net.trans), number_color = "white",
+           col=RColorBrewer::brewer.pal(length(probBreaks) - 1, edgeCol), 
+           breaks = probBreaks, display_numbers = t(net.trans), number_color = "white",
            fontsize_number = 7)
   
 }
@@ -118,7 +119,7 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 
 
 
-#' Creates a netowrk of the relative transmission probabilities
+#' Creates a network of the relative transmission probabilities
 #'
 #' The function \code{nNetwork} creates a heatmap of the transmission probabilities.
 #' The nodes are the individuals and the edges represent possible transmission pairs.
@@ -141,9 +142,9 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 #' @param indIDVar The name (in quotes) of the individual ID columns
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
-#' @param indIDVar The name (in quotes) of the individual ID columns
-#' (data frame \code{df} must have variables called \code{<indIDVar>.1}
-#'  and \code{<indIDVar>.2}).
+#' @param dateVar The name (in quotes) of the columns with the dates that the individuals are
+#' observed (data frame \code{df} must have variables called \code{<dateVar>.1} and
+#' \code{<dateVar>.2}).
 #' @param pVar The name (in quotes) of the column with transmission probabilities.
 #' @param clustMethod The method used to cluster the infectors; one of 
 #' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
@@ -160,10 +161,12 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 #' @examples
 #' 
 #' ## Network of all pairs in color with the default probability breaks
+#' par(mar = c(0, 0, 0.2, 0))
 #' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 #' pVar = "pScaled", clustMethod = "none")
 #'
 #'## Adding stars for the top cluster, in black and white, changing the probability breaks
+#' par(mar = c(0, 0, 0.2, 0))
 #' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #'           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
@@ -185,7 +188,7 @@ nbNetwork <- function(df, indIDVar, dateVar, pVar,
                       clustMethod = clustMethod, cutoff = cutoff, probBreaks = probBreaks)
   
   #Network of top cluster
-  net_top <- delete.edges(net, E(net)[cluster == 2])
+  net_top <- igraph::delete.edges(net, igraph::E(net)["cluster" == 2])
   
   #Setting the edge colors to blue unless blackAndWhite is TRUE
   if(blackAndWhite == TRUE){
@@ -194,12 +197,11 @@ nbNetwork <- function(df, indIDVar, dateVar, pVar,
     edgeCol = "Blues"
   }
 
-  par(mar = c(0, 0, 0.2, 0))
-  plot(net_top, vertex.size = 7, vertex.label.cex = 0.7,
+  graphics::plot(net_top, vertex.size = 7, vertex.label.cex = 0.7,
        vertex.color = "gray", vertex.frame.color = "dark gray",
        edge.width = 2, edge.arrow.size = 0.4,
-       edge.color = brewer.pal(length(probBreaks) - 1,
-                               edgeCol)[E(net_top)$pGroup])
+       edge.color = RColorBrewer::brewer.pal(length(probBreaks) - 1,
+                               edgeCol)[igraph::E(net_top)$pGroup])
   
 }
 
@@ -263,9 +265,9 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
   }
   
   #Creating the network
-  net <- graph_from_data_frame(d = edges, vertices = nodes, directed = T)
+  net <- igraph::graph_from_data_frame(d = edges, vertices = nodes, directed = T)
   #Adding a probability group based on probBreaks
-  E(net)$pGroup <- cut(E(net)$pScaled, breaks = probBreaks,
+  igraph::E(net)$pGroup <- cut(igraph::E(net)$pScaled, breaks = probBreaks,
                        labels = 1:(length(probBreaks) - 1))
   
   return(net)
@@ -305,11 +307,11 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
 #' @examples
 #' 
 #' ## Use the nbResults data frame included in the package which has the results
-#' of the nbProbabilities() function on a TB-like outbreak.
+#' # of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Getting initial estimates of the reproductive number
 #' # (ithout specifying nbResults and without confidence intervals)
-#' rInitial <- estimateR(allProbs, dateVar = "infectionDate",
+#' rInitial <- estimateR(nbResults, dateVar = "infectionDate",
 #'                indIDVar = "individualID", pVar = "pScaled",
 #'                timeFrame = "months")
 #'                
@@ -345,12 +347,12 @@ plotRt <- function(rData, includeRtAvg = FALSE,
   }
   
   #Base plot of reproductive number over time
-  p <- ggplot(data = rData$RtDf, aes(x = rData$RtDf$timeRank, y = rData$RtDf$Rt)) +
-    geom_point() +
-    geom_line() +
-    scale_y_continuous(name = paste0(ylabel, " Effective Reproductive Number")) + 
-    scale_x_continuous(name = paste0(xlabel, " of Observation")) +
-    theme_bw() 
+  p <- ggplot2::ggplot(data = rData$RtDf, ggplot2::aes(x = rData$RtDf$timeRank, y = rData$RtDf$Rt)) +
+    ggplot2::geom_point() +
+    ggplot2::geom_line() +
+    ggplot2::scale_y_continuous(name = paste0(ylabel, " Effective Reproductive Number")) + 
+    ggplot2::scale_x_continuous(name = paste0(xlabel, " of Observation")) +
+    ggplot2::theme_bw() 
   
   #Adding confidence interval for Rt
   if(includeRtCI == TRUE){
@@ -359,7 +361,7 @@ plotRt <- function(rData, includeRtAvg = FALSE,
       stop("Please provide a rData list that has confidence intervals")
     }
     p <- p +
-      geom_errorbar(aes(ymin = rData$RtDf$ciLower, ymax = rData$RtDf$ciUpper),
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = rData$RtDf$ciLower, ymax = rData$RtDf$ciUpper),
                     width = 0.1, color = "dark grey")
   }
   
@@ -375,9 +377,10 @@ plotRt <- function(rData, includeRtAvg = FALSE,
     }
     
     p <- p +    
-      geom_vline(aes(xintercept = cut1), linetype = 3, size = 0.7) +
-      geom_vline(aes(xintercept = cut2), linetype = 3, size = 0.7) +
-      geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7)
+      ggplot2::geom_vline(ggplot2::aes(xintercept = cut1), linetype = 3, size = 0.7) +
+      ggplot2::geom_vline(ggplot2::aes(xintercept = cut2), linetype = 3, size = 0.7) +
+      ggplot2::geom_hline(data = rData$RtAvgDf, ggplot2::aes(yintercept = rData$RtAvg$RtAvg),
+                          size = 0.7)
     
     #Adding confindeince interval for RtAvg
     if(includeRtAvgCI == TRUE){
@@ -387,9 +390,9 @@ plotRt <- function(rData, includeRtAvg = FALSE,
       }
       
       p <- p +
-        geom_hline(data = rData$RtAvgDf, aes(yintercept = rData$RtAvgDf$ciLower),
+        ggplot2::geom_hline(data = rData$RtAvgDf, ggplot2::aes(yintercept = rData$RtAvgDf$ciLower),
                    linetype = 2, size = 0.7, color = "dark grey") +
-        geom_hline(data = rData$RtAvgDf, aes(yintercept = rData$RtAvgDf$ciUpper),
+        ggplot2::geom_hline(data = rData$RtAvgDf, ggplot2::aes(yintercept = rData$RtAvgDf$ciUpper),
                    linetype = 2, size = 0.7, color = "dark grey") 
     }
   }

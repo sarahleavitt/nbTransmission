@@ -105,7 +105,7 @@
 #' @examples
 #' 
 #' ## Use the nbResults data frame included in the package which has the results
-#' of the nbProbabilities() function on a TB-like outbreak.
+#' ## of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Estimating the serial interval
 #' 
@@ -195,7 +195,7 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
                                 pVar = pVar, clustMethod = clustMethod, cutoff = cutoff,
                                 initialPars = initialPars, shift = shift, epsilon = epsilon) 
       
-      bootSI <- bind_rows(bootSI, siNew)
+      bootSI <- rbind(bootSI, siNew)
       utils::setTxtProgressBar(pb, i)
     }
     
@@ -335,7 +335,7 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #' @examples
 #' 
 #' ## Use the nbResults data frame included in the package which has the results
-#' of the nbProbabilities() function on a TB-like outbreak.
+#' ## of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Estimating the serial interval
 #' 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizeResults.R
 \name{nbNetwork}
 \alias{nbNetwork}
-\title{Creates a netowrk of the relative transmission probabilities}
+\title{Creates a network of the relative transmission probabilities}
 \usage{
 nbNetwork(df, indIDVar, dateVar, pVar, clustMethod = c("none", "n", "kd",
   "hc_absolute", "hc_relative"), cutoff = NA, blackAndWhite = FALSE,
@@ -16,6 +16,10 @@ observation (columns \code{<dateVar>.1} and \code{<dateVar>.2}).}
 \item{indIDVar}{The name (in quotes) of the individual ID columns
 (data frame \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
+
+\item{dateVar}{The name (in quotes) of the columns with the dates that the individuals are
+observed (data frame \code{df} must have variables called \code{<dateVar>.1} and
+\code{<dateVar>.2}).}
 
 \item{pVar}{The name (in quotes) of the column with transmission probabilities.}
 
@@ -32,10 +36,6 @@ if \code{FALSE}, then the edges are colored with shades of blue.}
 \item{probBreaks}{A numeric vector containing between 3 and 10 elements specifying the
 boundaries used to classify the probabilities and color the edges.
 The first element should be less than 0 and the last should be 1.}
-
-\item{indIDVar}{The name (in quotes) of the individual ID columns
-(data frame \code{df} must have variables called \code{<indIDVar>.1}
- and \code{<indIDVar>.2}).}
 }
 \description{
 The function \code{nNetwork} creates a heatmap of the transmission probabilities.
@@ -56,10 +56,12 @@ The colors are defined with the code \code{brewer.pal(length(probBreaks) - 1, "B
 \examples{
 
 ## Network of all pairs in color with the default probability breaks
+par(mar = c(0, 0, 0.2, 0))
 nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 pVar = "pScaled", clustMethod = "none")
 
 ## Adding stars for the top cluster, in black and white, changing the probability breaks
+par(mar = c(0, 0, 0.2, 0))
 nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))

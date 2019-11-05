@@ -64,7 +64,7 @@ For more details on the PEM algorithm see \code{\link{estimateSI}}.
 \examples{
 
 ## Use the nbResults data frame included in the package which has the results
-of the nbProbabilities() function on a TB-like outbreak.
+## of the nbProbabilities() function on a TB-like outbreak.
 
 ## Estimating the serial interval
 

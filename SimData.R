@@ -125,7 +125,7 @@ resGen <- nbProbabilities(orderedPair = orderedPair,
                             goldStdVar = "snpClose",
                             covariates = covariates,
                             label = "SNPs", l = 1,
-                            n = 10, m = 1, nReps = 5)
+                            n = 10, m = 1, nReps = 20)
 
 ## Merging the probabilities back with the pair-level data
 nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
@@ -174,8 +174,8 @@ ggplot(data = rFinal[[2]], aes(x = timeRank, y = Rt)) +
   geom_errorbar(aes(ymin = ciLower, ymax = ciUpper), width = 0.1) +
   scale_y_continuous(name = "Monthly Effective Reproductive Number") + 
   scale_x_continuous(name = "Infection Month") +
-  geom_vline(aes(xintercept = monthCut1), linetype = 2, size = 0.7, color = "blue") +
-  geom_vline(aes(xintercept = monthCut2), linetype = 2, size = 0.7, color = "blue") +
+  geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7, color = "blue") +
+  geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7, color = "blue") +
   geom_hline(data = rFinal[[3]], aes(yintercept = RtAvg), size = 0.7) +
   geom_hline(data = rFinal[[3]], aes(yintercept = ciLower), linetype = 2, 
              size = 0.7, color = "black") +

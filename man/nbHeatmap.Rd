@@ -18,6 +18,10 @@ observation (columns \code{<dateVar>.1} and \code{<dateVar>.2}).}
 (data frame \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
 
+\item{dateVar}{The name (in quotes) of the columns with the dates that the individuals are
+observed (data frame \code{df} must have variables called \code{<dateVar>.1} and
+\code{<dateVar>.2}).}
+
 \item{pVar}{The name (in quotes) of the column with transmission probabilities.}
 
 \item{clustMethod}{The method used to cluster the infectors; one of 
@@ -33,10 +37,6 @@ if \code{FALSE}, then the squares are colored with shades of blue.}
 \item{probBreaks}{A numeric vector containing between 3 and 10 elements specifying the
 boundaries used to classify the probabilities and color the squares.
 The first element should be less than 0 and the last should be 1.}
-
-\item{indIDVar}{The name (in quotes) of the individual ID columns
-(data frame \code{df} must have variables called \code{<indIDVar>.1}
- and \code{<indIDVar>.2}).}
 }
 \description{
 The function \code{nbHeatmap} creates a heatmap of the transmission probabilities.
@@ -61,10 +61,12 @@ The colors are defined with the code \code{brewer.pal(length(probBreaks) - 1, "B
 \examples{
 
 ## Heatmap with no clustering in color with the default probability breaks
+par(mar = c(0, 0, 1, 0))
 nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 pVar = "pScaled", clustMethod = "none")
 
 ## Adding stars for the top cluster, in black and white, changing the probability breaks
+par(mar = c(0, 0, 1, 0))
 nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))

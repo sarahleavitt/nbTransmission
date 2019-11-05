@@ -40,11 +40,11 @@ Rt value will be drawn even if \code{includeRtAvg} is set to \code{FALSE}.
 \examples{
 
 ## Use the nbResults data frame included in the package which has the results
-of the nbProbabilities() function on a TB-like outbreak.
+# of the nbProbabilities() function on a TB-like outbreak.
 
 ## Getting initial estimates of the reproductive number
 # (ithout specifying nbResults and without confidence intervals)
-rInitial <- estimateR(allProbs, dateVar = "infectionDate",
+rInitial <- estimateR(nbResults, dateVar = "infectionDate",
                indIDVar = "individualID", pVar = "pScaled",
                timeFrame = "months")
                

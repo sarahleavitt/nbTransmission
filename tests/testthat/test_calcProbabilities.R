@@ -33,7 +33,7 @@ nbProbWrapper <- function(orderedPair,
 }
 
 
-test_that("nbProbabilities returns a list of two dataframes for valid input",{
+test_that("nbProbabilities returns a list of two data frames for valid input",{
   
   resGen <- nbProbWrapper(orderedPair)
   expect_true(is.data.frame(resGen[[1]]))
@@ -44,18 +44,18 @@ test_that("nbProbabilities returns a list of two dataframes for valid input",{
 test_that("Descriptive error messages returned",{
 
  expect_error(nbProbWrapper(orderedPair, indIDVar = "garbage"),
-              "garbage.1 is not in the dataframe.")
+              "garbage.1 is not in the data frame.")
  
  #Removing individualID.2 column
  orderedPair2 <- orderedPair[!names(orderedPair) %in% c("individualID.2")]
  expect_error(nbProbWrapper(orderedPair2, indIDVar = "individualID"),
-              "individualID.2 is not in the dataframe.")
+              "individualID.2 is not in the data frame.")
  
  expect_error(nbProbWrapper(orderedPair, pairIDVar = "garbage"),
-              "garbage is not in the dataframe.")
+              "garbage is not in the data frame.")
  
  expect_error(nbProbWrapper(orderedPair, goldStdVar = "garbage"),
-              "garbage is not in the dataframe.")
+              "garbage is not in the data frame.")
   
 })
 

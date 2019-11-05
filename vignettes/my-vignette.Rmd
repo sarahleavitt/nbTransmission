@@ -179,12 +179,9 @@ rInitial <- estimateR(nbResults,
 str(rInitial)
 ```
 
-Note the message that is printed when running this funciton without specifying rangeForAvg. In order to get a more accurate estimate of the average effective reproductive number, you only want to use the stable portion of the outbreak. You can use a plot of the Rt values over time to find this portion of the outbreak. In this case I want to exclude start at month 25 and end at month 125 which is excluding about the first 10% and last 20% of the outbreak.
+Note the message that is printed when running this funciton without specifying rangeForAvg. In order to get a more accurate estimate of the average effective reproductive number, you only want to use the stable portion of the outbreak. You plot the Rt values over time using the plotRt function to find this portion of the outbreak. In this case I want to exclude start at month 25 and end at month 125 which is excluding about the first 10% and last 20% of the outbreak.
 
 ```{r cutting, fig.height = 3.5, fig.width = 6}
-cut1 <- 25
-cut2 <- 125
-
 plotRt(rInitial)
 ```
 
@@ -193,7 +190,7 @@ Then I can rerun the estimateR function specifying the range for the average and
 ```{r rFinal, results = "hide"}
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
              indIDVar = "individualID", pVar = "pScaled",
-             timeFrame = "months", rangeForAvg = c(cut1, cut2),
+             timeFrame = "months", rangeForAvg = c(25, 125),
              bootSamples = 10, alpha = 0.05)
 ```
 
@@ -202,9 +199,8 @@ rFinal$RtAvgDf
 ```
 
 
-Then you can plot the final results.
-
-REPLACE WITH VISUALIZATION FUNCTION ONCE WRITTEN
+Then you can plot the final results adding the confidence intervals and average $R_t$ estimates
+using the plotRt function.
 
 ```{r, fig.height = 3.5, fig.width = 6}
 plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)
