@@ -121,7 +121,7 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 
 #' Creates a network of the relative transmission probabilities
 #'
-#' The function \code{nNetwork} creates a heatmap of the transmission probabilities.
+#' The function \code{nNetwork} creates a network of the transmission probabilities.
 #' The nodes are the individuals and the edges represent possible transmission pairs.
 #' The darker the edge, the higher the probability that the pair is a transmission link.
 #' If a cluster method is specified using \code{clustMethod} and \code{cutoff}, only edges
@@ -183,12 +183,19 @@ nbNetwork <- function(df, indIDVar, dateVar, pVar,
                       cutoff = NA, blackAndWhite = FALSE,
                       probBreaks = c(-0.01, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1)){
   
+  #If clustMethod is not specified, setting it to "none"
+  if(length(clustMethod) > 1){
+    clustMethod <- "none"
+  }
+  
   #Create a network of the probabilities
   net <- createNetwork(df, indIDVar = indIDVar, dateVar = dateVar, pVar  = pVar,
-                      clustMethod = clustMethod, cutoff = cutoff, probBreaks = probBreaks)
+                      clustMethod = clustMethod, cutoff = cutoff,
+                      probBreaks = probBreaks)
   
   #Network of top cluster
-  net_top <- igraph::delete.edges(net, igraph::E(net)["cluster" == 2])
+  net_top <- igraph::delete.edges(net, igraph::E(net)[igraph::E(net)$cluster == 2])
+  table(igraph::E(net_top)$cluster)
   
   #Setting the edge colors to blue unless blackAndWhite is TRUE
   if(blackAndWhite == TRUE){
@@ -231,8 +238,6 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
     clustRes <- clusterInfectors(df, indIDVar = indIDVar, pVar = pVar,
                                  clustMethod = clustMethod, cutoff = cutoff)
   }
-  topClust <- clustRes[clustRes$cluster == 1, ]
-  
   
   ## Setting up the network ##
 

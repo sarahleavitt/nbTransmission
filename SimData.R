@@ -223,17 +223,53 @@ table(clust5$cluster)
 
 ## Estimating the Serial Interval ##
 
+#Rerunning without time
+resGenNoT <- nbProbabilities(orderedPair = orderedPair,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                             goldStdVar = "snpClose",
+                             covariates = c("Z1", "Z2", "Z3", "Z4"),
+                             label = "SNPs", l = 1,
+                             n = 10, m = 1, nReps = 1)
+
+nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+
+dateVar <- "infectionDiffY"
+#Finding the true values
+truePairs <- nbResults[nbResults$transmission == TRUE, ]
+obsMean <- mean(truePairs[, dateVar])
+obsMedian <- median(truePairs[, dateVar])
+obsSD <- sd(truePairs[, dateVar])
+
 #Using wrapper
 estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "none", initialPars = c(2, 2))
 
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+siPars <- estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
            initialPars = c(2, 2), bootSamples = 0)
 
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+siParsCI <- estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
            pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
            initialPars = c(2, 2), bootSamples = 5)
+
+trainPairs <- nbResults[nbResults$snpClose == TRUE, ]
+siParsGS <- estimateSI(trainPairs, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+                       pVar = "pScaled", clustMethod = "none", initialPars = c(2, 2))
+
+#Plotting the results
+ggplot(data = nbResults, aes(x = infectionDiffY)) +
+  geom_histogram(data = truePairs, aes(y = ..density..), bins = 40) +
+  scale_x_continuous(name = "Serial Interval (years)", limits = c(0, 20)) +
+  geom_line(aes(y = dgammaS(infectionDiffY, shape = siPars$shape, scale = siPars$scale,
+                            shift = 0), color = "Top Cluster"), size = 1.2) +
+  geom_line(aes(y = dgammaS(infectionDiffY, shape = siParsCI$shapeCILB,
+                            scale = siParsCI$scaleCIUB,
+                            shift = 0), color = "CI Lower"), size = 1.2) +
+  geom_line(aes(y = dgammaS(infectionDiffY, shape = siParsCI$shapeCIUB,
+                            scale = siParsCI$scaleCIUB,
+                            shift = 0), color = "CI Upper"), size = 1.2)
+  
 
 #Using a shift
 estimateSIPars(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
@@ -255,89 +291,6 @@ performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
 
 
 ## Creating Plots ##
-
-colBreaks <- c(-0.01, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1)
-
-nodes <- (indData
-          %>% select(individualID, infectionDate)
-          %>% arrange(infectionDate)
-)
-
-#Clustering the infectors
-clustRes <- (nbResults
-             %>% group_by(individualID.2)
-             %>% group_modify(~ findClustersKD(.x, pVar = "pScaled",
-                                               binWidth = 0.03, minGap = 0))
-)
-table(clustRes$cluster)
-topClust <- clustRes %>% filter(cluster == 1)
-sum(topClust$transmission == TRUE) / length(unique(topClust$individualID.2))
-
-edges <- (clustRes
-          %>% select(individualID.1, individualID.2, transmission,
-                     pScaled, snpDist, snpClose, cluster)
-          #Arrange so high probability edges are drawn first
-          %>% arrange(pScaled)
-)
-net <- graph_from_data_frame(d = edges, vertices = nodes, directed = T)
-E(net)$pGroup <- cut(E(net)$pScaled, breaks = probBreaks, labels = 1:9)
-#First get adjacency version of the network using pScaled
-net.adj <- get.adjacency(net, attr = "pScaled", sparse = FALSE)
-
-
-#Heatmap
-#Marking cluster 1 with a *
-net.trans <- get.adjacency(net, attr = "cluster", sparse = FALSE)
-net.trans <- ifelse(net.trans == 1, "*", "")
-
-par(mar = c(0, 0, 1, 0))
-pheatmap(t(net.adj), cluster_rows = FALSE, cluster_cols = FALSE,
-         border_color = NA, show_rownames = FALSE, show_colnames = FALSE,
-         col=brewer.pal(9,"Blues"), breaks = colBreaks,
-         display_numbers = t(net.trans), number_color = "white",
-         fontsize_number = 7)
-
-
-#Network of true pairs
-net_true <- delete.edges(net, E(net)[transmission == FALSE])
-net_top <- delete.edges(net, E(net)[cluster == 2])
-set.seed(10001)
-l <- layout.fruchterman.reingold(net_true)
-par(mar = c(0, 0, 0.2, 0))
-
-plot(net_true, vertex.size = 7, vertex.label.cex = 0.7,
-     vertex.color = "gray", vertex.frame.color = "dark gray",
-     edge.width = 2, edge.arrow.size = 0.4, layout = l,
-     edge.color = brewer.pal(9,"Blues")[E(net_true)$pGroup])
-
-#Network of top cluster
-par(mar = c(0, 0, 0.2, 0))
-plot(net_top, vertex.size = 7, vertex.label.cex = 0.7,
-     vertex.color = "gray", vertex.frame.color = "dark gray",
-     edge.width = 2, edge.arrow.size = 0.4, layout = l,
-     edge.color = brewer.pal(9,"Blues")[E(net_top)$pGroup])
-
-#Network of true and top cluster
-net_truetop <- delete.edges(net, E(net)[cluster == 2 | transmission == FALSE])
-par(mar = c(0, 0, 0.2, 0))
-plot(net_truetop, vertex.size = 7, vertex.label.cex = 0.7,
-     vertex.color = "gray", vertex.frame.color = "dark gray",
-     edge.width = 2, edge.arrow.size = 0.4, layout = l,
-     edge.color = brewer.pal(9,"Blues")[E(net_truetop)$pGroup])
-
-#Network of true and not top cluster
-net_truenottop <- delete.edges(net, E(net)[cluster == 1 | transmission == FALSE])
-par(mar = c(0, 0, 0.2, 0))
-plot(net_truenottop, vertex.size = 7, vertex.label.cex = 0.7,
-     vertex.color = "gray", vertex.frame.color = "dark gray",
-     edge.width = 2, edge.arrow.size = 0.4, layout = l,
-     edge.color = brewer.pal(9,"Blues")[E(net_truenottop)$pGroup])
-
-#Full network
-plot(net, vertex.size = 7, vertex.label.cex = 0.7,
-     vertex.color = "gray", vertex.frame.color = "dark gray",
-     edge.width = 2, edge.arrow.size = 0.4, layout = l,
-     edge.color = brewer.pal(9,"Blues")[E(net)$pGroup])
 
 
 nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",

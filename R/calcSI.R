@@ -117,12 +117,11 @@
 #' 
 #' ## Running the algorithm
 #' #NOTE should run with nReps > 1.
-#' covariates = c("Z1", "Z2", "Z3", "Z4")
 #' resGen <- nbProbabilities(orderedPair = orderedPair,
 #'                             indIDVar = "individualID",
 #'                             pairIDVar = "pairID",
 #'                             goldStdVar = "snpClose",
-#'                             covariates = covariates,
+#'                             covariates = c("Z1", "Z2", "Z3", "Z4"),
 #'                             label = "SNPs", l = 1,
 #'                             n = 10, m = 1, nReps = 1)
 #'                             
@@ -368,12 +367,11 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #' 
 #' ## Running the algorithm
 #' #NOTE should run with nReps > 1.
-#' covariates = c("Z1", "Z2", "Z3", "Z4")
 #' resGen <- nbProbabilities(orderedPair = orderedPair,
 #'                             indIDVar = "individualID",
 #'                             pairIDVar = "pairID",
 #'                             goldStdVar = "snpClose",
-#'                             covariates = covariates,
+#'                             covariates = c("Z1", "Z2", "Z3", "Z4"),
 #'                             label = "SNPs", l = 1,
 #'                             n = 10, m = 1, nReps = 1)
 #'                             

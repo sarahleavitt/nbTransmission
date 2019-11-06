@@ -195,7 +195,7 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0){
     
     #Finding all of the separate regions of x where the density goes to 0
     #If xdiff > 1 then this indicates a sperate region of 0 density
-    if(nrow(mindf) != 0){
+    if(nrow(mindf) > 1){
       region <- 1
       for(i in 1:nrow(mindf)){
         row <- mindf[i, ]
