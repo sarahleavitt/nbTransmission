@@ -11,7 +11,8 @@
 #' current serial interval distribution parameters are used to update the probabilities
 #' which are then used to update the serial interval distribution parameters. The process
 #' continues until the parameters converge (indicated by a change of less than \code{epsilon})
-#' between interations.
+#' between interations. \emph{Note: time difference between pairs should not be used to 
+#' estimate the probabilities}
 #' 
 #' This function acts as a wrapper around \code{\link{performPEM}} which integrates
 #' estimation of the SI distribution with clustering the infectors and calculates
@@ -104,8 +105,29 @@
 #' 
 #' @examples
 #' 
-#' ## Use the nbResults data frame included in the package which has the results
-#' ## of the nbProbabilities() function on a TB-like outbreak.
+#' ## First, run the algorithm without including time as a covariate.
+#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+#' 
+#' ## Create a variable called snpClose that will define probable links
+#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+#' # will not be used to train.
+#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
+#' table(orderedPair$snpClose)
+#' 
+#' ## Running the algorithm
+#' #NOTE should run with nReps > 1.
+#' covariates = c("Z1", "Z2", "Z3", "Z4")
+#' resGen <- nbProbabilities(orderedPair = orderedPair,
+#'                             indIDVar = "individualID",
+#'                             pairIDVar = "pairID",
+#'                             goldStdVar = "snpClose",
+#'                             covariates = covariates,
+#'                             label = "SNPs", l = 1,
+#'                             n = 10, m = 1, nReps = 1)
+#'                             
+#' ## Merging the probabilities back with the pair-level data
+#' nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 #' 
 #' ## Estimating the serial interval
 #' 
@@ -334,17 +356,38 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #' 
 #' @examples
 #' 
-#' ## Use the nbResults data frame included in the package which has the results
-#' ## of the nbProbabilities() function on a TB-like outbreak.
+#' ## First, run the algorithm without including time as a covariate.
+#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+#' 
+#' ## Create a variable called snpClose that will define probable links
+#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+#' # will not be used to train.
+#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
+#' table(orderedPair$snpClose)
+#' 
+#' ## Running the algorithm
+#' #NOTE should run with nReps > 1.
+#' covariates = c("Z1", "Z2", "Z3", "Z4")
+#' resGen <- nbProbabilities(orderedPair = orderedPair,
+#'                             indIDVar = "individualID",
+#'                             pairIDVar = "pairID",
+#'                             goldStdVar = "snpClose",
+#'                             covariates = covariates,
+#'                             label = "SNPs", l = 1,
+#'                             n = 10, m = 1, nReps = 1)
+#'                             
+#' ## Merging the probabilities back with the pair-level data
+#' nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 #' 
 #' ## Estimating the serial interval
 #' 
 #' # Using all pairs and plotting the parameters
-#' performPEM(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' performPEM(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #' pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)
 #'
 #' # Clustering the probabilities first
-#' allClust <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
+#' allClust <- clusterInfectors(nbResultsNoT, indIDVar = "individualID", pVar = "pScaled",
 #'                             clustMethod = "hc_absolute", cutoff = 0.05)
 #' 
 #' performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
@@ -353,7 +396,7 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #'            
 #' # The above is equivalent to the following code using the function estimateSI()
 #' # though the plot will not be printed and more details will be added
-#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' estimateSI(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 #'           initialPars = c(2, 2))
 #' 

@@ -120,6 +120,7 @@ Next we need to create the variable that defines probable links for our training
 ```{r snpClose}
 pairDataOrdered$snpClose <- ifelse(pairDataOrdered$snpDist < 3, TRUE,
                                    ifelse(pairDataOrdered$snpDist > 10, FALSE, NA))
+table(pairDataOrdered$snpClose, useNA = "ifany")
 prop.table(table(pairDataOrdered$snpClose, useNA = "ifany"))
 ```
 
@@ -156,12 +157,43 @@ ggplot(data = nbResults, aes(x = pScaled)) +
 ```
 
 
+## Covariates Associated with Probable Transmission
+
+To come...
+
 
 ## Finding the Most Likely Infectors
 
-CLUSTERING FUNCTION
+In order to find the most likely infectors, you want to find which cases have a cluster of infectors with probabilities that are higher than the rest of the possible infectors. To find these cases and the top cluster of probable infectors, you can use the function clusterInfectors which implements various clustering methods.
 
-VISUALIZATIONS
+The methods you can choose from are simply taking the top n infectors, hierarchical clustering to split the infectors and the size of the gap between clusters to choose which cases have high probability infectors, or kernel density estimation to determine if the probabilities of all possible infectors represents one or two distinct densities. The function also requires a cutoff value whose meaning depends on the clustering method. 
+
+First let's use hierarchical clustering to split the infectors into two clusters and require the gap between the probabilities in each group to be greater than 0.05.
+
+```{r clustHC}
+#Clustering the probabilities
+clustHC <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "hc_absolute", cutoff = 0.05)
+table(clustHC$cluster)
+#Subsetting to just the top cluster
+topClustHC <- clustHC[clustHC$cluster == 1, ]
+```
+
+With this clustering method, the `r nrow(clustHC)` possible pairs are reduced to `r nrow(topClustHC)` most likely infectors. These pairs represent `r length(unique(topClustHC$individualID.2))` (`r 100 * round(length(unique(topClustHC$individualID.2)) / length(unique(clustHC$individualID.2)), 2)`%) of the `r length(unique(clustHC$individualID.2))` cases. The remaining cases do not have any clear top cluster of infectors.
+
+An alternative method would be using kernel density estimation. With this method, the cutoff specified is the binwidth, which we will set to 0.01 for this example.
+
+```{r clustKD}
+#Clustering the probabilities
+clustKD <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "kd", cutoff = 0.01)
+table(clustKD$cluster)
+#Subsetting to just the top cluster
+topClustKD <- clustKD[clustKD$cluster == 1, ]
+```
+
+With this clustering method, the `r nrow(clustKD)` possible pairs are reduced to `r nrow(topClustKD)` most likely infectors. These pairs represent `r length(unique(topClustKD$individualID.2))` (`r 100 * round(length(unique(topClustKD$individualID.2)) / length(unique(clustKD$individualID.2)), 2)`%) of the `r length(unique(clustKD$individualID.2))` cases. The remaining cases do not have any clear top cluster of infectors.
+
 
 
 
@@ -185,7 +217,7 @@ Note the message that is printed when running this funciton without specifying r
 plotRt(rInitial)
 ```
 
-Then I can rerun the estimateR function specifying the range for the average and also asking for bootstrap confidence intervals.
+Then I can rerun the estimateR function specifying the range for the average and also asking for bootstrap confidence intervals. **In this tutorial, bootSamples = 10 for computational efficiency but bootSamples should be at least 100.** 
 
 ```{r rFinal, results = "hide"}
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
@@ -211,10 +243,6 @@ plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)
 ## Estimating the Serial Interval
 
 
-
-
-
-## Covariates Associated with Probable Transmission
 
 
 

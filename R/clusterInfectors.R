@@ -187,7 +187,7 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0){
                               minx = d$x[which(d$y < 0.00001)])
     
     #Finding the difference in the indices for each time the density goes to 0
-    mindf$xdiff = mindf$index - stats::lag(mindf$index)
+    mindf$xdiff = mindf$index - dplyr::lag(mindf$index)
     mindf$xdiff[is.na(mindf$xdiff)] <- 1
     #Restricting to the range of the original probabilities
     mindf <- mindf[mindf$minx > min(df[, pVar]) & 

@@ -125,7 +125,7 @@ resGen <- nbProbabilities(orderedPair = orderedPair,
                             goldStdVar = "snpClose",
                             covariates = covariates,
                             label = "SNPs", l = 1,
-                            n = 10, m = 1, nReps = 20)
+                            n = 10, m = 1, nReps = 10)
 
 ## Merging the probabilities back with the pair-level data
 nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
@@ -355,5 +355,20 @@ pVar = "pScaled", clustMethod = "none")
 nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
+
+
+## Plotting probabilities ##
+
+ggplot(data = nbResults %>% filter(individualID.2 < 50),
+       aes(x = pRank, y = pScaled, color = transmission)) +
+  geom_point() +
+  facet_wrap(~individualID.2) +
+  theme(legend.position = "none")
+
+ggplot(data = nbResults %>% filter(individualID.2 > 50),
+       aes(x = pRank, y = pScaled, color = transmission)) +
+  geom_point() +
+  facet_wrap(~individualID.2) +
+  theme(legend.position = "none")
 
 
