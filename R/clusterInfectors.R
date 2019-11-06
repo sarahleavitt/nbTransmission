@@ -131,7 +131,7 @@ clusterInfectors <- function(df, indIDVar, pVar,
   if(clustMethod == "kd"){
     
     clustRes1 <- dplyr::group_by(multInf, !!rlang::sym(indIDVar2))
-    clustRes <- dplyr::group_modify(clustRes1, ~ findClustersKD(.x, pVar = "pScaled",
+    clustRes <- dplyr::group_modify(clustRes1, ~ findClustersKD(.x, pVar = pVar,
                                                      cutoff = cutoff))
 
   }
@@ -196,6 +196,7 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0){
     #Finding all of the separate regions of x where the density goes to 0
     #If xdiff > 1 then this indicates a sperate region of 0 density
     if(nrow(mindf) > 1){
+      
       region <- 1
       for(i in 1:nrow(mindf)){
         row <- mindf[i, ]
@@ -216,10 +217,12 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0){
                                 "upper" = max(x$minx, na.rm = TRUE))
                    })
       groupMins <- do.call(rbind, groupMinsL)
-      groupMins$length <- groupMins$upper - groupMins$lower
+      #Making sure very small lengths are 0
+      groupMins$length <- ifelse(groupMins$upper - groupMins$lower < 0.000001, 0,
+                                 groupMins$upper - groupMins$lower)
       
       #Restricting to regions that are longer than the minGap
-      groupMins <- groupMins[groupMins$length > minGap]
+      groupMins <- groupMins[groupMins$length > minGap, ]
       
       #Finding the x value at the upper bound of the first region with length more
       #than minGap where the density goes to 0 and call it lowestMin.
@@ -243,7 +246,7 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0){
     
   }, error = function(e){
     print(nrow(df))
-    cat("ERROR :", conditionMessage(e), "\n")})
+    cat("ERROR: ", conditionMessage(e), "\n")})
   
   return(df)
 }

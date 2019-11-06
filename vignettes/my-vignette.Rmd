@@ -283,8 +283,8 @@ resGenNoT <- nbProbabilities(orderedPair = pairDataOrdered,
                             goldStdVar = "snpClose",
                             covariates = c("Z1", "Z2", "Z3", "Z4"),
                             label = "SNPs", l = 1,
-                            n = 10, m = 1, nReps = 10)
-nbResultsNoT <- merge(resGenNoT[[1]], orderedPair, by = "pairID", all = TRUE)
+                            n = 10, m = 1, nReps = 1)
+nbResultsNoT <- merge(resGenNoT[[1]], pairDataOrdered, by = "pairID", all = TRUE)
 ```
 
 Now we can estimate the serial interval distribution using the top cluster of infectors from our hierarchical clustering method. The units for this serial interval will be in years since that is the units of the time difference variable and will be for a standard gamma distribution because no shift is specified.
