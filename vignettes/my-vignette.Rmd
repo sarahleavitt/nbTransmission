@@ -31,7 +31,7 @@ Then you can load the package by running:
 library('nbTransmission')
 ```
 
-If you want the results to match mine, set your seed to match:
+If you want the results to match this tutorial, set your seed to match:
 
 ```{r seed}
 set.seed(0)
@@ -53,14 +53,14 @@ Because the outcomes in the training set represent probable and not certain tran
 
 ## Creating a Dataset of Pairs
 
-Lets say you have a dataset of individuals from an outbreak. We are going to use a simulated dataset called indData provided with the dataset. This dataset has 100 individuals and contains an ID variable, a variable with the true infector (because this is simulated data so we know the truth), the infection date and time, the sampling date and time, and four covariates (X1-X4). The covariates are artificial but were designed to resemble some possible covariates in real applications.
+Lets say you have a dataset of individuals from an outbreak. We are going to use a simulated dataset called indData included in the package. This dataset has 100 individuals and contains an ID variable, a variable with the true infector (because this is simulated data so we know the truth), the infection date and time, the sampling date and time, and four covariates (X1-X4). The covariates are artificial but were designed to resemble some possible covariates in real applications.
 
 ```{r indData}
 data(indData)
 str(indData)
 ```
 
-Now we need to create a dataset of all ordered pairs of cases to analyze. The package includes a function called indToPair which will do exactly this. The function takes an individual-level dataset and creates a pair-level dataset. You tell the function the name of the ID column and the resulting dataset will have an pair ID column that combines the two individual IDs. It will also include all other columns with the suffixes ".1" and ".2" corresponding to the two individuals in the pair. If you specify a date column it will also find the time difference between the pairs and if you set ordered to TRUE, it will only include pairs where the date for individual 1 is before individual 2. Here is how you would use this function and the result.
+Now we need to create a dataset of all ordered pairs of cases to analyze. The nbTranmssion package includes a function called indToPair which will do exactly this. The function takes an individual-level dataset and creates a pair-level dataset. You tell the function the name of the ID column and the resulting dataset will have an pair ID column that combines the two individual IDs. It will also include all other columns with the suffixes ".1" and ".2" corresponding to the two individuals in the pair. If you specify a date column it will also find the time difference between the pairs and if you set ordered to TRUE, it will only include pairs where the date for individual 1 is before individual 2. Here is how you would use this function and what the resulting data frame looks like:
 
 ```{r indToPair}
 pairDataRaw <- indToPair(indData,
@@ -74,7 +74,9 @@ str(pairDataRaw)
 
 The next step is to create pair-level equivalents of the covariates. This can be done in any way that is clinically meaningful. For example if the individual-level covariate was nationality, the pair-level covariate could be do the individuals have the same nationality or not. If the individual-level covariate was town of residence, the pair-level covariate could be are the individuals in the same town, neighboring town, or further away. Currently the method only supports pair-level covariates that are categorical and they need to also be factor variables.
 
-Pair-level covariates for this dataset are already stored in pairData, the other dataset included in the package. and this is the dataset we are going to analyze. The pairData dataset also has a column called snpDist with the number of single nucleotide polymorphisms (SNPs) separating the pathogen of the two individuals, a categorical representation of infectionTimeDiff, as well as a column called transmission indicating if the pair is a true transmission pair (because again this is simulated data so we know this!).
+Pair-level covariates for this dataset are already stored in the data frame pairData, the other dataset included in this package. and this is the dataset we are going to analyze.
+
+The pairData dataset also has a column called snpDist with the number of single nucleotide polymorphisms (SNPs) separating the pathogen of the two individuals, a categorical representation of the difference between infection times, as well as a column called transmission indicating if the pair is a true transmission pair (because again this is simulated data so we know this!).
 
 Here are details about the individual-level covariates and how they were transformed into pair-level covariates. They were simulated to be associated with transmission in different degrees.
 
@@ -82,8 +84,8 @@ Variable | Individual-level | Pair-level  | Possible motivation |
 :-------:| :--------------: | :---------: | :-----------------: | 
 X1/Z1 | 2 options: a, b | Z1 = 1 if same <br> Z1 = 0 if different | Sex |
 X2/Z2 | 4 options: a, b, c, d | Z2 = 0 if same <br> Z2 = 0 if different | Nationality |
-X3/Z3 | 2 options: a, b | Z3 = 1 if a-a <br> Z3 = 2 if b-b <br> Z3 = 3 if a-b <br> Z4 = 4 if b-a | homelessness |
-X4/Z4 | 10 options: a-j | Z4 = 1 if same <br> Z4 = 2 if adjacent <br> Z4 = 3 if other | county of residence |
+X3/Z3 | 2 options: a, b | Z3 = 1 if a-a <br> Z3 = 2 if b-b <br> Z3 = 3 if a-b <br> Z4 = 4 if b-a | Homelessness |
+X4/Z4 | 10 options: a-j | Z4 = 1 if same <br> Z4 = 2 if adjacent <br> Z4 = 3 if other | County of residence |
 
 
 Here are the distributions of the individual-level covariates:
@@ -115,7 +117,7 @@ There are two more data preparation steps that we need to do before we are ready
 pairDataOrdered <- pairData[pairData$infectionDiff > 0, ]
 ```
 
-Next we need to create the variable that defines probable links for our training dataset. In our dataset, we will use the SNP distance to define probable links. We are going to say that pairs with fewer than 3 SNPs will be considered probable links and pairs with more than 10 SNPs are considered non-linked. Any pairs with 3-10 SNPs will be considered indeterminate and not included in the training set. Those pairs as well as any pairs without WGS info will only be use in the prediction dataset. The variable that defines the probable links should be a logical with TRUE indicating a link and FALSE inidicating a non-link.
+Next we need to create the variable that defines probable links for our training dataset. We will use the SNP distance to define probable links. We are going to say that pairs with fewer than 3 SNPs will be considered probable links and pairs with more than 10 SNPs are considered non-linked. Any pairs with 3-10 SNPs will be considered indeterminate and not included in the training set. Those pairs as well as any pairs without WGS info will only be use in the prediction dataset. The variable that defines the probable links should be a logical with TRUE indicating a link and FALSE inidicating a non-link.
 
 ```{r snpClose}
 pairDataOrdered$snpClose <- ifelse(pairDataOrdered$snpDist < 3, TRUE,
@@ -124,7 +126,7 @@ table(pairDataOrdered$snpClose, useNA = "ifany")
 prop.table(table(pairDataOrdered$snpClose, useNA = "ifany"))
 ```
 
-Now we can use the function nbTransmission to calculate the relative transmission probabilities for all pairs, training the model using the WGS data. I want to highlight a few things about the function arguments. For indIDVar, the function looks for that value with the suffix ".1" and ".2" in the pair dataframe (which would have been automatically created if you used indToPair to create the pair-level dataframe). The options n, m, and nReps indicate how many times the iterative procedure. This procedure randomly chooses one link of all of the possible links to include in the training dataset nReps times, and then uses mxn cross prediction for each training dataset to give all pairs a turn in the prediction dataset. Therefore in total you run naive Bayes nReps * n * m times. **In this tutorial, nReps = 1 for computational efficiency but nReps should be at least 10.** 
+Now we can use the function nbTransmission to calculate the relative transmission probabilities for all pairs, training the model using the WGS data. For indIDVar, the function looks for that value with the suffix ".1" and ".2" in the pair data frame (which would have been automatically created if you used indToPair to create the pair-level data frame). The options n, m, and nReps indicate how many times the iterative procedure. This procedure randomly chooses one link of all of the possible links to include in the training dataset nReps times, and then uses mxn cross prediction for each training dataset to give all pairs a turn in the prediction dataset. Therefore in total you run naive Bayes nReps * n * m times. **In this tutorial, nReps = 1 for computational efficiency but nReps should be at least 10.** 
 
 ```{r probabilities, results="hide"}
 resGen <- nbProbabilities(orderedPair = pairDataOrdered,
@@ -141,7 +143,7 @@ str(resGen)
 ```
 
 
-The results are a list with two dataframes, the first of which containing the average and scaled relative transmission probabilities. We can extract that dataframe and merge it back with our pair-level dataset for further analysis. We can see that the algorithm assigned much higher probabilities to the true transmission pairs than the rest of the pairs.
+The results are a list with two data frames, the first of which containing the average and scaled relative transmission probabilities. We can extract that data frame and merge it back with our pair-level dataset for further analysis. We can see that the algorithm assigned much higher probabilities to the true transmission pairs than the rest of the pairs.
 
 
 ```{r combine}
@@ -166,7 +168,7 @@ To come...
 
 In order to find the most likely infectors, you want to find which cases have a cluster of infectors with probabilities that are higher than the rest of the possible infectors. To find these cases and the top cluster of probable infectors, you can use the function clusterInfectors which implements various clustering methods.
 
-The methods you can choose from are simply taking the top n infectors, hierarchical clustering to split the infectors and the size of the gap between clusters to choose which cases have high probability infectors, or kernel density estimation to determine if the probabilities of all possible infectors represents one or two distinct densities. The function also requires a cutoff value whose meaning depends on the clustering method. 
+The methods you can choose from include: 1) simply taking the top n infectors, 2) hierarchical clustering to split the infectors and the size of the gap between clusters to choose which cases have high probability infectors, or 3) kernel density estimation to determine if the probabilities of all possible infectors represents one or two distinct densities. The function also requires a cutoff value whose meaning depends on the clustering method. 
 
 First let's use hierarchical clustering to split the infectors into two clusters and require the gap between the probabilities in each group to be greater than 0.05.
 
@@ -179,7 +181,7 @@ table(clustHC$cluster)
 topClustHC <- clustHC[clustHC$cluster == 1, ]
 ```
 
-With this clustering method, the `r nrow(clustHC)` possible pairs are reduced to `r nrow(topClustHC)` most likely infectors. These pairs represent `r length(unique(topClustHC$individualID.2))` (`r 100 * round(length(unique(topClustHC$individualID.2)) / length(unique(clustHC$individualID.2)), 2)`%) of the `r length(unique(clustHC$individualID.2))` cases. The remaining cases do not have any clear top cluster of infectors.
+With this clustering method, the `r nrow(clustHC)` possible pairs are reduced to `r nrow(topClustHC)` most likely infectors. These pairs represent `r length(unique(topClustHC$individualID.2))` of the `r length(unique(clustHC$individualID.2))` cases. The remaining cases do not have any clear top cluster of infectors.
 
 An alternative method would be using kernel density estimation. With this method, the cutoff specified is the binwidth, which we will set to 0.01 for this example.
 
@@ -192,7 +194,7 @@ table(clustKD$cluster)
 topClustKD <- clustKD[clustKD$cluster == 1, ]
 ```
 
-With this clustering method, the `r nrow(clustKD)` possible pairs are reduced to `r nrow(topClustKD)` most likely infectors. These pairs represent `r length(unique(topClustKD$individualID.2))` (`r 100 * round(length(unique(topClustKD$individualID.2)) / length(unique(clustKD$individualID.2)), 2)`%) of the `r length(unique(clustKD$individualID.2))` cases. The remaining cases do not have any clear top cluster of infectors.
+With this clustering method, the `r nrow(clustKD)` possible pairs are reduced to `r nrow(topClustKD)` most likely infectors. These pairs represent `r length(unique(topClustKD$individualID.2))` of the `r length(unique(clustKD$individualID.2))` cases. The remaining cases do not have any clear top cluster of infectors.
 
 
 ## Visualizing Results
@@ -213,9 +215,11 @@ nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05)
 ```
 
-The second function is nbHeatmap creates a heatmap of the transmission probabilities. The rows are the possible infectors and the columns are the possible infectees both ordered by date of observation. The darker the square the higher the probability that the pair represented by that square is a transmission link. If a cluster method and cutoff are specified, then stars will be drawn in the squares of the infectors in the top cluster. *Note that this plot is better for small outbreaks and takes a long time to draw and may not look good if the number of cases in the outbreak is more than 200.*
 
 #### Heatmap with stars on top cluster
+
+The second function, nbHeatmap, creates a heatmap of the transmission probabilities. The rows are the possible infectors and the columns are the possible infectees both ordered by date of observation. The darker the square the higher the probability that the pair represented by that square is a transmission link. If a cluster method and cutoff are specified, then stars will be drawn in the squares of the infectors in the top cluster. *Note that this plot is better for small outbreaks and takes a long time to draw and may not look good if the number of cases in the outbreak is more than 200.*
+
 ```{r heatmap, fig.height=5, fig.width=5}
 par(mar = c(0, 0, 1, 0))
 nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
@@ -227,7 +231,7 @@ nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 
 ## Estimating the Reproductive Number
 
-One way to use the probabilities is to estimate the reproductive number. This package includes a function estimateR which estimates the individual-level, time-level, and overall average effective reproductive numbers. 
+One way to use the probabilities is to estimate the reproductive number. This package includes a function estimateR which estimates the individual-level ($R_i$), time-level ($R_t$), and overall average effective reproductive ($\hat{R}_t$) numbers. The function requires various variable name inputs as well as the time frame for the $R_t$. Currently supported time frames are "days", "weeks", "months", and "years".
 
 ```{r rInitial}
 rInitial <- estimateR(nbResults,
@@ -238,7 +242,7 @@ rInitial <- estimateR(nbResults,
 str(rInitial)
 ```
 
-Note the message that is printed when running this funciton without specifying rangeForAvg. In order to get a more accurate estimate of the average effective reproductive number, you only want to use the stable portion of the outbreak. You plot the Rt values over time using the plotRt function to find this portion of the outbreak. In this case I want to exclude start at month 25 and end at month 125 which is excluding about the first 10% and last 20% of the outbreak.
+Note the message that is printed when running this funciton without specifying rangeForAvg. In order to get a more accurate estimate of the average effective reproductive number, you only want to use the stable portion of the outbreak. You plot the $R_t$ values over time using the plotRt function to find this portion of the outbreak. In this case I want average the values between month 25 and month 125 which is excluding about the first 10% and last 20% of the outbreak.
 
 ```{r cutting, fig.height = 3.5, fig.width = 6}
 plotRt(rInitial)
@@ -258,7 +262,7 @@ rFinal$RtAvgDf
 ```
 
 
-Then you can plot the final results adding the confidence intervals and average $R_t$ estimates using the plotRt function.
+Finally, you can plot the final results adding the confidence intervals and average $R_t$ estimates using the plotRt function.
 
 ```{r, fig.height = 3.5, fig.width = 6}
 plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)
@@ -289,27 +293,47 @@ nbResultsNoT <- merge(resGenNoT[[1]], pairDataOrdered, by = "pairID", all = TRUE
 
 Now we can estimate the serial interval distribution using the top cluster of infectors from our hierarchical clustering method. The units for this serial interval will be in years since that is the units of the time difference variable and will be for a standard gamma distribution because no shift is specified.
 
-```{r siEstimate}
-siPars <- estimateSI(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY", pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05, initialPars = c(2, 2))
+```{r siEstimate, results = "hide"}
+siPars <- estimateSI(nbResultsNoT,
+                     indIDVar = "individualID",
+                     timeDiffVar = "infectionDiffY",
+                     pVar = "pScaled",
+                     clustMethod = "hc_absolute",
+                     cutoff = 0.05,
+                     initialPars = c(2, 2))
+```
+
+```{r siEstimateRes}
 siPars
 ```
 
+
 Then I can rerun the estimateSI function asking for bootstrap confidence intervals. The confidence interval calculation can take a while. **In this tutorial, bootSamples = 5 for computational efficiency but bootSamples should be at least 100.** 
 
-```{r siEstimateCI}
-siParsCI <- estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY", pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05, initialPars = c(2, 2), bootSamples = 5)
+```{r siEstimateCI, results = "hide"}
+siParsCI <- estimateSI(nbResultsNoT,
+                       indIDVar = "individualID",
+                       timeDiffVar = "infectionDiffY",
+                       pVar = "pScaled",
+                       clustMethod = "hc_absolute",
+                       cutoff = 0.05,
+                       initialPars = c(2, 2),
+                       bootSamples = 5)
+```
+
+```{r siEstimateCIRes}
 siParsCI
 ```
 
+
 The serial interval can be plotted over the histogram of the true pairs (because we are using simulated data)
 
-```{r siPlot}
+```{r siPlot, fig.height = 4, fig.width = 6}
 truePairs <- nbResultsNoT[nbResultsNoT$transmission == TRUE, ]
 ggplot(data = nbResultsNoT, aes(x = infectionDiffY)) +
   geom_histogram(data = truePairs, aes(y = ..density..), bins = 40) +
   scale_x_continuous(name = "Serial Interval (years)", limits = c(0, 20)) +
-  geom_line(aes(y = dgammaS(infectionDiffY, shape = siPars$shape, scale = siPars$scale,
-                            shift = 0), color = "Top Cluster"), size = 1.2)
+  geom_line(aes(y = dgamma(infectionDiffY, shape = siPars$shape, scale = siPars$scale)))
 ```
 
 

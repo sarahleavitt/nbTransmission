@@ -273,6 +273,9 @@ findClustersHC <- function(df, pVar, cutoff = 0.05,
   #Finding the gap between the two clusters
   gap <- minC1 - maxC2
   
+  ## Alternatively ##
+  #gap <- hclustS$height[length(hclustS$height)]
+  
   #Determining which cases should have clusters based on the absolute
   #size of the gap between clusters
   if(clustMethod == "hc_absolute"){
