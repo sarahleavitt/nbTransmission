@@ -121,7 +121,7 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
     probs <- prediction
     probs$p <- NA
     if(!"p" %in% names(training)){training$p <- NA}
-    probs <- rbind(probs[, c("p", obsIDVar)], training[, c("p", obsIDVar)])
+    probs <- dplyr::bind_rows(probs[, c("p", obsIDVar)], training[, c("p", obsIDVar)])
     coeff <- NULL
     
     warning("No events or no non-events in training set")
@@ -174,7 +174,7 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
       level <- paste(Var, names(or), sep = ":")
       cTemp <- cbind.data.frame(level, or, se, stringsAsFactors = FALSE)
 
-      coeff <- rbind(coeff, cTemp)
+      coeff <- dplyr::bind_rows(coeff, cTemp)
     }
     
     #Calculating numerator and denominator for the probability calculation
@@ -187,7 +187,7 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
     
     #Combining training and prediction datasets
     if(!"p" %in% names(training)){training$p <- NA}
-    probs <- rbind(probs[, c(obsIDVar, "p")], training[, c(obsIDVar, "p")])
+    probs <- dplyr::bind_rows(probs[, c(obsIDVar, "p")], training[, c(obsIDVar, "p")])
   }
   
   return(list("probabilities" = probs, "estimates" = coeff))

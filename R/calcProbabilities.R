@@ -161,11 +161,11 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross prediction
-    cvResults <- runCV(posTrain, posLinks, orderedPair,
+    system.time(cvResults <- runCV(posTrain, posLinks, orderedPair,
                        indIDVar, pairIDVar, goldStdVar, 
-                       covariates, l, n, m)
-    rAll <- rbind(rAll, cvResults$rFolds)
-    cAll <- rbind(cAll, cvResults$cFolds)
+                       covariates, l, n, m))
+    rAll <- dplyr::bind_rows(rAll, cvResults$rFolds)
+    cAll <- dplyr::bind_rows(cAll, cvResults$cFolds)
     utils::setTxtProgressBar(pb, k)
   }
   
@@ -216,7 +216,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                               "nSamples" = sum(!is.na(x$or)),
                               "label" = label)
                  })
-  coeff <- do.call(rbind, coeffL)
+  coeff <- do.call(dplyr::bind_rows, coeffL)
   
   return(list("probabilities" = probs2, "estimates" = coeff))
 }
@@ -240,12 +240,12 @@ runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
                FUN = function(x){
                  x[sample(nrow(x), 1), ]
                })
-  links <- do.call(rbind, linksL)
+  links <- do.call(dplyr::bind_rows, linksL)
   links$linked <- TRUE
   links <- links[, c(pairIDVar, indIDVar2, "linked")]
   
   #Combining the links with the non-links that do not share an infectee with the links
-  trainingFull <- merge(orderedPair, links, by = c(pairIDVar, indIDVar2), all = TRUE)
+  trainingFull <- dplyr::full_join(orderedPair, links, by = c(pairIDVar, indIDVar2))
   trainingFull2 <- trainingFull[trainingFull[, pairIDVar] %in% links[, pairIDVar] |
                                   (trainingFull[, pairIDVar] %in% posTrain[, pairIDVar] &
                                      !trainingFull[, indIDVar2] %in% links[, indIDVar2]), ]
@@ -278,7 +278,7 @@ runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
     #Creating the training datasets
     #Setting probabilities to 1 for training links and 0 for training non-links that are
     #defined as such by the gold standard (not just by sharing an infectee in the above df)
-    training <- rbind(trainingRaw, shareInfectee)
+    training <- dplyr::bind_rows(trainingRaw, shareInfectee)
     training$p <- ifelse(training[, goldStdVar] == FALSE, 0,
                   ifelse(training[, "linked"] == TRUE, 1, NA))
 
@@ -292,8 +292,8 @@ runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
                      goldStdVar = "linked", covariates, l)
     
     #Combining the results from fold run with the previous folds
-    rFolds <- rbind(rFolds, sim[[1]])
-    cFolds <- rbind(cFolds, sim[[2]])
+    rFolds <- dplyr::bind_rows(rFolds, sim[[1]])
+    cFolds <- dplyr::bind_rows(cFolds, sim[[2]])
   }
   
   return(list("rFolds" = rFolds, "cFolds" = cFolds))
