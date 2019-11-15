@@ -1,4 +1,4 @@
-# nbTransmission (Under Development)
+# nbTransmission
 
 ## Introduction
 
@@ -30,10 +30,7 @@ You can install nbTransmission in R using the following command:
 `devtools::install_github('https://github.com/sarahleavitt/nbTransmission.git')`
 
 
-## Documentation
-
-IN PROGRESS
-There is a tutorial for nbTransmission at ... which is also within the R package
-as a vingette. The reference manual is located at ....  
+## Tutorial
+Included in the package is a vingette that walks through how to use this method to analyze an infectious disease outbreak using the simulated datasets also included in this package.
 
 If you need assistance using nbTransmission, you can email sv1205@bu.edu.
