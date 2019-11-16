@@ -151,9 +151,9 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
   #### Cross-prediction Procedure ####
   
   #Initializing data frames to hold results and coefficients
-  rAll <- data.frame("p" = numeric(), pairIDVar = character())
+  rAll <- data.frame("p" = numeric(), pairIDVar = character(), stringsAsFactors = FALSE)
   names(rAll) <- c("p", pairIDVar)
-  cAll <- data.frame("level" = character(), "odds" = numeric())
+  cAll <- data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
 
   
   pb <- utils::txtProgressBar(min = 0, max = nReps, style = 3)
@@ -161,9 +161,9 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross prediction
-    system.time(cvResults <- runCV(posTrain, posLinks, orderedPair,
+    cvResults <- runCV(posTrain, posLinks, orderedPair,
                        indIDVar, pairIDVar, goldStdVar, 
-                       covariates, l, n, m))
+                       covariates, l, n, m)
     rAll <- dplyr::bind_rows(rAll, cvResults$rFolds)
     cAll <- dplyr::bind_rows(cAll, cvResults$cFolds)
     utils::setTxtProgressBar(pb, k)
@@ -181,7 +181,8 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                                label = dplyr::first(label))
   sumData2 <- dplyr::ungroup(sumData2)
   
-  probs <- as.data.frame(dplyr::full_join(sumData2, orderedPair, by = pairIDVar))
+  probs <- as.data.frame(dplyr::full_join(sumData2, orderedPair, by = pairIDVar),
+                         stringsAsFactors = FALSE)
   
   #Calculating the total of all probabilities per infectee
   totalP <- stats::aggregate(probs$pAvg, by = list(probs[, indIDVar2]), sum, na.rm = TRUE)
@@ -214,7 +215,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
                               "orMax" = max(x$or, na.rm = TRUE),
                               "orSD" = stats::sd(x$or, na.rm = TRUE),
                               "nSamples" = sum(!is.na(x$or)),
-                              "label" = label)
+                              "label" = label, stringsAsFactors = FALSE)
                  })
   coeff <- do.call(dplyr::bind_rows, coeffL)
   
@@ -257,9 +258,9 @@ runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
   cv_splits <- caret::createMultiFolds(trainingFull2$linked, k = n, times = m)
   
   #Initializing data frames to hold results and coefficients
-  rFolds <- data.frame("p" = numeric(), pairIDVar = character())
+  rFolds <- data.frame("p" = numeric(), pairIDVar = character(), stringsAsFactors = FALSE)
   names(rFolds) <- c("p", pairIDVar)
-  cFolds <- data.frame("level" = character(), "odds" = numeric())
+  cFolds <- data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
   
   #Running the methods for all of the CV Folds
   for (i in 1:length(cv_splits)){

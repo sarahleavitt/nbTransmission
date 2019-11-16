@@ -140,7 +140,7 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
     classTab <- prop.table(table(training[, goldStdVar]) + l)
     
     #Initializing the coefficient dataframe
-    coeff <- data.frame("level" = character(), "odds" = numeric())
+    coeff <- data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
     
     #Looping through all covariates and finding frequencies in training data
     for(i in 1:length(covariates)){

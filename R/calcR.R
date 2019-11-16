@@ -154,10 +154,11 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
     #Use manual list instead if replicate for progress bar
     pb <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
     bootRt <- data.frame(c("timeRank" = integer(), "Rt" = numeric(),
-                           "time" = character()), "rep" = integer())
+                           "time" = character()), "rep" = integer(),
+                         stringsAsFactors = FALSE)
     for(i in 1:bootSamples){
       oneRep <- estimateRt(simulateRi(df, riEst, pVar = pVar, indIDVar = indIDVar),
-                       dateVar = dateVar, timeFrame = "months")
+                       dateVar = dateVar, timeFrame = timeFrame)
       oneRep$rep <- i
       bootRt <- rbind(bootRt, oneRep)
       utils::setTxtProgressBar(pb, i)
@@ -391,7 +392,7 @@ estimateRtAvg <- function(rtData, rangeForAvg = NULL){
     #Restricting to the time-level reproductive numbers within the rangeForAverage.
     rtCut <- rtData[rtData$timeRank > rangeForAvg[1] &
                       rtData$timeRank < rangeForAvg[2], ]
-    RtAvg <- mean(rtCut$Rt)
+    RtAvg <- mean(rtCut$Rt, na.rm = TRUE)
   }
   
   return(as.data.frame(RtAvg))
