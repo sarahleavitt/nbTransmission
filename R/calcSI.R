@@ -173,9 +173,27 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
+  #Checking that the named variables are in the data frame
+  if(!indIDVar1 %in% names(df)){
+    stop(paste0(indIDVar1, " is not in the data frame."))
+  }
+  if(!indIDVar2 %in% names(df)){
+    stop(paste0(indIDVar2, " is not in the data frame."))
+  }
+  if(!timeDiffVar %in% names(df)){
+    stop(paste0(timeDiffVar, " is not in the data frame."))
+  }
+  if(!pVar %in% names(df)){
+    stop(paste0(pVar, " is not in the data frame."))
+  }
+  
   #If clustMethod is not specified, setting it to "none"
   if(length(clustMethod) > 1){
     clustMethod <- "none"
+    warning("No clustMethod was provided so it was set to 'none'")
+  }
+  if(!clustMethod %in% c("n", "kd", "hc_absolute", "hc_relative")){
+    stop(paste0("clustMethod must be one of: ", c("n", "kd", "hc_absolute", "hc_relative")))
   }
 
   #Finding the point estimate for the serial interval parameters

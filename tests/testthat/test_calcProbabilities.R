@@ -45,17 +45,33 @@ test_that("Descriptive error messages returned",{
 
  expect_error(nbProbWrapper(orderedPair, indIDVar = "garbage"),
               "garbage.1 is not in the data frame.")
- 
- #Removing individualID.2 column
- orderedPair2 <- orderedPair[!names(orderedPair) %in% c("individualID.2")]
- expect_error(nbProbWrapper(orderedPair2, indIDVar = "individualID"),
-              "individualID.2 is not in the data frame.")
- 
- expect_error(nbProbWrapper(orderedPair, pairIDVar = "garbage"),
-              "garbage is not in the data frame.")
- 
- expect_error(nbProbWrapper(orderedPair, goldStdVar = "garbage"),
-              "garbage is not in the data frame.")
   
+  expect_error(nbProbWrapper(orderedPair, pairIDVar = "garbage"),
+               "garbage is not in the data frame.")
+  
+  expect_error(nbProbWrapper(orderedPair, goldStdVar = "garbage"),
+               "garbage is not in the data frame.")
+ 
+ #Removing individualID.1 column
+ orderedPair2 <- orderedPair[!names(orderedPair) %in% c("individualID.1")]
+ expect_error(nbProbWrapper(orderedPair2, indIDVar = "individualID"),
+              "individualID.1 is not in the data frame.")
+ 
+ #Removing individualID.1 column
+ orderedPair3 <- orderedPair[!names(orderedPair) %in% c("individualID.2")]
+ expect_error(nbProbWrapper(orderedPair3, indIDVar = "individualID"),
+              "individualID.2 is not in the data frame.")
+
+ #Making some covariates factors
+ orderedPair4 <- orderedPair
+ orderedPair4$Z1 <- as.character(orderedPair4$Z1)
+ expect_error(nbProbWrapper(orderedPair4, indIDVar = "individualID"),
+              paste0("Z1 is not a factor"))
+ 
+ orderedPair4$Z2 <- as.character(orderedPair4$Z2)
+ expect_error(nbProbWrapper(orderedPair4, indIDVar = "individualID"),
+              paste0("Z1, Z2 are not factors"))
+ 
 })
+
 

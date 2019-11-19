@@ -93,14 +93,30 @@ clusterInfectors <- function(df, indIDVar, pVar,
                              clustMethod = c("n", "kd", "hc_absolute", "hc_relative"),
                              cutoff){
   
-  if(length(clustMethod) > 1){
-    stop("Please provide a clustering method")
-  }
-  
   df <- as.data.frame(df)
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
+  
+  #Checking that the named variables are in the data frame
+  if(!indIDVar1 %in% names(df)){
+    stop(paste0(indIDVar1, " is not in the data frame."))
+  }
+  if(!indIDVar2 %in% names(df)){
+    stop(paste0(indIDVar2, " is not in the data frame."))
+  }
+  if(!pVar %in% names(df)){
+    stop(paste0(pVar, " is not in the data frame."))
+  }
+  
+  #Making sure clustMethod is correctly specified
+  if(length(clustMethod) > 1 | is.na(clustMethod)){
+    stop("Please provide a clustering method")
+  }
+  if(!clustMethod %in% c("n", "kd", "hc_absolute", "hc_relative")){
+    stop(paste0("clustMethod must be one of: ", c("n", "kd", "hc_absolute", "hc_relative")))
+  }
+  
   
   #Ranking the probabilities for each possible infector
   #Ties are set to the minimum rank of that group

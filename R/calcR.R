@@ -127,12 +127,37 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
                    timeFrame = c("days", "months", "weeks", "years"),
                    rangeForAvg = NULL, bootSamples = 0, alpha = 0.05){
   
+  
   df <- as.data.frame(df)
   #Creating variables with the individual ID and date variables
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   dateVar1 <- paste0(dateVar, ".1")
   dateVar2 <-  paste0(dateVar, ".2")
+  
+  #Checking that the named variables are in the data frame
+  if(!indIDVar1 %in% names(df)){
+    stop(paste0(indIDVar1, " is not in the data frame."))
+  }
+  if(!indIDVar2 %in% names(df)){
+    stop(paste0(indIDVar2, " is not in the data frame."))
+  }
+  if(!dateVar1 %in% names(df)){
+    stop(paste0(dateVar1, " is not in the data frame."))
+  }
+  if(!dateVar2 %in% names(df)){
+    stop(paste0(dateVar2, " is not in the data frame."))
+  }
+  if(!pVar %in% names(df)){
+    stop(paste0(pVar, " is not in the data frame."))
+  }
+  
+  #Making sure timeFrame is one of the options
+  if(!timeFrame %in% c("days", "months", "weeks", "years")){
+    stop(paste0("timeFrame must be one of: ",
+                paste0( c("days", "months", "weeks", "years"), collapse = ", ")))
+  }
+  
   
   #Calculating the individual-level reproductive number
   riEst <- estimateRi(df, pVar = pVar, indIDVar = indIDVar, dateVar = dateVar)

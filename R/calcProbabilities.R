@@ -130,8 +130,10 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
   covarDf <- orderedPair[, covariates]
   notFactor <- names(covarDf)[!sapply(covarDf, is.factor)]
   notFactorC <- paste0(notFactor, collapse = ", ")
-  if(FALSE %in% sapply(covarDf, is.factor)){
-    stop(paste0(notFactorC, " are not a factors"))
+  if(length(notFactor) == 1){
+    stop(paste0(notFactorC, " is not a factor"))
+  }else if(length(notFactor > 1)){
+    stop(paste0(notFactorC, " are not factors"))
   }
   
   

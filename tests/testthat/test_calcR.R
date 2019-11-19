@@ -22,7 +22,7 @@ allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 
 #Creating a function with defaults equal to my simulated data
-estimateRWrapper <- function(orderedPair,
+estimateRWrapper <- function(allProbs,
                          dateVar = "infectionDate",
                          indIDVar = "individualID",
                          pVar = "pScaled",
@@ -41,7 +41,7 @@ estimateRWrapper <- function(orderedPair,
 #Run with range specified and no CI
 rDataR <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100))
 #Run with range specified and CI
-rDataRC <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100), bootSamples = 10)
+rDataRC <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100), bootSamples = 2)
 
 #Run with no range specified and no CI
 #rData <- estimateRWrapper(allProbs)
@@ -60,7 +60,49 @@ test_that("estimateR returns a list of three data frames for valid input",{
   expect_true(is.data.frame(rDataRC[[3]]))
 })
 
-#Test warning for rData and rDataRC
-#Test column names contain CIs for RDataC and rDataRC and not for rData and rDataRC
+test_that("estimateR with returns the right column names based on bootSamples",{
+  
+  expect_true("ciLower" %in% names(rDataRC[[2]]))
+  expect_true("ciLower" %in% names(rDataRC[[3]]))
+  
+  expect_false("ciLower" %in% names(rDataR[[2]]))
+  expect_false("ciLower" %in% names(rDataR[[3]]))
+})
+
+
+test_that("Descriptive error messages returned",{
+  
+  expect_error(estimateRWrapper(allProbs, indIDVar = "garbage"),
+               "garbage.1 is not in the data frame.")
+  
+  expect_error(estimateRWrapper(allProbs, dateVar = "garbage"),
+               "garbage.1 is not in the data frame.")
+  
+  expect_error(estimateRWrapper(allProbs, pVar = "garbage"),
+               "garbage is not in the data frame.")
+  
+  #Removing individualID columns
+  allProbs2 <- allProbs[!names(allProbs) %in% c("individualID.1")]
+  expect_error(estimateRWrapper(allProbs2, indIDVar = "individualID"),
+               "individualID.1 is not in the data frame.")
+
+  allProbs3 <- allProbs[!names(allProbs) %in% c("individualID.2")]
+  expect_error(estimateRWrapper(allProbs3, indIDVar = "individualID"),
+               "individualID.2 is not in the data frame.")
+  
+  #Removing the date columns
+  allProbs4 <- allProbs[!names(allProbs) %in% c("infectionDate.1")]
+  expect_error(estimateRWrapper(allProbs4, indIDVar = "infectionDate"),
+               "infectionDate.1 is not in the data frame.")
+  
+  allProbs5 <- allProbs[!names(allProbs) %in% c("infectionDate.2")]
+  expect_error(estimateRWrapper(allProbs5, indIDVar = "infectionDate"),
+               "infectionDate.2 is not in the data frame.")
+  
+  #Testing timeFrame error
+  expect_error(estimateRWrapper(allProbs, timeFrame = "garbage"),
+               paste0("timeFrame must be one of: ",
+                      paste0( c("days", "months", "weeks", "years"), collapse = ", ")))
+})
 
 

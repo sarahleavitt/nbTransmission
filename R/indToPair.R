@@ -37,6 +37,11 @@
 
 indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordered = FALSE){
   
+  #Checking that the named variables are in the data frame
+  if(!indIDVar %in% names(indData)){
+    stop(paste0(indIDVar, " is not in the data frame."))
+  }
+  
   indData <- as.data.frame(indData)
   #Finding all pairs of IDs (order matters)
   pairs <- expand.grid(indData[, indIDVar], indData[, indIDVar])
