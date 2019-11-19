@@ -84,7 +84,7 @@ Variable | Individual-level | Pair-level  | Possible motivation |
 :-------:| :--------------: | :---------: | :-----------------: | 
 X1/Z1 | 2 options: a, b | Z1 = 1 if same <br> Z1 = 0 if different | Sex |
 X2/Z2 | 4 options: a, b, c, d | Z2 = 0 if same <br> Z2 = 0 if different | Nationality |
-X3/Z3 | 2 options: a, b | Z3 = 1 if a-a <br> Z3 = 2 if b-b <br> Z3 = 3 if a-b <br> Z4 = 4 if b-a | Homelessness |
+X3/Z3 | 2 options: a, b | Z3 = 1 if a-a <br> Z3 = 2 if b-b <br> Z3 = 3 if a-b <br> Z3 = 4 if b-a | Homelessness |
 X4/Z4 | 10 options: a-j | Z4 = 1 if same <br> Z4 = 2 if adjacent <br> Z4 = 3 if other | County of residence |
 
 
