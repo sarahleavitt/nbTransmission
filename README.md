@@ -25,7 +25,7 @@ of a transmission link is estimated for all pairs.
 
 For a more formal discussion of the theory behind and usage of this method, see the following paper:
 
-Van Ness, S. E., Lee, R. S., Sebastiani, P., Horsburgh, C. R., Jenkins, H. E., & White, L. F. (2019). Estimating the Relative Probability of Direct Transmission between Infectious Disease Patients. bioRxiv, 612945. (https://www.biorxiv.org/content/10.1101/612945v1.abstract)
+Leavitt, S. V., Lee, R. S., Sebastiani, P., Horsburgh, C. R., Jenkins, H. E., & White, L. F. (2019). Estimating the Relative Probability of Direct Transmission between Infectious Disease Patients. bioRxiv, 612945. (https://www.biorxiv.org/content/10.1101/612945v2)
  
 ## Installation
 
@@ -36,5 +36,9 @@ You can install nbTransmission in R using the following command:
 
 ## Tutorial
 Included in the package is a vingette that walks through how to use this method to analyze an infectious disease outbreak using the simulated datasets also included in this package.
+
+If you want to also install the package with the vignette use the following command (this may take a bit longer):
+
+`devtools::install_github('https://github.com/sarahleavitt/nbTransmission.git', build_vignettes = TRUE)`
 
 If you need assistance using nbTransmission, you can email sv1205@bu.edu.
