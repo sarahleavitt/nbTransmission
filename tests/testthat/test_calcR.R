@@ -92,8 +92,25 @@ test_that("Descriptive error messages returned",{
   
   #Removing the date columns
   allProbs4 <- allProbs[!names(allProbs) %in% c("infectionDate.1")]
-  expect_error(estimateRWrapper(allProbs4, indIDVar = "infectionDate"),
+  expect_error(estimateRWrapper(allProbs4, dateVar = "infectionDate"),
                "infectionDate.1 is not in the data frame.")
+  
+  allProbs5 <- allProbs[!names(allProbs) %in% c("infectionDate.2")]
+  expect_error(estimateRWrapper(allProbs5, dateVar = "infectionDate"),
+               "infectionDate.2 is not in the data frame.")
+  
+  #Changing dates to character variables
+  allProbs$infectionDatec.1 <- as.character(allProbs$infectionDate.1)
+  allProbs$infectionDatec.2 <- allProbs$infectionDate.2
+  expect_error(estimateRWrapper(allProbs, dateVar = "infectionDatec"),
+               "infectionDatec.1 must be either a date or a date-time (POSIXt) object.",
+               fixed = TRUE)
+  
+  allProbs$infectionDatec.1 <- allProbs$infectionDate.1
+  allProbs$infectionDatec.2 <- as.character(allProbs$infectionDate.2)
+  expect_error(estimateRWrapper(allProbs, dateVar = "infectionDatec"),
+               "infectionDatec.2 must be either a date or a date-time (POSIXt) object.",
+               fixed = TRUE)
   
   allProbs5 <- allProbs[!names(allProbs) %in% c("infectionDate.2")]
   expect_error(estimateRWrapper(allProbs5, indIDVar = "infectionDate"),

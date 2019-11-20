@@ -152,11 +152,22 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
     stop(paste0(pVar, " is not in the data frame."))
   }
   
+  #Checking that the date variables are in a date form
+  if(lubridate::is.Date(df[, dateVar1]) == FALSE &
+     lubridate::is.POSIXt(df[, dateVar1]) == FALSE){
+    stop(paste0(dateVar1, " must be either a date or a date-time (POSIXt) object."))
+  }
+  if(lubridate::is.Date(df[, dateVar2]) == FALSE &
+     lubridate::is.POSIXt(df[, dateVar2]) == FALSE){
+    stop(paste0(dateVar2, " must be either a date or a date-time (POSIXt) object."))
+  }
+  
   #Making sure timeFrame is one of the options
   if(!timeFrame %in% c("days", "months", "weeks", "years")){
     stop(paste0("timeFrame must be one of: ",
                 paste0( c("days", "months", "weeks", "years"), collapse = ", ")))
   }
+
   
   
   #Calculating the individual-level reproductive number

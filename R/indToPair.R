@@ -37,12 +37,32 @@
 
 indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordered = FALSE){
   
+  indData <- as.data.frame(indData)
+  
   #Checking that the named variables are in the data frame
   if(!indIDVar %in% names(indData)){
     stop(paste0(indIDVar, " is not in the data frame."))
   }
+  if(!is.null(dateVar)){
+    if(!dateVar %in% names(indData)){
+      stop(paste0(dateVar, " is not in the data frame.")) 
+    }
+  }
   
-  indData <- as.data.frame(indData)
+  #Checking that the date variable is in a date form
+  if(!is.null(dateVar)){
+    if(lubridate::is.Date(indData[, dateVar]) == FALSE &
+      lubridate::is.POSIXt(indData[, dateVar]) == FALSE){
+      stop(paste0(dateVar, " must be either a date or a date-time (POSIXt) object."))
+    }
+  }
+  
+  #Checking to make sure there is a date variable if ordered = TRUE
+  if(ordered == TRUE & is.null(dateVar)){
+    stop("If ordered = TRUE, then dateVar must be provided")
+  }
+  
+  
   #Finding all pairs of IDs (order matters)
   pairs <- expand.grid(indData[, indIDVar], indData[, indIDVar])
   
@@ -62,18 +82,14 @@ indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordere
                      all = TRUE, suffixes = c(".1", ".2"))
   
   if(!is.null(dateVar)){
-    pairData2$timeDiff <- as.numeric(difftime(pairData2[, paste0(dateVar, ".2")],
+    pairData2[, paste0(dateVar, ".Diff")] <- as.numeric(difftime(pairData2[, paste0(dateVar, ".2")],
                                               pairData2[, paste0(dateVar, ".1")],
                                               units = "days"))
-    pairData2$timeDiffY <- pairData2$timeDiff / 365
-  }
-  
-  if(ordered == TRUE & is.null(dateVar)){
-    stop("If ordered = TRUE, then dateVar must be provided")
+    pairData2[, paste0(dateVar, ".DiffY")] <- pairData2[, paste0(dateVar, ".Diff")] / 365
   }
   
   if(ordered == TRUE){
-    orderedData <- pairData2[pairData2$timeDiff > 0, ]
+    orderedData <- pairData2[pairData2[, paste0(dateVar, ".Diff")] > 0, ]
     return(orderedData)
   }else{
     return(pairData2)
