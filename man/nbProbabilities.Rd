@@ -62,12 +62,12 @@ List containing two data frames:
   \item \code{estimates} - a data frame with the effect estimates. Column names:
      \itemize{
        \item \code{level} - the covariate name and level
-       \item \code{label} - the optional label of the run
-       \item \code{oddsMean} - the mean value of the likelihood odds across runs
-       \item \code{oddsMin} - the min value of the likelihood odds across runs
-       \item \code{oddsMax} - the max value of the likelihood odds across runs
-       \item \code{oddsSD} - the standard deviation of the likelihood odds across runs
+       \item \code{orMean} - the mean value of the odds ratio across runs
+       \item \code{orMin} - the min value of the odds ratio across runs
+       \item \code{orMax} - the max value of the odds ratio across runs
+       \item \code{orSD} - the standard deviation of the odds ratio across runs
        \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
+       \item \code{label} - the optional label of the run
      }
 }
 }
