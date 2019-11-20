@@ -4,20 +4,19 @@
 \alias{indToPair}
 \title{Individual to Pair}
 \usage{
-indToPair(indData, indIDVar, separator = "_", dateVar = NULL,
-  ordered = FALSE)
+indToPair(indData, indIDVar, separator = "_", dateVar = NULL, ordered = FALSE)
 }
 \arguments{
 \item{indData}{An individual-level dataframe.}
 
-\item{indIDVar}{The variable name (in quotes) of the individual ID variable.}
+\item{indIDVar}{The name (in quotes) of the column with the individual ID.}
 
 \item{separator}{The character to be used to separate the individual IDs when creating
-the pairID}
+the pairID.}
 
-\item{dateVar}{The variable name (in quotes) of the dates that the individuals are observed
-(optional unless ordered = TRUE). If supplied, the time difference in days and years between
-individuals will be calculated.}
+\item{dateVar}{The name (in quotes) of the column with the dates that the individuals are observed
+(optional unless ordered = TRUE). This column must be a date or date-time (POSIXt) object.
+If supplied, the time difference in days and years between individuals will be calculated.}
 
 \item{ordered}{A logical indicating if a set of ordered pairs should be returned
 (dateVar.1 before dateVar.2). If FALSE a dataframe of all pairs will be returned}
@@ -31,17 +30,35 @@ with suffixes ".1" and ".2" corresponding to the original values of
 Added to the dataframe will be a column called \code{pairID} which is \code{indIDVar.1}
 and \code{indIDVar.2} separated by \code{separator}.
 
-If dateVar is provided the dataframe will also include variables \code{timeDiff} and 
-\code{timeDiffY} giving the difference of time in days and years respectively between the value
+If dateVar is provided the dataframe will also include variables \code{<dateVar>.Diff} and 
+\code{<dateVar>.DiffY} giving the difference of time in days and years respectively between the value
 of \code{dateVar} for \code{indIDVar.1} and \code{indIDVar.2}
 }
 \description{
 Transforms a dataset of individuals to a dataset of pairs
 }
 \details{
-Add details section
+The function \code{indToPair} takes a dataset of observations (such as individuals in an infectious
+disease outbreak) and transforms it into a dataset of pairs. The function requires an id column:
+\code{indIDVar} to identify the individual observations. The resulting pair-level dataframe will
+have a \code{pairID} column which combines the individual IDs for that pair.
+
+The function can either output all possible pairs (\code{ordered = FALSE}) or only ordered pairs 
+(\code{ordered = TRUE}) where the ordered is determined by a date variable (\code{dateVar}).
+If \code{ordered = FALSE}, then the \code{dateVar} argument is option and if provided,
+the output will include the time difference in days and years between the individuals in the pair.
+If \code{orded = TRUE}, then \code{dateVar} must be provide.
 }
 \examples{
-#Insert example here
+## Create a dataset of all pairs with no date variable
+pairU <- indToPair(indData = indData, indIDVar = "individualID")
+
+## Create a dataset of all pairs with a date variable
+pairUD <- indToPair(indData = indData, indIDVar = "individualID",
+                      dateVar = "infectionDate")
+
+## Create a dataset of ordered pairs
+pairO <- indToPair(indData = indData, indIDVar = "individualID",
+                     dateVar = "infectionDate", ordered = TRUE)
 
 }

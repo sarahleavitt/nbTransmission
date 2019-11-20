@@ -4,9 +4,16 @@
 \alias{estimateR}
 \title{Estimates the effective reproductive number}
 \usage{
-estimateR(df, indIDVar, dateVar, pVar, timeFrame = c("days", "months",
-  "weeks", "years"), rangeForAvg = NULL, bootSamples = 0,
-  alpha = 0.05)
+estimateR(
+  df,
+  indIDVar,
+  dateVar,
+  pVar,
+  timeFrame = c("days", "months", "weeks", "years"),
+  rangeForAvg = NULL,
+  bootSamples = 0,
+  alpha = 0.05
+)
 }
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities (column \code{pVar}),
@@ -19,11 +26,12 @@ observation (columns \code{<dateVar>.1} and \code{<dateVar>.2}).}
 
 \item{dateVar}{The name (in quotes) of the columns with the dates that the individuals are
 observed (data frame \code{df} must have variables called \code{<dateVar>.1} and
-\code{<dateVar>.2}).}
+\code{<dateVar>.2}) which must be date or date-time (POSIXt) objects.}
 
 \item{pVar}{The column name (in quotes) of the transmission probabilities.}
 
-\item{timeFrame}{The time frame used to calculate Rt.}
+\item{timeFrame}{The time frame used to calculate Rt
+(one of \code{"days", "months", "weeks", "years"}).}
 
 \item{rangeForAvg}{A vector with the start and ending time period to be used to calculate
 the average effective reproductive number.}
@@ -77,7 +85,7 @@ The effective reproductive number is the average number of cases an infectious c
 will produce in a population of both susceptible and non-susceptibe individuals.
 The rational behind this reproductive number estimation is Wallinga and Teunis (2004)
 where the individual-level reproductive number is estimated by summing
-the relative probability that the individual infected any other individual.
+the relative probability that the individual infected any other individual. 
 
 If \eqn{p_{ij}} equals the relative probability that case \eqn{i} infected
 case \eqn{j}, then the individual-level reproductive number (\eqn{R_i}) is calculated by:

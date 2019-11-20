@@ -146,10 +146,10 @@
 #' initialPars = c(2, 2), shift = 0.25)
 #' 
 #' ## Adding confidence intervals
-#' # NOTE should run with bootSamples > 5.
+#' # NOTE should run with bootSamples > 3.
 #' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-#'           initialPars = c(2, 2), bootSamples = 5) 
+#'           initialPars = c(2, 2), bootSamples = 3) 
 #' 
 #' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
 #'  \code{\link{performPEM}}
@@ -192,8 +192,8 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
     clustMethod <- "none"
     warning("No clustMethod was provided so it was set to 'none'")
   }
-  if(!clustMethod %in% c("n", "kd", "hc_absolute", "hc_relative")){
-    stop(paste0("clustMethod must be one of: ", c("n", "kd", "hc_absolute", "hc_relative")))
+  if(!clustMethod %in% c("none", "n", "kd", "hc_absolute", "hc_relative")){
+    stop(paste0("clustMethod must be one of: ", c("none", "n", "kd", "hc_absolute", "hc_relative")))
   }
 
   #Finding the point estimate for the serial interval parameters
@@ -363,9 +363,9 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #'    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
 #'    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
 #'    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
-#'    (\code{shape * scale + shift})
+#'    (\code{shape * scale + shift}).
 #'    \item \code{medianSI} - the median of the estimated gamma distribution for the SI
-#'    (\code{qgamma(0.5, shape, scale) + shift)})
+#'    (\code{qgamma(0.5, shape, scale) + shift)}).
 #'    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
 #'    the SI (\code{shape * scale ^ 2})
 #'  }

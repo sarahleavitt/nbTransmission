@@ -4,8 +4,7 @@
 \alias{estimateRt}
 \title{Estimates time-level reproductive numbers}
 \usage{
-estimateRt(riData, dateVar, timeFrame = c("days", "weeks", "months",
-  "years"))
+estimateRt(riData, dateVar, timeFrame = c("days", "weeks", "months", "years"))
 }
 \arguments{
 \item{riData}{The name of the dateset with individual-level reproductive numbers.}

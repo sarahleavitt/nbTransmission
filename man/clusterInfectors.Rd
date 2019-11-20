@@ -4,8 +4,13 @@
 \alias{clusterInfectors}
 \title{Clusters the infectors based on their transmission probabilities}
 \usage{
-clusterInfectors(df, indIDVar, pVar, clustMethod = c("n", "kd",
-  "hc_absolute", "hc_relative"), cutoff)
+clusterInfectors(
+  df,
+  indIDVar,
+  pVar,
+  clustMethod = c("n", "kd", "hc_absolute", "hc_relative"),
+  cutoff
+)
 }
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities (column \code{pVar}),

@@ -4,8 +4,16 @@
 \alias{performPEM}
 \title{Executes the PEM algorthim to estimate the serial interval distribution}
 \usage{
-performPEM(df, indIDVar, timeDiffVar, pVar, initialPars, shift = 0,
-  epsilon = 1e-05, plot = FALSE)
+performPEM(
+  df,
+  indIDVar,
+  timeDiffVar,
+  pVar,
+  initialPars,
+  shift = 0,
+  epsilon = 1e-05,
+  plot = FALSE
+)
 }
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities.}
@@ -42,9 +50,9 @@ A data frame with one row and the following columns:
    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
-   (\code{shape * scale + shift})
+   (\code{shape * scale + shift}).
    \item \code{medianSI} - the median of the estimated gamma distribution for the SI
-   (\code{qgamma(0.5, shape, scale) + shift)})
+   (\code{qgamma(0.5, shape, scale) + shift)}).
    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
    the SI (\code{shape * scale ^ 2})
  }
@@ -63,17 +71,37 @@ For more details on the PEM algorithm see \code{\link{estimateSI}}.
 }
 \examples{
 
-## Use the nbResults data frame included in the package which has the results
-## of the nbProbabilities() function on a TB-like outbreak.
+## First, run the algorithm without including time as a covariate.
+orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+
+## Create a variable called snpClose that will define probable links
+# (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+# will not be used to train.
+orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+                        ifelse(orderedPair$snpDist > 12, FALSE, NA))
+table(orderedPair$snpClose)
+
+## Running the algorithm
+#NOTE should run with nReps > 1.
+resGen <- nbProbabilities(orderedPair = orderedPair,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = c("Z1", "Z2", "Z3", "Z4"),
+                            label = "SNPs", l = 1,
+                            n = 10, m = 1, nReps = 1)
+                            
+## Merging the probabilities back with the pair-level data
+nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 ## Estimating the serial interval
 
 # Using all pairs and plotting the parameters
-performPEM(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+performPEM(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)
 
 # Clustering the probabilities first
-allClust <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
+allClust <- clusterInfectors(nbResultsNoT, indIDVar = "individualID", pVar = "pScaled",
                             clustMethod = "hc_absolute", cutoff = 0.05)
 
 performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
@@ -82,7 +110,7 @@ performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
            
 # The above is equivalent to the following code using the function estimateSI()
 # though the plot will not be printed and more details will be added
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+estimateSI(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
           initialPars = c(2, 2))
 

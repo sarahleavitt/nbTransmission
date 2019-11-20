@@ -4,9 +4,16 @@
 \alias{nbNetwork}
 \title{Creates a network of the relative transmission probabilities}
 \usage{
-nbNetwork(df, indIDVar, dateVar, pVar, clustMethod = c("none", "n", "kd",
-  "hc_absolute", "hc_relative"), cutoff = NA, blackAndWhite = FALSE,
-  probBreaks = c(-0.01, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1))
+nbNetwork(
+  df,
+  indIDVar,
+  dateVar,
+  pVar,
+  clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
+  cutoff = NA,
+  blackAndWhite = FALSE,
+  probBreaks = c(-0.01, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1)
+)
 }
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities (column \code{pVar}),
@@ -38,7 +45,7 @@ boundaries used to classify the probabilities and color the edges.
 The first element should be less than 0 and the last should be 1.}
 }
 \description{
-The function \code{nNetwork} creates a heatmap of the transmission probabilities.
+The function \code{nNetwork} creates a network of the transmission probabilities.
 The nodes are the individuals and the edges represent possible transmission pairs.
 The darker the edge, the higher the probability that the pair is a transmission link.
 If a cluster method is specified using \code{clustMethod} and \code{cutoff}, only edges

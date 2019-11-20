@@ -4,9 +4,19 @@
 \alias{estimateSI}
 \title{Estimates the serial interval distribution}
 \usage{
-estimateSI(df, indIDVar, timeDiffVar, pVar, clustMethod = c("none", "n",
-  "kd", "hc_absolute", "hc_relative"), cutoff = NA, initialPars,
-  shift = 0, epsilon = 1e-05, bootSamples = 0, alpha = 0.05)
+estimateSI(
+  df,
+  indIDVar,
+  timeDiffVar,
+  pVar,
+  clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
+  cutoff = NA,
+  initialPars,
+  shift = 0,
+  epsilon = 1e-05,
+  bootSamples = 0,
+  alpha = 0.05
+)
 }
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities (column \code{pVar}),
@@ -86,7 +96,8 @@ transmission to estimate the serial interval using estimation maximization. The
 current serial interval distribution parameters are used to update the probabilities
 which are then used to update the serial interval distribution parameters. The process
 continues until the parameters converge (indicated by a change of less than \code{epsilon})
-between interations.
+between interations. \emph{Note: time difference between pairs should not be used to 
+estimate the probabilities}
 
 This function acts as a wrapper around \code{\link{performPEM}} which integrates
 estimation of the SI distribution with clustering the infectors and calculates
@@ -121,8 +132,28 @@ distribution using cluster bootstrapping.
 }
 \examples{
 
-## Use the nbResults data frame included in the package which has the results
-## of the nbProbabilities() function on a TB-like outbreak.
+## First, run the algorithm without including time as a covariate.
+orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+
+## Create a variable called snpClose that will define probable links
+# (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+# will not be used to train.
+orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+                        ifelse(orderedPair$snpDist > 12, FALSE, NA))
+table(orderedPair$snpClose)
+
+## Running the algorithm
+#NOTE should run with nReps > 1.
+resGen <- nbProbabilities(orderedPair = orderedPair,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = c("Z1", "Z2", "Z3", "Z4"),
+                            label = "SNPs", l = 1,
+                            n = 10, m = 1, nReps = 1)
+                            
+## Merging the probabilities back with the pair-level data
+nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 ## Estimating the serial interval
 
@@ -142,10 +173,10 @@ pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
 initialPars = c(2, 2), shift = 0.25)
 
 ## Adding confidence intervals
-# NOTE should run with bootSamples > 5.
+# NOTE should run with bootSamples > 3.
 estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-          initialPars = c(2, 2), bootSamples = 5) 
+          initialPars = c(2, 2), bootSamples = 3) 
 
 }
 \references{

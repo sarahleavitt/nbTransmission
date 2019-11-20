@@ -4,29 +4,40 @@
 \alias{nbProbabilities}
 \title{Calculates Relative Transmission Probabilities}
 \usage{
-nbProbabilities(orderedPair, indIDVar, pairIDVar, goldStdVar, covariates,
-  label = "", l = 1, n = 10, m = 1, nReps = 10)
+nbProbabilities(
+  orderedPair,
+  indIDVar,
+  pairIDVar,
+  goldStdVar,
+  covariates,
+  label = "",
+  l = 1,
+  n = 10,
+  m = 1,
+  nReps = 10
+)
 }
 \arguments{
 \item{orderedPair}{The name of the ordered pair-level dataset with the covariates.}
 
-\item{indIDVar}{The variable name (in quotes) of the individual ID variables 
-(data frame \code{orderedPair} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
+\item{indIDVar}{The name (in quotes) of the column with the individual ID. 
+(data frame \code{orderedPair} must have columns called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
 
-\item{pairIDVar}{The variable name (in quotes) of the pair ID variable.}
+\item{pairIDVar}{The name (in quotes) of the column with the pair ID variable.}
 
-\item{goldStdVar}{The variable name (in quotes) that of logical vector defining training links/non-links}
+\item{goldStdVar}{The name (in quotes) of the column with a logical vector defining
+training links/non-links}
 
-\item{covariates}{A character vector containing the covariate variable names (in quotes).
+\item{covariates}{A character vector containing the covariate column names (in quotes).
 All covariates need to be categorical factor variables.}
 
 \item{label}{An optional label string for the run.}
 
 \item{l}{Laplace smoothing parameter that is added to each cell.}
 
-\item{n}{The number of folds for nxm cross prediction.}
+\item{n}{The number of folds for nxm cross validation}
 
-\item{m}{The number of times to create n folds in nxm cross prediction.}
+\item{m}{The number of times to create n folds in nxm cross validation.}
 
 \item{nReps}{The number of times to randomly select the "true" infector.}
 }
@@ -66,7 +77,7 @@ procedure to calculate relative transmission probabilities
 }
 \details{
 This algorithm takes a dataset of ordered possible infector-infectee pairs in an
-infectious disease cluster and estimates the relative probability the cases are
+infectious disease outbreak or cluster and estimates the relative probability the cases are
 linked by direct transmission using a classification technique called naive Bayes (NB).
 
 NB is a simple machine learning algorithm that uses Bayes rule to estimate the
@@ -79,11 +90,11 @@ non/links are defined by \code{goldStdVar} which should be a logical vector with
 \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
 the pair cannot be used to train (does not have the information or is indeterminate).
 The covariates can be any categorical variables and could represent
-spatial, clinical, demographic, and temporal characteristics of the cases.
+spatial, clinical, demographic, and temporal characteristics of the cases. 
 
 Because the outcomes in the training set represent probable and not certain 
 transmission events and a given case could have mulitple probable infectors, 
-we use an iterative estimation procedure. This procedure randomly chooses one
+the algorithm uses an iterative estimation procedure. This procedure randomly chooses one
 link of all of the possible links to include in the training dataset \code{nReps}
 times, and then uses \code{mxn} cross prediction to give all pairs a turn 
 in the prediction dataset.
@@ -102,12 +113,11 @@ table(orderedPair$snpClose)
 
 ## Running the algorithm
 #NOTE should run with nReps > 1.
-covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 resGen <- nbProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
                             pairIDVar = "pairID",
                             goldStdVar = "snpClose",
-                            covariates = covariates,
+                            covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
                             label = "SNPs", l = 1,
                             n = 10, m = 1, nReps = 1)
                             

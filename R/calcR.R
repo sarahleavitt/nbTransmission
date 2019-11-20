@@ -37,9 +37,10 @@
 #'  and \code{<indIDVar>.2}).
 #' @param dateVar The name (in quotes) of the columns with the dates that the individuals are
 #' observed (data frame \code{df} must have variables called \code{<dateVar>.1} and
-#' \code{<dateVar>.2}).
+#' \code{<dateVar>.2}) which must be date or date-time (POSIXt) objects.
 #' @param pVar The column name (in quotes) of the transmission probabilities.
-#' @param timeFrame The time frame used to calculate Rt.
+#' @param timeFrame The time frame used to calculate Rt
+#' (one of \code{"days", "months", "weeks", "years"}).
 #' @param rangeForAvg A vector with the start and ending time period to be used to calculate
 #' the average effective reproductive number.
 #' @param bootSamples The number of bootstrap samples; if 0, then no confidence intervals
@@ -355,7 +356,7 @@ estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months",
     riDataFinal <- merge(riData, timeDf, by = "time", all.x = TRUE)
   }
   
-  #I need to deal with weeks differently so that I can figure out the proper time frame
+  #Need to deal with weeks differently to figure out the proper time frame
   if(timeFrame == "weeks"){
     #Creating a data frame of week labels and their ranks
     timeDf <- cbind.data.frame(time = format(times, "%Y-%m-%d"),

@@ -4,8 +4,12 @@
 \alias{plotRt}
 \title{Creates a plot of the effective reproductive number}
 \usage{
-plotRt(rData, includeRtAvg = FALSE, includeRtCI = FALSE,
-  includeRtAvgCI = FALSE)
+plotRt(
+  rData,
+  includeRtAvg = FALSE,
+  includeRtCI = FALSE,
+  includeRtAvgCI = FALSE
+)
 }
 \arguments{
 \item{rData}{A list that is the output of \code{\link{estimateR}}. It should contain

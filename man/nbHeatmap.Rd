@@ -4,10 +4,16 @@
 \alias{nbHeatmap}
 \title{Creates a heatmap of the relative transmission probabilities}
 \usage{
-nbHeatmap(df, indIDVar, dateVar, pVar, clustMethod = c("none", "n", "kd",
-  "hc_absolute", "hc_relative"), cutoff = NA, blackAndWhite = FALSE,
-  probBreaks = c(-0.01, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75,
-  1))
+nbHeatmap(
+  df,
+  indIDVar,
+  dateVar,
+  pVar,
+  clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
+  cutoff = NA,
+  blackAndWhite = FALSE,
+  probBreaks = c(-0.01, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1)
+)
 }
 \arguments{
 \item{df}{The name of the dateset with transmission probabilities (column \code{pVar}),

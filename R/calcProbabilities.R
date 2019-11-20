@@ -5,7 +5,7 @@
 #' procedure to calculate relative transmission probabilities
 #'
 #' This algorithm takes a dataset of ordered possible infector-infectee pairs in an
-#' infectious disease cluster and estimates the relative probability the cases are
+#' infectious disease outbreak or cluster and estimates the relative probability the cases are
 #' linked by direct transmission using a classification technique called naive Bayes (NB).
 #' 
 #' NB is a simple machine learning algorithm that uses Bayes rule to estimate the
@@ -22,22 +22,23 @@
 #' 
 #' Because the outcomes in the training set represent probable and not certain 
 #' transmission events and a given case could have mulitple probable infectors, 
-#' we use an iterative estimation procedure. This procedure randomly chooses one
+#' the algorithm uses an iterative estimation procedure. This procedure randomly chooses one
 #' link of all of the possible links to include in the training dataset \code{nReps}
 #' times, and then uses \code{mxn} cross prediction to give all pairs a turn 
 #' in the prediction dataset.
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
-#' @param indIDVar The variable name (in quotes) of the individual ID variables 
-#' (data frame \code{orderedPair} must have variables called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
-#' @param pairIDVar The variable name (in quotes) of the pair ID variable.
-#' @param goldStdVar The variable name (in quotes) that of logical vector defining training links/non-links
-#' @param covariates A character vector containing the covariate variable names (in quotes).
+#' @param indIDVar The name (in quotes) of the column with the individual ID. 
+#' (data frame \code{orderedPair} must have columns called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
+#' @param pairIDVar The name (in quotes) of the column with the pair ID variable.
+#' @param goldStdVar The name (in quotes) of the column with a logical vector defining
+#'  training links/non-links
+#' @param covariates A character vector containing the covariate column names (in quotes).
 #' All covariates need to be categorical factor variables.
 #' @param label An optional label string for the run.
 #' @param l Laplace smoothing parameter that is added to each cell.
-#' @param n The number of folds for nxm cross prediction.
-#' @param m The number of times to create n folds in nxm cross prediction.
+#' @param n The number of folds for nxm cross validation
+#' @param m The number of times to create n folds in nxm cross validation.
 #' @param nReps The number of times to randomly select the "true" infector.
 #'
 #' @return List containing two data frames:
