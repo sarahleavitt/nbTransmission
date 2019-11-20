@@ -24,7 +24,7 @@ Imports:
     lubridate,
     poisbinom,
     stats,
-	tidry,
+    tidyr,
     utils
 Suggests: 
     ggplot2,
