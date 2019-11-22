@@ -62,7 +62,8 @@
 #' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
 #' not specifying a value means use all pairs with no clustering
 #' (see \code{\link{clusterInfectors}} for detials on clustering methods).
-#' @param cutoff The cutoff for clustering (see \code{\link{clusterInfectors}}).
+#' @param cutoffs A vector of cutoffs for clustering (see \code{\link{clusterInfectors}}).
+#' If more than one cutoff is provided, a pooled estimate will also be provided.
 #' @param initialPars A vector of length two with the shape and scale 
 #' to initialize the gamma distribution parameters.
 #' @param shift A value in the same units as \code{timeDiffVar} that the
@@ -140,9 +141,14 @@
 #'           initialPars = c(2, 2))
 #'
 #' # Using a shifted gamma distribution:
-#' # not allowing serial intervals of less than 4 months (0.25 years)
+#' # not allowing serial intervals of less than 3 months (0.25 years)
 #' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 #' pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+#' initialPars = c(2, 2), shift = 0.25)
+#' 
+#' # Using multiple cutoffs
+#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#' pVar = "pScaled", clustMethod = "hc_absolute", cutoff = seq(0.025, 0.25, 0.025),
 #' initialPars = c(2, 2), shift = 0.25)
 #' 
 #' ## Adding confidence intervals
@@ -163,9 +169,8 @@
  
 
 estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
-                       clustMethod = c("none", "n", "kd", 
-                                       "hc_absolute", "hc_relative"),
-                       cutoff = NA, initialPars, shift = 0, epsilon = 0.00001,
+                       clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
+                       cutoffs = NULL, initialPars, shift = 0, epsilon = 0.00001,
                        bootSamples = 0, alpha = 0.05){
   
   df <- as.data.frame(df)
@@ -193,12 +198,17 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
     warning("No clustMethod was provided so it was set to 'none'")
   }
   if(!clustMethod %in% c("none", "n", "kd", "hc_absolute", "hc_relative")){
-    stop(paste0("clustMethod must be one of: ", c("none", "n", "kd", "hc_absolute", "hc_relative")))
+    stop("clustMethod must be one of: none, n, kd, hc_absolute, hc_relative")
+  }
+  
+  #Make sure cutoff is provided if clustMethod is not "none"
+  if(clustMethod != "none" & is.null(cutoffs)){
+    stop("Please provide one or more cutoff values")
   }
 
   #Finding the point estimate for the serial interval parameters
   siEst <- estimateSIPars(df, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
-                             pVar = pVar, clustMethod = clustMethod, cutoff = cutoff,
+                             pVar = pVar, clustMethod = clustMethod, cutoffs = cutoffs,
                              initialPars = initialPars, shift = shift, epsilon = epsilon)  
   
   #If bootSamples > 0, estimate bootstrap confidence intervals on the parameters
@@ -231,7 +241,7 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
       names(probsBoot)[names(probsBoot) == "newID2"] <- indIDVar2
         
       siNew <- estimateSIPars(probsBoot, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
-                                pVar = pVar, clustMethod = clustMethod, cutoff = cutoff,
+                                pVar = pVar, clustMethod = clustMethod, cutoffs = cutoffs,
                                 initialPars = initialPars, shift = shift, epsilon = epsilon) 
       
       bootSI <- rbind(bootSI, siNew)
@@ -252,6 +262,7 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
     
     siCI <- cbind(siEst, shapeCILB, shapeCIUB, scaleCILB, scaleCIUB,
                   meanCILB, meanCIUB, medianCILB, medianCIUB, sdCILB, sdCIUB)
+    row.names(siCI) <- NULL
     
     return(siCI)
     
@@ -266,49 +277,55 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
 # Function run inside estimateSI to allow for bootstrap CI; not run on its own.
 
 estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
-                       clustMethod = c("none", "n", "kd", 
-                                       "hc_absolute", "hc_relative"),
-                       cutoff = NA, initialPars, shift = 0, epsilon = 0.00001){
+                       clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
+                       cutoffs = NULL, initialPars, shift = 0, epsilon = 0.00001){
   
   df <- as.data.frame(df)
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
-  #If clustMethod is "none" setting topClust to all pairs or clustering
-  #the probabilities based on clustMethod and cutoff, then restricting to
-  #just the top cluster to be used for estimation
-  if(clustMethod == "none"){
-    topClust <- df
-  }else{
-    clustRes <- clusterInfectors(df, indIDVar = indIDVar, pVar = pVar,
-                                 clustMethod = clustMethod, cutoff = cutoff)
-    topClust <- clustRes[clustRes$cluster == 1, ]
-  }
   
-  #Finding the number of infectees with a top cluster to be used
-  #to estimate the serial interval
-  nInd <- length(unique(topClust[, indIDVar2]))
-
+  #Estimating SI for all given cutoffs
+  siData <- NULL
   
-  #Estimating the serial interval parameters using the PEM algorithm
-  pars <- NULL
-  if(nInd >= 15){
-    tryCatch({
+  for(i in 1:length(cutoffs)){
+    
+    cutoff <- cutoffs[i]
+    #If clustMethod is "none" setting topClust to all pairs or clustering
+    #the probabilities based on clustMethod and cutoff, then restricting to
+    #just the top cluster to be used for estimation
+    if(clustMethod == "none"){
+      topClust <- df
+    }else{
+      clustRes <- clusterInfectors(df, indIDVar = indIDVar, pVar = pVar,
+                                   clustMethod = clustMethod, cutoff = cutoff)
+      topClust <- clustRes[clustRes$cluster == 1, ]
+    }
+    
+    #Finding the number of infectees with a top cluster to be used
+    #to estimate the serial interval
+    nInd <- length(unique(topClust[, indIDVar2]))
+    
+    
+    #Estimating the serial interval parameters using the PEM algorithm
+    pars <- NULL
+    if(nInd >= 15){
       pars <- performPEM(df = topClust, indIDVar = indIDVar,
                          timeDiffVar = timeDiffVar,
                          pVar = pVar, initialPars = initialPars,
                          shift = shift, epsilon = epsilon)
       
-    }, error = function(e){
-      print(c(clustMethod, cutoff))
-      cat("ERROR :", conditionMessage(e), "\n")})
-  }else{
-    print("Fewer than 15 individuals meet this threshold")
-    pars <- cbind.data.frame("shape" = NA, "scale" = NA)
+    }else{
+      print(paste0("With ", clustMethod, " and ", cutoff,
+                   ", fewer than 15 individuals would be used for estimation"))
+      pars <- cbind.data.frame("shape" = NA, "scale" = NA)
+    }
+    
+    siDataTemp <- cbind.data.frame(clustMethod, cutoff, nInd, pars,
+                                   stringsAsFactors = FALSE)
+    siData <- dplyr::bind_rows(siData, siDataTemp)
   }
-
-  siData <- cbind.data.frame(nInd, pars)
   
   #Adding summary measures
   siData$meanSI <- siData$shape * siData$scale + shift
@@ -316,6 +333,13 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
                                    scale = siData$scale) + shift
   siData$sdSI <- sqrt(siData$shape * siData$scale ^ 2)
   
+  #Adding pooled estimates if more than one cutoff is provided
+  if(length(cutoffs) > 1){
+    siDataPooled <- as.data.frame(t(sapply(siData[, c("meanSI", "medianSI", "sdSI")], mean)),
+                                  stringsAsFactors = FALSE)
+    siDataPooled$clustMethod <- "pooled"
+    siData <- dplyr::bind_rows(siData, siDataPooled) 
+  }
     
   return(siData)
 }
