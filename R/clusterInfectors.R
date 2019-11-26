@@ -187,7 +187,7 @@ clusterInfectors <- function(df, indIDVar, pVar,
 
 ## Function to find clusters using kernel density estimation ##
 
-findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0){
+findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE){
   
   df <- as.data.frame(df)
   df <- df[order(df[, pVar]),]
@@ -260,12 +260,31 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0){
     #such region, all infectors are in cluster 2.
     df$cluster <- ifelse(df[, pVar] > lowestMin, 1, 2)
     
+    
+    if(plot == TRUE){
+      densitydf <- cbind.data.frame(x = d$x, y = d$y)
+      
+      p <- ggplot(data = df) +
+        geom_histogram(aes(x = pScaled, fill = factor(cluster, levels = c(1, 2))), bins = 20) +
+        geom_line(data = densitydf, aes(x = x, y = y), color = "black", alpha = 0.5) +
+        xlab("Relative Probability") +
+        ylab("Count") +
+        scale_fill_manual(values = c("#00BFC4", "#F8766D"), drop = FALSE) +
+        theme_bw() +
+        theme(legend.position = "none")
+      
+      print(p)
+      return(p)
+    }
+    
   }, error = function(e){
     print(nrow(df))
     cat("ERROR: ", conditionMessage(e), "\n")})
   
   return(df)
 }
+
+
 
 
 
