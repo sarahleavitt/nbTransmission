@@ -78,8 +78,9 @@
 #'
 #' @return A data frame with one row and the following columns:
 #' \itemize{
-#'    \item \code{nInd} - the number of infectees who have SIs included
-#'    in the SI estimate.
+#'    \item \code{nIndividuals} - the number of infectees who have SIs included in the SI estimate.
+#'    \item \code{pCluster} - the proportion of cases who have SIs included in the SI estimate.
+#'    \item \code{nInfectors} - the average number of infectors in the top cluster.
 #'    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
 #'    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
 #'    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
@@ -303,14 +304,17 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
       topClust <- clustRes[clustRes$cluster == 1, ]
     }
     
-    #Finding the number of infectees with a top cluster to be used
-    #to estimate the serial interval
-    nInd <- length(unique(topClust[, indIDVar2]))
+    #Finding the number of infectees with a top cluster used to estimate the serial interval
+    nIndividuals <- length(unique(topClust[, indIDVar2]))
+    #Finding the proportion of cases with a top cluster
+    pCluster <- nIndividuals / length(unique(clustRes[, indIDVar2]))
+    #Finding the average number of infectors per infectee in the top cluster
+    nInfectors <- mean(as.numeric(table(topClust$individualID.2)))
     
     
     #Estimating the serial interval parameters using the PEM algorithm
     pars <- NULL
-    if(nInd >= 15){
+    if(nIndividuals >= 10){
       pars <- performPEM(df = topClust, indIDVar = indIDVar,
                          timeDiffVar = timeDiffVar,
                          pVar = pVar, initialPars = initialPars,
@@ -318,11 +322,11 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
       
     }else{
       print(paste0("With ", clustMethod, " and ", cutoff,
-                   ", fewer than 15 individuals would be used for estimation"))
+                   ", fewer than 10 individuals would be used for estimation"))
       pars <- cbind.data.frame("shape" = NA, "scale" = NA)
     }
     
-    siDataTemp <- cbind.data.frame(clustMethod, cutoff, nInd, pars,
+    siDataTemp <- cbind.data.frame(clustMethod, cutoff, nIndividuals, nInfectors, pCluster, pars,
                                    stringsAsFactors = FALSE)
     siData <- dplyr::bind_rows(siData, siDataTemp)
   }
@@ -382,7 +386,7 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
 #'
 #' @return A data frame with one row and the following columns:
 #' \itemize{
-#'    \item \code{nInd} - the number of infectees who have SIs included
+#'    \item \code{nIndividuals} - the number of infectees who have SIs included
 #'    in the SI estimate.
 #'    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
 #'    \item \code{scale} - the scale of the estimated gamma distribution for the SI.

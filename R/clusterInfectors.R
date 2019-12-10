@@ -187,7 +187,8 @@ clusterInfectors <- function(df, indIDVar, pVar,
 
 ## Function to find clusters using kernel density estimation ##
 
-findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE){
+findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE,
+                           colors = c("#00BFC4", "#F8766D")){
   
   df <- as.data.frame(df)
   df <- df[order(df[, pVar]),]
@@ -269,7 +270,7 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE){
         geom_line(data = densitydf, aes(x = x, y = y), color = "black", alpha = 0.5) +
         xlab("Relative Probability") +
         ylab("Count") +
-        scale_fill_manual(values = c("#00BFC4", "#F8766D"), drop = FALSE) +
+        scale_fill_manual(values = colors, drop = FALSE) +
         theme_bw() +
         theme(legend.position = "none")
       
