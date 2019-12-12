@@ -80,7 +80,7 @@
 #' \itemize{
 #'    \item \code{nIndividuals} - the number of infectees who have SIs included in the SI estimate.
 #'    \item \code{pCluster} - the proportion of cases who have SIs included in the SI estimate.
-#'    \item \code{nInfectors} - the average number of infectors in the top cluster.
+#'    \item \code{} - the average number of infectors in the top cluster.
 #'    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
 #'    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
 #'    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
@@ -309,7 +309,7 @@ estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
     #Finding the proportion of cases with a top cluster
     pCluster <- nIndividuals / length(unique(clustRes[, indIDVar2]))
     #Finding the average number of infectors per infectee in the top cluster
-    nInfectors <- mean(as.numeric(table(topClust$individualID.2)))
+    nInfectors <- mean(as.numeric(table(topClust[, indIDVar2])))
     
     
     #Estimating the serial interval parameters using the PEM algorithm
