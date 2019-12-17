@@ -1,28 +1,9 @@
 
-context("calcR Suite of Functions")
+context("estimateR Function")
 library(nbTransmission)
 
-## Use the pairData dataset which represents a TB-like outbreak
-# First create a dataset of ordered pairs
-orderedPair <- pairData[pairData$infectionDiffY > 0, ]
-
-## Create a variable called snpClose that will define probable links
-# (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
-# will not be used to train.
-orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
-                               ifelse(orderedPair$snpDist > 12, FALSE, NA))
-table(orderedPair$snpClose)
-
-## Running the algorithm
-covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-resGen <- nbProbabilities(orderedPair = orderedPair, indIDVar = "individualID",
-                            pairIDVar = "pairID", goldStdVar = "snpClose",
-                            covariates = covariates, nReps = 1)
-allProbs <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
-
-
 #Creating a function with defaults equal to my simulated data
-estimateRWrapper <- function(allProbs,
+estimateRWrapper <- function(nbResults,
                          dateVar = "infectionDate",
                          indIDVar = "individualID",
                          pVar = "pScaled",
@@ -31,7 +12,7 @@ estimateRWrapper <- function(allProbs,
                          bootSamples = 0,
                          alpha = 0.05){
   
-  rList <- estimateR(allProbs, dateVar = dateVar, indIDVar = indIDVar,
+  rList <- estimateR(nbResults, dateVar = dateVar, indIDVar = indIDVar,
               pVar = pVar, timeFrame = timeFrame, rangeForAvg = rangeForAvg,
               bootSamples = bootSamples, alpha = alpha)
   
@@ -39,14 +20,14 @@ estimateRWrapper <- function(allProbs,
 }
 
 #Run with range specified and no CI
-rDataR <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100))
+rDataR <- estimateRWrapper(nbResults, rangeForAvg = c(10, 100))
 #Run with range specified and CI
-rDataRC <- estimateRWrapper(allProbs, rangeForAvg = c(10, 100), bootSamples = 2)
+rDataRC <- estimateRWrapper(nbResults, rangeForAvg = c(10, 100), bootSamples = 2)
 
 #Run with no range specified and no CI
-#rData <- estimateRWrapper(allProbs)
+#rData <- estimateRWrapper(nbResults)
 #Run with no range specified and CI
-#rDataC <- estimateRWrapper(allProbs, bootSamples = 10)
+#rDataC <- estimateRWrapper(nbResults, bootSamples = 10)
 
 
 test_that("estimateR returns a list of three data frames for valid input",{
@@ -72,52 +53,52 @@ test_that("estimateR with returns the right column names based on bootSamples",{
 
 test_that("Descriptive error messages returned",{
   
-  expect_error(estimateRWrapper(allProbs, indIDVar = "garbage"),
+  expect_error(estimateRWrapper(nbResults, indIDVar = "garbage"),
                "garbage.1 is not in the data frame.")
   
-  expect_error(estimateRWrapper(allProbs, dateVar = "garbage"),
+  expect_error(estimateRWrapper(nbResults, dateVar = "garbage"),
                "garbage.1 is not in the data frame.")
   
-  expect_error(estimateRWrapper(allProbs, pVar = "garbage"),
+  expect_error(estimateRWrapper(nbResults, pVar = "garbage"),
                "garbage is not in the data frame.")
   
   #Removing individualID columns
-  allProbs2 <- allProbs[!names(allProbs) %in% c("individualID.1")]
-  expect_error(estimateRWrapper(allProbs2, indIDVar = "individualID"),
+  nbResults2 <- nbResults[!names(nbResults) %in% c("individualID.1")]
+  expect_error(estimateRWrapper(nbResults2, indIDVar = "individualID"),
                "individualID.1 is not in the data frame.")
 
-  allProbs3 <- allProbs[!names(allProbs) %in% c("individualID.2")]
-  expect_error(estimateRWrapper(allProbs3, indIDVar = "individualID"),
+  nbResults3 <- nbResults[!names(nbResults) %in% c("individualID.2")]
+  expect_error(estimateRWrapper(nbResults3, indIDVar = "individualID"),
                "individualID.2 is not in the data frame.")
   
   #Removing the date columns
-  allProbs4 <- allProbs[!names(allProbs) %in% c("infectionDate.1")]
-  expect_error(estimateRWrapper(allProbs4, dateVar = "infectionDate"),
+  nbResults4 <- nbResults[!names(nbResults) %in% c("infectionDate.1")]
+  expect_error(estimateRWrapper(nbResults4, dateVar = "infectionDate"),
                "infectionDate.1 is not in the data frame.")
   
-  allProbs5 <- allProbs[!names(allProbs) %in% c("infectionDate.2")]
-  expect_error(estimateRWrapper(allProbs5, dateVar = "infectionDate"),
+  nbResults5 <- nbResults[!names(nbResults) %in% c("infectionDate.2")]
+  expect_error(estimateRWrapper(nbResults5, dateVar = "infectionDate"),
                "infectionDate.2 is not in the data frame.")
   
   #Changing dates to character variables
-  allProbs$infectionDatec.1 <- as.character(allProbs$infectionDate.1)
-  allProbs$infectionDatec.2 <- allProbs$infectionDate.2
-  expect_error(estimateRWrapper(allProbs, dateVar = "infectionDatec"),
+  nbResults$infectionDatec.1 <- as.character(nbResults$infectionDate.1)
+  nbResults$infectionDatec.2 <- nbResults$infectionDate.2
+  expect_error(estimateRWrapper(nbResults, dateVar = "infectionDatec"),
                "infectionDatec.1 must be either a date or a date-time (POSIXt) object.",
                fixed = TRUE)
   
-  allProbs$infectionDatec.1 <- allProbs$infectionDate.1
-  allProbs$infectionDatec.2 <- as.character(allProbs$infectionDate.2)
-  expect_error(estimateRWrapper(allProbs, dateVar = "infectionDatec"),
+  nbResults$infectionDatec.1 <- nbResults$infectionDate.1
+  nbResults$infectionDatec.2 <- as.character(nbResults$infectionDate.2)
+  expect_error(estimateRWrapper(nbResults, dateVar = "infectionDatec"),
                "infectionDatec.2 must be either a date or a date-time (POSIXt) object.",
                fixed = TRUE)
   
-  allProbs5 <- allProbs[!names(allProbs) %in% c("infectionDate.2")]
-  expect_error(estimateRWrapper(allProbs5, indIDVar = "infectionDate"),
+  nbResults5 <- nbResults[!names(nbResults) %in% c("infectionDate.2")]
+  expect_error(estimateRWrapper(nbResults5, indIDVar = "infectionDate"),
                "infectionDate.2 is not in the data frame.")
   
   #Testing timeFrame error
-  expect_error(estimateRWrapper(allProbs, timeFrame = "garbage"),
+  expect_error(estimateRWrapper(nbResults, timeFrame = "garbage"),
                paste0("timeFrame must be one of: ",
                       paste0( c("days", "months", "weeks", "years"), collapse = ", ")))
 })

@@ -45,7 +45,7 @@ parameter estimates at each iteration.}
 \value{
 A data frame with one row and the following columns:
 \itemize{
-   \item \code{nInd} - the number of infectees who have SIs included
+   \item \code{nIndividuals} - the number of infectees who have SIs included
    in the SI estimate.
    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
    \item \code{scale} - the scale of the estimated gamma distribution for the SI.

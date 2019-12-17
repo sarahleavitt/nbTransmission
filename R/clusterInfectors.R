@@ -110,11 +110,11 @@ clusterInfectors <- function(df, indIDVar, pVar,
   }
   
   #Making sure clustMethod is correctly specified
-  if(length(clustMethod) > 1 | is.na(clustMethod)){
+  if(length(clustMethod) > 1){
     stop("Please provide a clustering method")
   }
-  if(!clustMethod %in% c("n", "kd", "hc_absolute", "hc_relative")){
-    stop(paste0("clustMethod must be one of: ", c("n", "kd", "hc_absolute", "hc_relative")))
+  else if(!clustMethod %in% c("n", "kd", "hc_absolute", "hc_relative")){
+    stop("clustMethod must be one of: n, kd, hc_absolute, hc_relative")
   }
   
   
@@ -156,7 +156,7 @@ clusterInfectors <- function(df, indIDVar, pVar,
   if(grepl("hc", clustMethod)){
     
     clustRes1 <- dplyr::group_by(multInf, !!rlang::sym(indIDVar2))
-    clustRes <- dplyr::group_modify(clustRes1, ~ findClustersHC(.x, pVar = "pScaled",
+    clustRes <- dplyr::group_modify(clustRes1, ~ findClustersHC(.x, pVar,
                                                                  cutoff = cutoff,
                                                                  clustMethod = clustMethod))
   
@@ -177,6 +177,8 @@ clusterInfectors <- function(df, indIDVar, pVar,
   
   #Making the clusters a factor variable
   clustRes2$cluster <- factor(clustRes2$cluster, levels = c(1, 2))
+  #Removing nInfectors variable
+  clustRes2$nInfectors <- NULL
   
   return(clustRes2)
 }
@@ -265,14 +267,15 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE,
     if(plot == TRUE){
       densitydf <- cbind.data.frame(x = d$x, y = d$y)
       
-      p <- ggplot(data = df) +
-        geom_histogram(aes(x = pScaled, fill = factor(cluster, levels = c(1, 2))), bins = 20) +
-        geom_line(data = densitydf, aes(x = x, y = y), color = "black", alpha = 0.5) +
-        xlab("Relative Probability") +
-        ylab("Count") +
-        scale_fill_manual(values = colors, drop = FALSE) +
-        theme_bw() +
-        theme(legend.position = "none")
+      p <- ggplot2::ggplot(data = df) +
+        ggplot2::geom_histogram(ggplot2::aes(x = df[, pVar], fill = factor(df$cluster, levels = c(1, 2))), bins = 20) +
+        ggplot2::geom_line(data = densitydf, ggplot2::aes(x = densitydf$x, y = densitydf$y),
+                           color = "black", alpha = 0.5) +
+        ggplot2::xlab("Relative Probability") +
+        ggplot2::ylab("Count") +
+        ggplot2::scale_fill_manual(values = colors, drop = FALSE) +
+        ggplot2::theme_bw() +
+        ggplot2::theme(legend.position = "none")
       
       print(p)
       return(p)

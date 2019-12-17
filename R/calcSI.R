@@ -53,6 +53,7 @@
 #' @param indIDVar The name (in quotes) of the individual ID columns
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
+#' @param pairIDVar The name (in quotes) of the column with the pair ID variable.
 #' @param timeDiffVar The name (in quotes) of the column with the difference
 #' in time between symptom onset (or its proxy) for the pair of cases. The
 #' units of this variable (hours, days, years) defines the units of the resulting
@@ -169,12 +170,11 @@
 #' @export
  
 
-estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
+estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
                        clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
                        cutoffs = NULL, initialPars, shift = 0, epsilon = 0.00001,
                        bootSamples = 0, alpha = 0.05){
   
-  df <- as.data.frame(df)
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
@@ -185,6 +185,9 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
   }
   if(!indIDVar2 %in% names(df)){
     stop(paste0(indIDVar2, " is not in the data frame."))
+  }
+  if(!pairIDVar %in% names(df)){
+    stop(paste0(pairIDVar, " is not in the data frame."))
   }
   if(!timeDiffVar %in% names(df)){
     stop(paste0(timeDiffVar, " is not in the data frame."))
@@ -206,47 +209,81 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
   if(clustMethod != "none" & is.null(cutoffs)){
     stop("Please provide one or more cutoff values")
   }
+  
+  df <- as.data.frame(df[, c(pairIDVar, indIDVar1, indIDVar2, timeDiffVar, pVar)],
+                      stringsAsFactors = FALSE)
 
+  
+  #Storing a list of clustering results for all cutoffs
+  if(clustMethod != "none"){
+    
+    print("Clustering Infectors")
+    clustList <- NULL
+    pb <- utils::txtProgressBar(min = 0, max = length(cutoffs), style = 3)
+    
+    for(i in 1:length(cutoffs)){
+      cutoff <- cutoffs[i]
+      clustList[[i]] <- clusterInfectors(df, indIDVar = indIDVar, pVar = pVar,
+                                         clustMethod = clustMethod, cutoff = cutoff)
+      utils::setTxtProgressBar(pb, i)
+    }
+  }else{
+    df$cluster <- 1
+    clustList <- list(df)
+    cutoffs <- NA
+  }
+
+  
   #Finding the point estimate for the serial interval parameters
-  siEst <- estimateSIPars(df, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
-                             pVar = pVar, clustMethod = clustMethod, cutoffs = cutoffs,
-                             initialPars = initialPars, shift = shift, epsilon = epsilon)  
+  siEst <- estimateSIPars(clustList, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
+                          pVar = pVar, clustMethod = clustMethod, cutoffs = cutoffs,
+                          initialPars = initialPars, shift = shift, epsilon = epsilon) 
   
   #If bootSamples > 0, estimate bootstrap confidence intervals on the parameters
   if(bootSamples > 0){
     
+    print("Estimating Bootstrap Confidence Intervals")
     bootSI <- NULL
-    pb <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
+    pb2 <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
     
     for(i in 1:bootSamples){
       
       #Find a random sample of infectees
-      ids <- sample(unique(df[, indIDVar2]),
+      ids <- base::sample(unique(df[, indIDVar2]),
                     size = length(unique(df[, indIDVar2])),
                     replace = TRUE)
-      #Need to create a new ID because people can now be included twice 
-      newID2 <- 1:length(ids)
-      idDf <- cbind.data.frame(ids, newID2)
-      names(idDf) <- c(indIDVar2, "newID2")
       
-      #For each time a case is in the bootstrap sample, adding all infectors
-      counts <- table(ids)
-      probsBoot <- NULL
-      for(j in 1:nrow(idDf)){
-        indData <- df[df[, indIDVar2 ] == idDf[j, indIDVar2], ]
-        indData$newID2 <- idDf[j, "newID2"]
-        probsBoot <- rbind(probsBoot, indData)
+      #Finding the number of times each case is included in the bootstrap sample
+      counts <- data.frame(table(ids), stringsAsFactors = FALSE)
+      names(counts) <- c(indIDVar2, "reps")
+      counts[, indIDVar2] <- as.numeric(as.character(counts[, indIDVar2]))
+      
+      #Function to subset the dataset to just the cases in the bootstrap sample
+      bootSample <- function(clustdf){
+        dfSub <- clustdf[clustdf[, indIDVar2] %in% ids, ]
+        dfSub <- dplyr::full_join(dfSub, counts, by = indIDVar2)
+        #Replicating each row by the number of times that case is in the bootstrap sample
+        probsBoot <- as.data.frame(lapply(dfSub, rep, dfSub$reps), stringsAsFactors = FALSE)
+        #Adding new ID variable
+        probsBoot$newID <- paste(probsBoot[, indIDVar2],
+                                  ave(rep(1, length(probsBoot[, pairIDVar])),
+                               probsBoot[, pairIDVar], FUN = cumsum), sep = "_")
+
+        #Renaming the new ID variable to the old ID name so that the function works
+        names(probsBoot)[names(probsBoot) == indIDVar2] <- "oldID2" 
+        names(probsBoot)[names(probsBoot) == "newID"] <- indIDVar2
+        return(probsBoot)
       }
-      #Renaming the new ID variable to the old ID name so that the function works
-      names(probsBoot)[names(probsBoot) == indIDVar2] <- "oldID2" 
-      names(probsBoot)[names(probsBoot) == "newID2"] <- indIDVar2
-        
-      siNew <- estimateSIPars(probsBoot, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
+
+      #Adding all infectors for each case in the bootstrap sample
+      probsBootList <- lapply(clustList, bootSample)
+      
+      siNew <- estimateSIPars(probsBootList, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
                                 pVar = pVar, clustMethod = clustMethod, cutoffs = cutoffs,
                                 initialPars = initialPars, shift = shift, epsilon = epsilon) 
       
-      bootSI <- rbind(bootSI, siNew)
-      utils::setTxtProgressBar(pb, i)
+      bootSI <- dplyr::bind_rows(bootSI, siNew)
+      utils::setTxtProgressBar(pb2, i)
     }
     
     #Finding the CI bounds
@@ -275,34 +312,24 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
 
 
 
-# Function run inside estimateSI to allow for bootstrap CI; not run on its own.
 
-estimateSIPars <- function(df, indIDVar, timeDiffVar, pVar,
-                       clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
-                       cutoffs = NULL, initialPars, shift = 0, epsilon = 0.00001){
+# Function run inside estimateSI to allow for bootstrap CI; not run on its own.
+estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
+                       cutoffs, initialPars, shift, epsilon){
   
-  df <- as.data.frame(df)
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
-  
   #Estimating SI for all given cutoffs
   siData <- NULL
-  
-  for(i in 1:length(cutoffs)){
+  for(i in 1:length(clustL)){
     
     cutoff <- cutoffs[i]
-    #If clustMethod is "none" setting topClust to all pairs or clustering
-    #the probabilities based on clustMethod and cutoff, then restricting to
-    #just the top cluster to be used for estimation
-    if(clustMethod == "none"){
-      topClust <- df
-    }else{
-      clustRes <- clusterInfectors(df, indIDVar = indIDVar, pVar = pVar,
-                                   clustMethod = clustMethod, cutoff = cutoff)
-      topClust <- clustRes[clustRes$cluster == 1, ]
-    }
+    clustRes <- clustL[[i]]
+    
+    #Restricting to just the top cluster to be used for estimation
+    topClust <- clustRes[clustRes$cluster == 1, ]
     
     #Finding the number of infectees with a top cluster used to estimate the serial interval
     nIndividuals <- length(unique(topClust[, indIDVar2]))
@@ -484,11 +511,18 @@ performPEM <- function(df, indIDVar, timeDiffVar, pVar, initialPars,
                               shift = shift)
     
     #Adding the new estimate to the data frame
-    params <- rbind(params, paramsNew)
+    params <- dplyr::bind_rows(params, paramsNew)
     params[i+1, "iteration"] <- i+1
     params[i+1, "diff.shape"] <- abs(params[i+1, "shape"] - params[i, "shape"])
     params[i+1, "diff.scale"] <- abs(params[i+1, "scale"] - params[i, "scale"])
     i <- i + 1
+
+    if(i == 50){
+      warning(paste0("Results are for 50 iterations, which did not meet epsilon difference \n",
+                     "Shape difference was ", signif(params[i, "diff.shape"], 2),
+                     " and scale difference was ", signif(params[i, "diff.scale"], 2)))
+      break()
+      }
   }
   paramsFinal <- params[nrow(params), c("shape", "scale")]
   

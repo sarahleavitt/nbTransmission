@@ -10,7 +10,7 @@ estimateSI(
   timeDiffVar,
   pVar,
   clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
-  cutoff = NA,
+  cutoffs = NULL,
   initialPars,
   shift = 0,
   epsilon = 1e-05,
@@ -39,7 +39,8 @@ SI distribution.}
 not specifying a value means use all pairs with no clustering
 (see \code{\link{clusterInfectors}} for detials on clustering methods).}
 
-\item{cutoff}{The cutoff for clustering (see \code{\link{clusterInfectors}}).}
+\item{cutoffs}{A vector of cutoffs for clustering (see \code{\link{clusterInfectors}}).
+If more than one cutoff is provided, a pooled estimate will also be provided.}
 
 \item{initialPars}{A vector of length two with the shape and scale 
 to initialize the gamma distribution parameters.}
@@ -59,8 +60,9 @@ are calculated.}
 \value{
 A data frame with one row and the following columns:
 \itemize{
-   \item \code{nInd} - the number of infectees who have SIs included
-   in the SI estimate.
+   \item \code{nIndividuals} - the number of infectees who have SIs included in the SI estimate.
+   \item \code{pCluster} - the proportion of cases who have SIs included in the SI estimate.
+   \item \code{} - the average number of infectors in the top cluster.
    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
@@ -167,9 +169,14 @@ estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
           initialPars = c(2, 2))
 
 # Using a shifted gamma distribution:
-# not allowing serial intervals of less than 4 months (0.25 years)
+# not allowing serial intervals of less than 3 months (0.25 years)
 estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
 pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+initialPars = c(2, 2), shift = 0.25)
+
+# Using multiple cutoffs
+estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+pVar = "pScaled", clustMethod = "hc_absolute", cutoff = seq(0.025, 0.25, 0.025),
 initialPars = c(2, 2), shift = 0.25)
 
 ## Adding confidence intervals
