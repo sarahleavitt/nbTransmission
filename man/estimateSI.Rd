@@ -7,13 +7,14 @@
 estimateSI(
   df,
   indIDVar,
+  pairIDVar,
   timeDiffVar,
   pVar,
   clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
   cutoffs = NULL,
   initialPars,
   shift = 0,
-  epsilon = 1e-05,
+  epsilon = 0.00001,
   bootSamples = 0,
   alpha = 0.05
 )
@@ -26,6 +27,8 @@ in time between the pair of cases (column \code{timeDiffVar})}
 \item{indIDVar}{The name (in quotes) of the individual ID columns
 (data frame \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
+
+\item{pairIDVar}{The name (in quotes) of the column with the pair ID variable.}
 
 \item{timeDiffVar}{The name (in quotes) of the column with the difference
 in time between symptom onset (or its proxy) for the pair of cases. The
