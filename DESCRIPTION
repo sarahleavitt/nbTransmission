@@ -17,7 +17,7 @@ License: MIT + file LICENSE
 URL: https://github.com/sv1205/nbTransmission 
 BugReports: https://github.com/sv1205/nbTransmission/issues
 LazyData: true
-Imports: 
+Imports:
     dplyr,
     rlang,
     caret,
@@ -25,7 +25,8 @@ Imports:
     poisbinom,
     stats,
     tidyr,
-    utils
+    utils,
+    data.table
 Suggests: 
     ggplot2,
     Hmisc,

@@ -14,7 +14,7 @@ estimateSI(
   cutoffs = NULL,
   initialPars,
   shift = 0,
-  epsilon = 0.00001,
+  epsilon = 1e-05,
   bootSamples = 0,
   alpha = 0.05
 )
@@ -65,7 +65,7 @@ A data frame with one row and the following columns:
 \itemize{
    \item \code{nIndividuals} - the number of infectees who have SIs included in the SI estimate.
    \item \code{pCluster} - the proportion of cases who have SIs included in the SI estimate.
-   \item \code{} - the average number of infectors in the top cluster.
+   \item \code{nInfectors} - the average number of infectors in the top cluster.
    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 

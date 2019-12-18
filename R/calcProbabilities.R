@@ -99,8 +99,9 @@
 
 
 
-nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covariates,
-                            label = "", l = 1, n = 10, m = 1, nReps = 10){
+nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
+                            goldStdVar, covariates, label = "",
+                            l = 1, n = 10, m = 1, nReps = 10){
   
   orderedPair <- as.data.frame(orderedPair)
   #Creating variables with the individual indID variable
@@ -144,14 +145,20 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
   orderedPair <- orderedPair[, c(indIDVar1, indIDVar2, pairIDVar,
                                  goldStdVar, covariates)]
   
+  #Creating an pairID that where order doesn't matter
+  orderedPair$pairID_uo <- ifelse(orderedPair[, indIDVar1] < orderedPair[, indIDVar2],
+                                  paste(orderedPair[, indIDVar1],
+                                        orderedPair[, indIDVar2], sep = "_"),
+                                  paste(orderedPair[, indIDVar2],
+                                        orderedPair[, indIDVar1], sep = "_"))
+  
   #Finding all pairs that can be included in the training dataset
   #And subsetting into the potential links
   posTrain <- orderedPair[!is.na(orderedPair[, goldStdVar]), ]
-  posLinks <- posTrain[posTrain[, goldStdVar] == TRUE, ]
   
   
 
-  #### Cross-prediction Procedure ####
+  #### Iterative Estimation Procedure ####
   
   #Initializing data frames to hold results and coefficients
   rAll <- data.frame("p" = numeric(), pairIDVar = character(), stringsAsFactors = FALSE)
@@ -164,9 +171,8 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
     
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross prediction
-    cvResults <- runCV(posTrain, posLinks, orderedPair,
-                       indIDVar, pairIDVar, goldStdVar, 
-                       covariates, l, n, m)
+    cvResults <- runCV(posTrain, orderedPair, indIDVar, pairIDVar,
+                       goldStdVar, covariates, l, n, m)
     rAll <- dplyr::bind_rows(rAll, cvResults$rFolds)
     cAll <- dplyr::bind_rows(cAll, cvResults$cFolds)
     utils::setTxtProgressBar(pb, k)
@@ -229,16 +235,25 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar, goldStdVar, covari
 
 
 
-runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
+runCV <- function(posTrain, orderedPair, indIDVar, pairIDVar,
                   goldStdVar, covariates, l, n, m){
   
   #Creating variables with the individual indID variable
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
+  #Selecting order for training pairs with the same date and thus included twice
+  posTrain2L <- linksL <- by(posTrain,
+                              INDICES = list(posTrain$pairID_uo),
+                              FUN = function(x){
+                                x[sample(nrow(x), 1), ]
+                              })
+  posTrain2 <- do.call(dplyr::bind_rows, posTrain2L)
+  
+  #Subsetting to just the possible links
+  posLinks <- posTrain2[posTrain2[, goldStdVar] == TRUE, ]
+  
   #Choosing the true infector from all possibles (if multiple)
-  #Then subsetting to complete pairs, grouping by infectee, and randomly choosing
-  #one possible infector
   linksL <- by(posLinks,
                INDICES = list(posLinks[, indIDVar2]),
                FUN = function(x){
@@ -251,7 +266,7 @@ runCV <- function(posTrain, posLinks, orderedPair, indIDVar, pairIDVar,
   #Combining the links with the non-links that do not share an infectee with the links
   trainingFull <- dplyr::full_join(orderedPair, links, by = c(pairIDVar, indIDVar2))
   trainingFull2 <- trainingFull[trainingFull[, pairIDVar] %in% links[, pairIDVar] |
-                                  (trainingFull[, pairIDVar] %in% posTrain[, pairIDVar] &
+                                  (trainingFull[, pairIDVar] %in% posTrain2[, pairIDVar] &
                                      !trainingFull[, indIDVar2] %in% links[, indIDVar2]), ]
   trainingFull2[is.na(trainingFull2$linked), "linked"] <- FALSE
   

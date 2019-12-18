@@ -107,7 +107,7 @@ indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordere
   }
   
   if(ordered == TRUE){
-    orderedData <- pairData2[pairData2[, paste0(dateVar, ".Diff")] > 0, ]
+    orderedData <- pairData2[pairData2[, paste0(dateVar, ".Diff")] >= 0, ]
     return(orderedData)
   }else{
     return(pairData2)

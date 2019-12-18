@@ -81,7 +81,7 @@
 #' \itemize{
 #'    \item \code{nIndividuals} - the number of infectees who have SIs included in the SI estimate.
 #'    \item \code{pCluster} - the proportion of cases who have SIs included in the SI estimate.
-#'    \item \code{} - the average number of infectors in the top cluster.
+#'    \item \code{nInfectors} - the average number of infectors in the top cluster.
 #'    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
 #'    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
 #'    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
@@ -134,30 +134,33 @@
 #' ## Estimating the serial interval
 #' 
 #' # Using all pairs
-#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-#' pVar = "pScaled", clustMethod = "none", initialPars = c(2, 2))
+#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#'              clustMethod = "none", initialPars = c(2, 2))
 #'
 #' # Using hierarchical clustering with a 0.05 absolute difference cutoff
-#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-#'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-#'           initialPars = c(2, 2))
+#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#'              clustMethod = "hc_absolute", cutoff = 0.05, initialPars = c(2, 2))
 #'
 #' # Using a shifted gamma distribution:
 #' # not allowing serial intervals of less than 3 months (0.25 years)
-#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-#' pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-#' initialPars = c(2, 2), shift = 0.25)
+#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#'              clustMethod = "hc_absolute", cutoff = 0.05,
+#'              initialPars = c(2, 2), shift = 0.25)
 #' 
 #' # Using multiple cutoffs
-#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-#' pVar = "pScaled", clustMethod = "hc_absolute", cutoff = seq(0.025, 0.25, 0.025),
-#' initialPars = c(2, 2), shift = 0.25)
+#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#'              clustMethod = "hc_absolute", cutoff = c(0.025, 0.05), initialPars = c(2, 2))
 #' 
 #' ## Adding confidence intervals
-#' # NOTE should run with bootSamples > 3.
-#' estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-#'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-#'           initialPars = c(2, 2), bootSamples = 3) 
+#' # NOTE should run with bootSamples > 5.
+#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#'              clustMethod = "hc_absolute", cutoff = 0.05,
+#'              initialPars = c(2, 2), shift = 0.25, bootSamples = 5)
 #' 
 #' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
 #'  \code{\link{performPEM}}
@@ -168,6 +171,8 @@
 #' population. \emph{American Journal of Epidemiology}. 2012 Jul 12;176(3):196-203.
 #' 
 #' @export
+#' 
+#' @importFrom data.table :=
  
 
 estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
@@ -265,10 +270,12 @@ estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
         #Replicating each row by the number of times that case is in the bootstrap sample
         probsBoot <- as.data.frame(lapply(dfSub, rep, dfSub$reps), stringsAsFactors = FALSE)
         #Adding new ID variable
-        probsBoot$newID <- paste(probsBoot[, indIDVar2],
-                                  ave(rep(1, length(probsBoot[, pairIDVar])),
-                               probsBoot[, pairIDVar], FUN = cumsum), sep = "_")
-
+        probsBoot <- data.table::data.table(probsBoot)[, "newIDs" := seq_len(.N),
+                                               by = get(pairIDVar)]
+        probsBoot <- as.data.frame(probsBoot)
+        probsBoot$newID <- paste(probsBoot[, indIDVar2], probsBoot$newIDs, sep = "_")
+        probsBoot$newIDsuffix <- NULL
+        
         #Renaming the new ID variable to the old ID name so that the function works
         names(probsBoot)[names(probsBoot) == indIDVar2] <- "oldID2" 
         names(probsBoot)[names(probsBoot) == "newID"] <- indIDVar2
@@ -353,7 +360,8 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
       pars <- cbind.data.frame("shape" = NA, "scale" = NA)
     }
     
-    siDataTemp <- cbind.data.frame(clustMethod, cutoff, nIndividuals, nInfectors, pCluster, pars,
+    siDataTemp <- cbind.data.frame(clustMethod, cutoff = as.character(cutoff),
+                                   nIndividuals, nInfectors, pCluster, pars,
                                    stringsAsFactors = FALSE)
     siData <- dplyr::bind_rows(siData, siDataTemp)
   }
@@ -368,7 +376,8 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
   if(length(cutoffs) > 1){
     siDataPooled <- as.data.frame(t(sapply(siData[, c("meanSI", "medianSI", "sdSI")], mean)),
                                   stringsAsFactors = FALSE)
-    siDataPooled$clustMethod <- "pooled"
+    siDataPooled$clustMethod <- clustMethod
+    siDataPooled$cutoff <- "pooled"
     siData <- dplyr::bind_rows(siData, siDataPooled) 
   }
     
