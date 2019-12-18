@@ -258,23 +258,16 @@ estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
                     size = length(unique(df[, indIDVar2])),
                     replace = TRUE)
       
-      #Finding the number of times each case is included in the bootstrap sample
-      counts <- data.frame(table(ids), stringsAsFactors = FALSE)
-      names(counts) <- c(indIDVar2, "reps")
-      counts[, indIDVar2] <- as.numeric(as.character(counts[, indIDVar2]))
+      #Adding new ID variable
+      idDf <- cbind.data.frame(ids, newID = 1:length(ids))
+      names(idDf) <- c(indIDVar2, "newID")
       
       #Function to subset the dataset to just the cases in the bootstrap sample
       bootSample <- function(clustdf){
-        dfSub <- clustdf[clustdf[, indIDVar2] %in% ids, ]
-        dfSub <- dplyr::full_join(dfSub, counts, by = indIDVar2)
-        #Replicating each row by the number of times that case is in the bootstrap sample
-        probsBoot <- as.data.frame(lapply(dfSub, rep, dfSub$reps), stringsAsFactors = FALSE)
-        #Adding new ID variable
-        probsBoot <- data.table::data.table(probsBoot)[, "newIDs" := seq_len(.N),
-                                               by = get(pairIDVar)]
-        probsBoot <- as.data.frame(probsBoot)
-        probsBoot$newID <- paste(probsBoot[, indIDVar2], probsBoot$newIDs, sep = "_")
-        probsBoot$newIDsuffix <- NULL
+        
+        #Using the fact that joining with duplicates, duplicates the column to
+        #replicate and add new ID in one step.
+        probsBoot <- dplyr::right_join(clustdf, idDf, by = indIDVar2)
         
         #Renaming the new ID variable to the old ID name so that the function works
         names(probsBoot)[names(probsBoot) == indIDVar2] <- "oldID2" 
@@ -294,20 +287,38 @@ estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
     }
     
     #Finding the CI bounds
-    shapeCILB <- siEst$shape - (stats::quantile(bootSI$shape, 1-alpha/2, na.rm = TRUE) - siEst$shape)
-    shapeCIUB <- siEst$shape - (stats::quantile(bootSI$shape, alpha/2, na.rm = TRUE) - siEst$shape)
-    scaleCILB <- siEst$scale - (stats::quantile(bootSI$scale, 1-alpha/2, na.rm = TRUE) - siEst$scale)
-    scaleCIUB <- siEst$scale - (stats::quantile(bootSI$scale, alpha/2, na.rm = TRUE) - siEst$scale)
-    meanCILB <- siEst$meanSI - (stats::quantile(bootSI$meanSI, 1-alpha/2, na.rm = TRUE) - siEst$meanSI)
-    meanCIUB <- siEst$meanSI - (stats::quantile(bootSI$meanSI, alpha/2, na.rm = TRUE) - siEst$meanSI)
-    medianCILB <- siEst$medianSI - (stats::quantile(bootSI$medianSI, 1-alpha/2, na.rm = TRUE) - siEst$medianSI)
-    medianCIUB <- siEst$medianSI - (stats::quantile(bootSI$medianSI, alpha/2, na.rm = TRUE) - siEst$medianSI)
-    sdCILB <- siEst$sdSI - (stats::quantile(bootSI$sdSI, 1-alpha/2, na.rm = TRUE) - siEst$sdSI)
-    sdCIUB <- siEst$sdSI - (stats::quantile(bootSI$sdSI, alpha/2, na.rm = TRUE) - siEst$sdSI)
+    siQuantsL <- by(bootSI,
+                   INDICES = list(bootSI$cutoff),
+                   FUN = function(x){
+                     data.frame("cutoff" = unique(x$cutoff),
+                                "shapelb" = stats::quantile(x$shape, 1-alpha/2, na.rm = TRUE),
+                                "shapeub" = stats::quantile(x$shape, alpha/2, na.rm = TRUE),
+                                "scalelb" = stats::quantile(x$scale, 1-alpha/2, na.rm = TRUE),
+                                "scaleub" = stats::quantile(x$scale, alpha/2, na.rm = TRUE),
+                                "meanlb" = stats::quantile(x$meanSI, 1-alpha/2, na.rm = TRUE),
+                                "meanub" = stats::quantile(x$meanSI, alpha/2, na.rm = TRUE),
+                                "medianlb" = stats::quantile(x$medianSI, 1-alpha/2, na.rm = TRUE),
+                                "medianub" = stats::quantile(x$medianSI, alpha/2, na.rm = TRUE),
+                                "sdlb" = stats::quantile(x$sdSI, 1-alpha/2, na.rm = TRUE),
+                                "sdub" = stats::quantile(x$sdSI, alpha/2, na.rm = TRUE))
+                   })
+    #Suppressing character to factor warnings
+    suppressWarnings(siQuants <- do.call(dplyr::bind_rows, siQuantsL))
     
-    siCI <- cbind(siEst, shapeCILB, shapeCIUB, scaleCILB, scaleCIUB,
-                  meanCILB, meanCIUB, medianCILB, medianCIUB, sdCILB, sdCIUB)
-    row.names(siCI) <- NULL
+    siCI <- dplyr::full_join(siEst, siQuants, by = "cutoff")
+    siCI$shapeCILB <- siCI$shape - (siCI$shapelb - siCI$shape)
+    siCI$shapeCIUB <- siCI$shape - (siCI$shapeub - siCI$shape)
+    siCI$scaleCILB <- siCI$scale - (siCI$scalelb - siCI$scale)
+    siCI$scaleCIUB <- siCI$scale - (siCI$scaleub - siCI$scale)
+    siCI$meanCILB <- siCI$meanSI - (siCI$meanlb - siCI$meanSI)
+    siCI$meanCIUB <- siCI$meanSI - (siCI$meanub - siCI$meanSI)
+    siCI$medianCILB <- siCI$medianSI - (siCI$medianlb - siCI$medianSI)
+    siCI$medianCIUB <- siCI$medianSI - (siCI$medianub - siCI$medianSI)
+    siCI$sdCILB <- siCI$sdSI - (siCI$sdlb - siCI$sdSI)
+    siCI$sdCIUB <- siCI$sdSI - (siCI$sdub - siCI$sdSI)
+    
+    siCI <- siCI[, !names(siCI) %in% c("shapelb", "shapeub", "scalelb", "scaleub", "meanlb",
+                                       "meanub", "medianlb", "medianub", "sdlb", "sdub")]
     
     return(siCI)
     
