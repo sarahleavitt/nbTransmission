@@ -193,6 +193,7 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
     bootRt <- data.frame(c("timeRank" = integer(), "Rt" = numeric(),
                            "time" = character()), "rep" = integer(),
                          stringsAsFactors = FALSE)
+    
     for(i in 1:bootSamples){
       oneRep <- estimateRt(simulateRi(df, riEst, pVar = pVar, indIDVar = indIDVar),
                        dateVar = dateVar, timeFrame = timeFrame)
