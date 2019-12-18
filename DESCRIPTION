@@ -25,8 +25,7 @@ Imports:
     poisbinom,
     stats,
     tidyr,
-    utils,
-    data.table
+    utils
 Suggests: 
     ggplot2,
     Hmisc,

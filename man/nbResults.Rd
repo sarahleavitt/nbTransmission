@@ -49,7 +49,7 @@ is shown below.
 
 # ## NOT RUN ##
 # ## This is the code used to create this dataset ##
-# orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+# orderedPair <- pairData[pairData$infectionDiff > 0, ]
 # orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
 #                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
 # set.seed(0)

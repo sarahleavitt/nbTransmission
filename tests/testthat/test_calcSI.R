@@ -5,7 +5,6 @@ library(nbTransmission)
 #Creating a function with defaults equal to my simulated data
 estimateSIWrapper <- function(nbResults,
                              indIDVar = "individualID",
-                             pairIDVar = "pairID",
                              timeDiffVar = "infectionDiffY",
                              pVar = "pScaled",
                              clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
@@ -15,7 +14,7 @@ estimateSIWrapper <- function(nbResults,
                              alpha = 0.05,
                              epsilon = 0.0001){
   
-  siData <- estimateSI(nbResults, indIDVar = indIDVar, pairIDVar = pairIDVar,
+  siData <- estimateSI(nbResults, indIDVar = indIDVar,
                        timeDiffVar = timeDiffVar, pVar = pVar, clustMethod = clustMethod,
                        cutoffs = cutoffs, initialPars = initialPars, epsilon = epsilon,
                        bootSamples = bootSamples, alpha = alpha)
@@ -81,9 +80,6 @@ test_that("Descriptive error messages returned",{
   
   expect_error(estimateSIWrapper(nbResults, indIDVar = "garbage"),
                "garbage.1 is not in the data frame.")
-  
-  expect_error(estimateSIWrapper(nbResults, pairIDVar = "garbage"),
-               "garbage is not in the data frame.")
   
   expect_error(estimateSIWrapper(nbResults, timeDiffVar = "garbage"),
                "garbage is not in the data frame.")

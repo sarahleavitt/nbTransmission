@@ -7,14 +7,13 @@
 estimateSI(
   df,
   indIDVar,
-  pairIDVar,
   timeDiffVar,
   pVar,
   clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
   cutoffs = NULL,
   initialPars,
   shift = 0,
-  epsilon = 1e-05,
+  epsilon = 0.00001,
   bootSamples = 0,
   alpha = 0.05
 )
@@ -27,8 +26,6 @@ in time between the pair of cases (column \code{timeDiffVar})}
 \item{indIDVar}{The name (in quotes) of the individual ID columns
 (data frame \code{df} must have variables called \code{<indIDVar>.1}
  and \code{<indIDVar>.2}).}
-
-\item{pairIDVar}{The name (in quotes) of the column with the pair ID variable.}
 
 \item{timeDiffVar}{The name (in quotes) of the column with the difference
 in time between symptom onset (or its proxy) for the pair of cases. The
@@ -163,30 +160,33 @@ nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 ## Estimating the serial interval
 
 # Using all pairs
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-pVar = "pScaled", clustMethod = "none", initialPars = c(2, 2))
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+             timeDiffVar = "infectionDiffY", pVar = "pScaled",
+             clustMethod = "none", initialPars = c(2, 2))
 
 # Using hierarchical clustering with a 0.05 absolute difference cutoff
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-          pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-          initialPars = c(2, 2))
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+             timeDiffVar = "infectionDiffY", pVar = "pScaled",
+             clustMethod = "hc_absolute", cutoff = 0.05, initialPars = c(2, 2))
 
 # Using a shifted gamma distribution:
 # not allowing serial intervals of less than 3 months (0.25 years)
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-initialPars = c(2, 2), shift = 0.25)
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+             timeDiffVar = "infectionDiffY", pVar = "pScaled",
+             clustMethod = "hc_absolute", cutoff = 0.05,
+             initialPars = c(2, 2), shift = 0.25)
 
 # Using multiple cutoffs
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-pVar = "pScaled", clustMethod = "hc_absolute", cutoff = seq(0.025, 0.25, 0.025),
-initialPars = c(2, 2), shift = 0.25)
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+             timeDiffVar = "infectionDiffY", pVar = "pScaled",
+             clustMethod = "hc_absolute", cutoff = c(0.025, 0.05), initialPars = c(2, 2))
 
 ## Adding confidence intervals
-# NOTE should run with bootSamples > 3.
-estimateSI(nbResults, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-          pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-          initialPars = c(2, 2), bootSamples = 3) 
+# NOTE should run with bootSamples > 5.
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+             timeDiffVar = "infectionDiffY", pVar = "pScaled",
+             clustMethod = "hc_absolute", cutoff = 0.05,
+             initialPars = c(2, 2), shift = 0.25, bootSamples = 5)
 
 }
 \references{

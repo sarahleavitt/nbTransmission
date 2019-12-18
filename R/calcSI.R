@@ -53,7 +53,6 @@
 #' @param indIDVar The name (in quotes) of the individual ID columns
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
-#' @param pairIDVar The name (in quotes) of the column with the pair ID variable.
 #' @param timeDiffVar The name (in quotes) of the column with the difference
 #' in time between symptom onset (or its proxy) for the pair of cases. The
 #' units of this variable (hours, days, years) defines the units of the resulting
@@ -134,30 +133,30 @@
 #' ## Estimating the serial interval
 #' 
 #' # Using all pairs
-#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#' estimateSI(nbResultsNoT, indIDVar = "individualID",
 #'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
 #'              clustMethod = "none", initialPars = c(2, 2))
 #'
 #' # Using hierarchical clustering with a 0.05 absolute difference cutoff
-#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#' estimateSI(nbResultsNoT, indIDVar = "individualID",
 #'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
 #'              clustMethod = "hc_absolute", cutoff = 0.05, initialPars = c(2, 2))
 #'
 #' # Using a shifted gamma distribution:
 #' # not allowing serial intervals of less than 3 months (0.25 years)
-#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#' estimateSI(nbResultsNoT, indIDVar = "individualID",
 #'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
 #'              clustMethod = "hc_absolute", cutoff = 0.05,
 #'              initialPars = c(2, 2), shift = 0.25)
 #' 
 #' # Using multiple cutoffs
-#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#' estimateSI(nbResultsNoT, indIDVar = "individualID",
 #'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
 #'              clustMethod = "hc_absolute", cutoff = c(0.025, 0.05), initialPars = c(2, 2))
 #' 
 #' ## Adding confidence intervals
 #' # NOTE should run with bootSamples > 5.
-#' estimateSI(nbResultsNoT, indIDVar = "individualID", pairIDVar = "pairID",
+#' estimateSI(nbResultsNoT, indIDVar = "individualID",
 #'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
 #'              clustMethod = "hc_absolute", cutoff = 0.05,
 #'              initialPars = c(2, 2), shift = 0.25, bootSamples = 5)
@@ -171,11 +170,9 @@
 #' population. \emph{American Journal of Epidemiology}. 2012 Jul 12;176(3):196-203.
 #' 
 #' @export
-#' 
-#' @importFrom data.table :=
  
 
-estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
+estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
                        clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
                        cutoffs = NULL, initialPars, shift = 0, epsilon = 0.00001,
                        bootSamples = 0, alpha = 0.05){
@@ -190,9 +187,6 @@ estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
   }
   if(!indIDVar2 %in% names(df)){
     stop(paste0(indIDVar2, " is not in the data frame."))
-  }
-  if(!pairIDVar %in% names(df)){
-    stop(paste0(pairIDVar, " is not in the data frame."))
   }
   if(!timeDiffVar %in% names(df)){
     stop(paste0(timeDiffVar, " is not in the data frame."))
@@ -215,7 +209,7 @@ estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
     stop("Please provide one or more cutoff values")
   }
   
-  df <- as.data.frame(df[, c(pairIDVar, indIDVar1, indIDVar2, timeDiffVar, pVar)],
+  df <- as.data.frame(df[, c(indIDVar1, indIDVar2, timeDiffVar, pVar)],
                       stringsAsFactors = FALSE)
 
   
@@ -235,7 +229,7 @@ estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
   }else{
     df$cluster <- 1
     clustList <- list(df)
-    cutoffs <- NA
+    cutoffs <- "none"
   }
 
   
@@ -304,6 +298,7 @@ estimateSI <- function(df, indIDVar, pairIDVar, timeDiffVar, pVar,
                    })
     #Suppressing character to factor warnings
     suppressWarnings(siQuants <- do.call(dplyr::bind_rows, siQuantsL))
+    siQuants$cutoff <- as.character(siQuants$cutoff)
     
     siCI <- dplyr::full_join(siEst, siQuants, by = "cutoff")
     siCI$shapeCILB <- siCI$shape - (siCI$shapelb - siCI$shape)
@@ -537,8 +532,8 @@ performPEM <- function(df, indIDVar, timeDiffVar, pVar, initialPars,
     params[i+1, "diff.scale"] <- abs(params[i+1, "scale"] - params[i, "scale"])
     i <- i + 1
 
-    if(i == 50){
-      warning(paste0("Results are for 50 iterations, which did not meet epsilon difference \n",
+    if(i == 100){
+      warning(paste0("Results are for 100 iterations, which did not meet epsilon difference \n",
                      "Shape difference was ", signif(params[i, "diff.shape"], 2),
                      " and scale difference was ", signif(params[i, "diff.scale"], 2)))
       break()
