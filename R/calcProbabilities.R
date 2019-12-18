@@ -12,13 +12,19 @@
 #' probability of an outcome in a prediction dataset given a set of covariates from
 #' the observed frequencies in a training dataset.
 #' 
-#' A subset of cases with pathogen WGS or contact investigation data are used to create
-#' a training dataset of probable links and non/links. These probable links and 
-#' non/links are defined by \code{goldStdVar} which should be a logical vector with
+#' The input dataset - \code{orderedPair} - should represent ordered pairs of cases
+#' (where the potential infector was observed before the infectee) and have
+#' a unique identifier for each pair (\code{pairIDVar}) as well as the individual ids that are
+#' included in the pair (\code{<indIDVar>.1} and \code{<indIDVar>.2}). If cases are concurrent
+#' (meaning the order cannot determined) both orders can be included.
+#' 
+#' A subset of pairs should also have pathogen WGS, contact investigation,  or some other
+#' 'gold standard' defined by \code{goldStdVar} which should be a logical vector with
 #' \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
 #' the pair cannot be used to train (does not have the information or is indeterminate).
+#' These pairs will be used to a training dataset of probable links and non/links.
 #' The covariates can be any categorical variables and could represent
-#' spatial, clinical, demographic, and temporal characteristics of the cases. 
+#' spatial, clinical, demographic, and temporal characteristics of the case pair. 
 #' 
 #' Because the outcomes in the training set represent probable and not certain 
 #' transmission events and a given case could have mulitple probable infectors, 
@@ -26,11 +32,12 @@
 #' link of all of the possible links to include in the training dataset \code{nReps}
 #' times, and then uses \code{mxn} cross prediction to give all pairs a turn 
 #' in the prediction dataset.
+#' 
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
 #' @param indIDVar The name (in quotes) of the column with the individual ID. 
 #' (data frame \code{orderedPair} must have columns called \code{<indIDVar>.1} and \code{<indIDVar>.2}).
-#' @param pairIDVar The name (in quotes) of the column with the pair ID variable.
+#' @param pairIDVar The name (in quotes) of the column with the unique pair ID variable.
 #' @param goldStdVar The name (in quotes) of the column with a logical vector defining
 #'  training links/non-links
 #' @param covariates A character vector containing the covariate column names (in quotes).
@@ -73,7 +80,7 @@
 #' @examples
 #' ## Use the pairData dataset which represents a TB-like outbreak
 #' # First create a dataset of ordered pairs
-#' orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+#' orderedPair <- pairData[pairData$infectionDiffY >= 0, ]
 #' 
 #' ## Create a variable called snpClose that will define probable links
 #' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
@@ -242,13 +249,27 @@ runCV <- function(posTrain, orderedPair, indIDVar, pairIDVar,
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
   
-  #Selecting order for training pairs with the same date and thus included twice
-  posTrain2L <- linksL <- by(posTrain,
-                              INDICES = list(posTrain$pairID_uo),
-                              FUN = function(x){
-                                x[sample(nrow(x), 1), ]
-                              })
-  posTrain2 <- do.call(dplyr::bind_rows, posTrain2L)
+  if(length(unique(posTrain$pairID_uo)) != nrow(posTrain)){
+    
+    #Finding the pairs that are concurrent (both orders included)
+    concurrentID <- posTrain[duplicated(posTrain$pairID_uo), "pairID_uo"]
+    concurrent <- posTrain[posTrain$pairID_uo %in% concurrentID, ]
+    
+    #Randomly selecting order for concurrent pairs
+    concurrent2L <- linksL <- by(concurrent,
+                               INDICES = list(concurrent$pairID_uo),
+                               FUN = function(x){
+                                 x[sample(nrow(x), 1), ]
+                               })
+    concurrent2 <- do.call(dplyr::bind_rows, concurrent2L)
+    
+    #Combining choose for concurrent pairs with the rest of the pairs
+    posTrain2 <- dplyr::bind_rows(posTrain[!posTrain$pairID_uo %in% concurrentID, ],
+                                  concurrent2)
+  }else{
+    posTrain2 <- posTrain
+  }
+
   
   #Subsetting to just the possible links
   posLinks <- posTrain2[posTrain2[, goldStdVar] == TRUE, ]

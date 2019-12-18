@@ -23,7 +23,7 @@ nbProbabilities(
 \item{indIDVar}{The name (in quotes) of the column with the individual ID. 
 (data frame \code{orderedPair} must have columns called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
 
-\item{pairIDVar}{The name (in quotes) of the column with the pair ID variable.}
+\item{pairIDVar}{The name (in quotes) of the column with the unique pair ID variable.}
 
 \item{goldStdVar}{The name (in quotes) of the column with a logical vector defining
 training links/non-links}
@@ -84,13 +84,19 @@ NB is a simple machine learning algorithm that uses Bayes rule to estimate the
 probability of an outcome in a prediction dataset given a set of covariates from
 the observed frequencies in a training dataset.
 
-A subset of cases with pathogen WGS or contact investigation data are used to create
-a training dataset of probable links and non/links. These probable links and 
-non/links are defined by \code{goldStdVar} which should be a logical vector with
+The input dataset - \code{orderedPair} - should represent ordered pairs of cases
+(where the potential infector was observed before the infectee) and have
+a unique identifier for each pair (\code{pairIDVar}) as well as the individual ids that are
+included in the pair (\code{<indIDVar>.1} and \code{<indIDVar>.2}). If cases are concurrent
+(meaning the order cannot determined) both orders can be included.
+
+A subset of pairs should also have pathogen WGS, contact investigation,  or some other
+'gold standard' defined by \code{goldStdVar} which should be a logical vector with
 \code{TRUE} indicating links, \code{FALSE} nonlinks, and \code{NA} if
 the pair cannot be used to train (does not have the information or is indeterminate).
+These pairs will be used to a training dataset of probable links and non/links.
 The covariates can be any categorical variables and could represent
-spatial, clinical, demographic, and temporal characteristics of the cases. 
+spatial, clinical, demographic, and temporal characteristics of the case pair. 
 
 Because the outcomes in the training set represent probable and not certain 
 transmission events and a given case could have mulitple probable infectors, 
@@ -102,7 +108,7 @@ in the prediction dataset.
 \examples{
 ## Use the pairData dataset which represents a TB-like outbreak
 # First create a dataset of ordered pairs
-orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+orderedPair <- pairData[pairData$infectionDiffY >= 0, ]
 
 ## Create a variable called snpClose that will define probable links
 # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
