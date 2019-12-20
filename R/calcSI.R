@@ -380,8 +380,8 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
   
   #Adding pooled estimates if more than one cutoff is provided
   if(length(cutoffs) > 1){
-    siDataPooled <- as.data.frame(t(sapply(siData[, c("meanSI", "medianSI", "sdSI")], mean)),
-                                  stringsAsFactors = FALSE)
+    siDataPooled <- as.data.frame(t(sapply(siData[, c("meanSI", "medianSI", "sdSI")],
+                                           mean, na.rm = TRUE)), stringsAsFactors = FALSE)
     siDataPooled$clustMethod <- clustMethod
     siDataPooled$cutoff <- "pooled"
     siData <- dplyr::bind_rows(siData, siDataPooled) 
