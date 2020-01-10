@@ -140,7 +140,8 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
     classTab <- prop.table(table(training[, goldStdVar]) + l)
     
     #Initializing the coefficient dataframe
-    coeff <- data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
+    coeff <- data.frame("level" = character(), "est" = numeric(),
+                        "se" = numeric(), stringsAsFactors = FALSE)
     
     #Looping through all covariates and finding frequencies in training data
     for(i in 1:length(covariates)){
@@ -164,15 +165,15 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
       
       #Saving the odds: P(Outcome = TRUE|X=x, W) / P(Outcome = FALSE|X=x, W)
       odds <- Tab[, 2] / Tab[, 1]
-      or <- odds/odds[1]
+      est <- log(odds/odds[1])
       num <- W * table(training[, Var], training[, goldStdVar]) + l
       se <- NA
       for(i in 1:(nrow(num) - 1)){
         numTab <- num[c(1, i+1), ]
         se <- c(se, sqrt(sum(1/numTab)))
       }
-      level <- paste(Var, names(or), sep = ":")
-      cTemp <- cbind.data.frame(level, or, se, stringsAsFactors = FALSE)
+      level <- paste(Var, names(est), sep = ":")
+      cTemp <- cbind.data.frame(level, est, se, stringsAsFactors = FALSE)
 
       coeff <- dplyr::bind_rows(coeff, cTemp)
     }

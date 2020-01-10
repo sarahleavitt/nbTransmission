@@ -33,6 +33,12 @@
 #' times, and then uses \code{mxn} cross prediction to give all pairs a turn 
 #' in the prediction dataset.
 #' 
+#' The output of this function is a list of two dataframes: one with the estimates of the
+#' transmission probabilities (\code{probabilities}) and the other with the contribution of
+#' the covariates to the probabilities in the form of odds ratios (\code{estimates}). The 
+#' 95% confidence intervals reported for these odds ratios use Rubin's Rules to pool the 
+#' error across all iterations.
+#' 
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
 #' @param indIDVar The name (in quotes) of the column with the individual ID. 
@@ -61,19 +67,20 @@
 #'         all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
 #'        \item \code{pRank} - the rank of the probability of the the pair out of all pairs for that
 #'        infectee (in case of ties all values have the minimum rank of the group).
-#'        \item \code{nSamples} - the number of probability estimates that contributed to pAvg. This
+#'        \item \code{nEstimates} - the number of probability estimates that contributed to pAvg. This
 #'        represents the number of prediction datasets this pair was included in over the \code{nxm}
 #'        cross prediction repeated \code{nReps} times.
 #'      }
 #'   \item \code{estimates} - a data frame with the effect estimates. Column names:
 #'      \itemize{
-#'        \item \code{level} - the covariate name and level
-#'        \item \code{orMean} - the mean value of the odds ratio across runs
-#'        \item \code{orMin} - the min value of the odds ratio across runs
-#'        \item \code{orMax} - the max value of the odds ratio across runs
-#'        \item \code{orSD} - the standard deviation of the odds ratio across runs
-#'        \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
 #'        \item \code{label} - the optional label of the run
+#'        \item \code{level} - the covariate name and level
+#'        \item \code{nIter} - the number of iterations included in the estimates: \code{n*m*nReps}
+#'        \item \code{orMean} - the mean value of the odds ratio across iterations
+#'        \item \code{orCILB} - the lower bound of the 95% confidence interval of the odds ratio
+#'         across iterations
+#'        \item \code{orCIUB} - the upper bound of the 95% confidence interval of the odds ratio
+#'         across iterations
 #'      }
 #' }
 #'
@@ -193,7 +200,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
   sumData2 <- dplyr::summarize(sumData1,
                                pAvg = mean(!!rlang::sym("p"), na.rm = TRUE),
                                pSD = stats::sd(!!rlang::sym("p"), na.rm = TRUE),
-                               nSamples = sum(!is.na(!!rlang::sym("p"))),
+                               nEstimates = sum(!is.na(!!rlang::sym("p"))),
                                label = dplyr::first(label))
   sumData2 <- dplyr::ungroup(sumData2)
   
@@ -216,7 +223,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                             })
   
   #Only keeping columns of interest
-  probs2 <- probs2[, c("label", pairIDVar, "pAvg", "pSD", "pScaled", "pRank", "nSamples")]
+  probs2 <- probs2[, c("label", pairIDVar, "pAvg", "pSD", "pScaled", "pRank", "nEstimates")]
   
   
   #### Summarizing Measures of Effect Over Runs ####
@@ -226,16 +233,25 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                  INDICES = list(cAll$level),
                  FUN = function(x){
                    data.frame("level" = unique(x$level),
-                              "orMean" = mean(x$or, na.rm = TRUE),
-                              "orMin" = min(x$or, na.rm = TRUE),
-                              "orMax" = max(x$or, na.rm = TRUE),
-                              "orSD" = stats::sd(x$or, na.rm = TRUE),
-                              "nSamples" = sum(!is.na(x$or)),
+                              "mean" = mean(x$est, na.rm = TRUE),
+                              "VW" = mean(x$se ^ 2, na.rm = TRUE),
+                              "VB" = stats::var(x$est, na.rm = TRUE),
+                              "nIter" = sum(!is.na(x$est)), 
                               "label" = label, stringsAsFactors = FALSE)
                  })
   coeff <- do.call(dplyr::bind_rows, coeffL)
   
-  return(list("probabilities" = probs2, "estimates" = coeff))
+  #Calculating the total variance using Rubin's rules
+  coeff$VT <- coeff$VW + coeff$VB + coeff$VB / coeff$nIter
+  coeff$orMean <- exp(coeff$mean)
+  #coeff$df <- (coeff$nIter - 1) * (1 - coeff$VW / ((1 + 1/coeff$nIter) * coeff$VB)) ^ 2
+  coeff$orCILB <- exp(coeff$mean - 1.96 * sqrt(coeff$VT))
+  coeff$orCIUB <- exp(coeff$mean + 1.96 * sqrt(coeff$VT))
+  
+  #Only keeping columns of interest
+  coeff2 <- coeff[, c("label", "level", "nIter", "orMean", "orCILB", "orCIUB")]
+  
+  return(list("probabilities" = probs2, "estimates" = coeff2))
 }
 
 
@@ -299,7 +315,7 @@ runCV <- function(posTrain, orderedPair, indIDVar, pairIDVar,
   #Initializing data frames to hold results and coefficients
   rFolds <- data.frame("p" = numeric(), pairIDVar = character(), stringsAsFactors = FALSE)
   names(rFolds) <- c("p", pairIDVar)
-  cFolds <- data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
+  cFolds <- data.frame("level" = character(), "est" = numeric(), stringsAsFactors = FALSE)
   
   #Running the methods for all of the CV Folds
   for (i in 1:length(cv_splits)){

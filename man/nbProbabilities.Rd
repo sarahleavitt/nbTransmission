@@ -55,19 +55,20 @@ List containing two data frames:
         all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
        \item \code{pRank} - the rank of the probability of the the pair out of all pairs for that
        infectee (in case of ties all values have the minimum rank of the group).
-       \item \code{nSamples} - the number of probability estimates that contributed to pAvg. This
+       \item \code{nEstimates} - the number of probability estimates that contributed to pAvg. This
        represents the number of prediction datasets this pair was included in over the \code{nxm}
        cross prediction repeated \code{nReps} times.
      }
   \item \code{estimates} - a data frame with the effect estimates. Column names:
      \itemize{
-       \item \code{level} - the covariate name and level
-       \item \code{orMean} - the mean value of the odds ratio across runs
-       \item \code{orMin} - the min value of the odds ratio across runs
-       \item \code{orMax} - the max value of the odds ratio across runs
-       \item \code{orSD} - the standard deviation of the odds ratio across runs
-       \item \code{nSamples} - the number of samples included in the average: \code{n*m*nReps}
        \item \code{label} - the optional label of the run
+       \item \code{level} - the covariate name and level
+       \item \code{nIter} - the number of iterations included in the estimates: \code{n*m*nReps}
+       \item \code{orMean} - the mean value of the odds ratio across iterations
+       \item \code{orCILB} - the lower bound of the 95% confidence interval of the odds ratio
+        across iterations
+       \item \code{orCIUB} - the upper bound of the 95% confidence interval of the odds ratio
+        across iterations
      }
 }
 }
@@ -104,6 +105,12 @@ the algorithm uses an iterative estimation procedure. This procedure randomly ch
 link of all of the possible links to include in the training dataset \code{nReps}
 times, and then uses \code{mxn} cross prediction to give all pairs a turn 
 in the prediction dataset.
+
+The output of this function is a list of two dataframes: one with the estimates of the
+transmission probabilities (\code{probabilities}) and the other with the contribution of
+the covariates to the probabilities in the form of odds ratios (\code{estimates}). The 
+95% confidence intervals reported for these odds ratios use Rubin's Rules to pool the 
+error across all iterations.
 }
 \examples{
 ## Use the pairData dataset which represents a TB-like outbreak
