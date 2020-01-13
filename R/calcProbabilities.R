@@ -233,6 +233,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                  INDICES = list(cAll$level),
                  FUN = function(x){
                    data.frame("level" = unique(x$level),
+                              "rowOrder" = unique(x$rowOrder),
                               "mean" = mean(x$est, na.rm = TRUE),
                               "VW" = mean(x$se ^ 2, na.rm = TRUE),
                               "VB" = stats::var(x$est, na.rm = TRUE),
@@ -240,6 +241,8 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                               "label" = label, stringsAsFactors = FALSE)
                  })
   coeff <- do.call(dplyr::bind_rows, coeffL)
+  #Reordering the rows
+  coeff <- coeff[order(coeff$rowOrder), ]
   
   #Calculating the total variance using Rubin's rules
   coeff$VT <- coeff$VW + coeff$VB + coeff$VB / coeff$nIter
@@ -286,7 +289,6 @@ runCV <- function(posTrain, orderedPair, indIDVar, pairIDVar,
     posTrain2 <- posTrain
   }
 
-  
   #Subsetting to just the possible links
   posLinks <- posTrain2[posTrain2[, goldStdVar] == TRUE, ]
   
@@ -349,6 +351,7 @@ runCV <- function(posTrain, orderedPair, indIDVar, pairIDVar,
     
     #Combining the results from fold run with the previous folds
     rFolds <- dplyr::bind_rows(rFolds, sim[[1]])
+    sim[[2]]$rowOrder <- 1:nrow(sim[[2]])
     cFolds <- dplyr::bind_rows(cFolds, sim[[2]])
   }
   
