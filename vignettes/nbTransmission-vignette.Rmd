@@ -280,7 +280,7 @@ All pairs of cases can be used in the estimation process by setting clustMethod 
 
 First we will re-estimate the probabilites, excluding the timeCat variable which was derived from the time difference between cases. **Again, nReps should really be at least 10.** 
 
-```{r probNoT}
+```{r probNoT, results = "hide"}
 resGenNoT <- nbProbabilities(orderedPair = pairDataOrdered,
                             indIDVar = "individualID",
                             pairIDVar = "pairID",
@@ -293,7 +293,7 @@ nbResultsNoT <- merge(resGenNoT[[1]], pairDataOrdered, by = "pairID", all = TRUE
 
 Now we can estimate the serial interval distribution using the top cluster of infectors from our hierarchical clustering method. The units for this serial interval will be in years since that is the units of the time difference variable and will be for a standard gamma distribution because no shift is specified.
 
-```{r siEstimate}
+```{r siEstimate, results = "hide"}
 siPars <- estimateSI(nbResultsNoT,
                      indIDVar = "individualID",
                      timeDiffVar = "infectionDiffY",
@@ -310,7 +310,7 @@ siPars
 
 Then I can rerun the estimateSI function asking for bootstrap confidence intervals. The confidence interval calculation can take a while. **In this tutorial, bootSamples = 5 for computational efficiency but bootSamples should be at least 100.** 
 
-```{r siEstimateCI}
+```{r siEstimateCI, results = "hide"}
 siParsCI <- estimateSI(nbResultsNoT,
                        indIDVar = "individualID",
                        timeDiffVar = "infectionDiffY",
