@@ -1,5 +1,7 @@
 # nbTransmission
 
+For documentation and a tutorial see: https://sarahleavitt.github.io/nbTransmission/
+
 ## Introduction
 
 This package is a group of functions used in infectious diseases analysis.
