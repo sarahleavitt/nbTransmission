@@ -114,7 +114,7 @@ prop.table(table(pairData$transmission, pairData$Z4), 1)
 There are two more data preparation steps that we need to do before we are ready to find the relative transmission probabilities. First we need subset the pair dataset to only ordered pairs (if you are using the indToPair function, you can use the ordered = TRUE option and skip this step!)
 
 ```{r ordered}
-pairDataOrdered <- pairData[pairData$infectionDiff > 0, ]
+pairDataOrdered <- pairData[pairData$infectionDate.2 > pairData$infectionDate.1, ]
 ```
 
 Next we need to create the variable that defines probable links for our training dataset. We will use the SNP distance to define probable links. We are going to say that pairs with fewer than 3 SNPs will be considered probable links and pairs with more than 10 SNPs are considered non-linked. Any pairs with 3-10 SNPs will be considered indeterminate and not included in the training set. Those pairs as well as any pairs without WGS info will only be use in the prediction dataset. The variable that defines the probable links should be a logical with TRUE indicating a link and FALSE inidicating a non-link.
@@ -296,7 +296,6 @@ Now we can estimate the serial interval distribution using the top cluster of in
 ```{r siEstimate}
 siPars <- estimateSI(nbResultsNoT,
                      indIDVar = "individualID",
-                     pairIDVar = "pairID",
                      timeDiffVar = "infectionDiffY",
                      pVar = "pScaled",
                      clustMethod = "hc_absolute",
@@ -314,7 +313,6 @@ Then I can rerun the estimateSI function asking for bootstrap confidence interva
 ```{r siEstimateCI}
 siParsCI <- estimateSI(nbResultsNoT,
                        indIDVar = "individualID",
-                       pairIDVar = "pairID",
                        timeDiffVar = "infectionDiffY",
                        pVar = "pScaled",
                        clustMethod = "hc_absolute",
@@ -330,7 +328,7 @@ siParsCI
 
 The serial interval can be plotted over the histogram of the true pairs (because we are using simulated data)
 
-```{r siPlot, fig.height = 4, fig.width = 6}
+```{r siPlot, fig.height = 4, fig.width = 6, warning=FALSE}
 truePairs <- nbResultsNoT[nbResultsNoT$transmission == TRUE, ]
 ggplot(data = nbResultsNoT, aes(x = infectionDiffY)) +
   geom_histogram(data = truePairs, aes(y = ..density..), bins = 40) +
