@@ -8,7 +8,8 @@ r_packages:
   - covr
   
 apt_packages:
-  - fftw3
+  - libfftw3-dev
+  - qpdf
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
