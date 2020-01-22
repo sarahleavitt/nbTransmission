@@ -37,7 +37,8 @@ List containing two dataframes:
   Column names:
      \itemize{
        \item \code{level} - the covariate name and level
-       \item \code{odds} - the value of the likelihood odds (will change to OR)
+       \item \code{est} - the log odds ratio for this covariate and level
+       \item \code{se} - the standard error of the log odds ratio
      }
 }
 }

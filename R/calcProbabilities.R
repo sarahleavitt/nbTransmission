@@ -76,10 +76,11 @@
 #'        \item \code{label} - the optional label of the run
 #'        \item \code{level} - the covariate name and level
 #'        \item \code{nIter} - the number of iterations included in the estimates: \code{n*m*nReps}
-#'        \item \code{orMean} - the mean value of the odds ratio across iterations
-#'        \item \code{orCILB} - the lower bound of the 95% confidence interval of the odds ratio
+#'        \item \code{logorMean} - the mean value of the log odds ratio across iterations
+#'        \item \code{logorSE} - the standard error of the log odds ratio across iterations
+#'        \item \code{logorCILB} - the lower bound of the 95% confidence interval of the log odds ratio
 #'         across iterations
-#'        \item \code{orCIUB} - the upper bound of the 95% confidence interval of the odds ratio
+#'        \item \code{logorCIUB} - the upper bound of the 95% confidence interval of the log odds ratio
 #'         across iterations
 #'      }
 #' }
@@ -234,7 +235,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                  FUN = function(x){
                    data.frame("level" = unique(x$level),
                               "rowOrder" = unique(x$rowOrder),
-                              "mean" = mean(x$est, na.rm = TRUE),
+                              "logorMean" = mean(x$est, na.rm = TRUE),
                               "VW" = mean(x$se ^ 2, na.rm = TRUE),
                               "VB" = stats::var(x$est, na.rm = TRUE),
                               "nIter" = sum(!is.na(x$est)), 
@@ -246,13 +247,14 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
   
   #Calculating the total variance using Rubin's rules
   coeff$VT <- coeff$VW + coeff$VB + coeff$VB / coeff$nIter
-  coeff$orMean <- exp(coeff$mean)
+  coeff$logorSE <-  sqrt(coeff$VT)
   #coeff$df <- (coeff$nIter - 1) * (1 - coeff$VW / ((1 + 1/coeff$nIter) * coeff$VB)) ^ 2
-  coeff$orCILB <- exp(coeff$mean - 1.96 * sqrt(coeff$VT))
-  coeff$orCIUB <- exp(coeff$mean + 1.96 * sqrt(coeff$VT))
+  coeff$logorCILB <- coeff$logorMean - 1.96 * coeff$logorSE
+  coeff$logorCIUB <- coeff$logorMean + 1.96 * coeff$logorSE
   
   #Only keeping columns of interest
-  coeff2 <- coeff[, c("label", "level", "nIter", "orMean", "orCILB", "orCIUB")]
+  coeff2 <- coeff[, c("label", "level", "nIter", "logorMean", "logorSE",
+                      "logorCILB", "logorCIUB")]
   
   return(list("probabilities" = probs2, "estimates" = coeff2))
 }

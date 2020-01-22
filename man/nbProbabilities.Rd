@@ -64,10 +64,11 @@ List containing two data frames:
        \item \code{label} - the optional label of the run
        \item \code{level} - the covariate name and level
        \item \code{nIter} - the number of iterations included in the estimates: \code{n*m*nReps}
-       \item \code{orMean} - the mean value of the odds ratio across iterations
-       \item \code{orCILB} - the lower bound of the 95% confidence interval of the odds ratio
+       \item \code{logorMean} - the mean value of the log odds ratio across iterations
+       \item \code{logorSE} - the standard error of the log odds ratio across iterations
+       \item \code{logorCILB} - the lower bound of the 95% confidence interval of the log odds ratio
         across iterations
-       \item \code{orCIUB} - the upper bound of the 95% confidence interval of the odds ratio
+       \item \code{logorCIUB} - the upper bound of the 95% confidence interval of the log odds ratio
         across iterations
      }
 }
