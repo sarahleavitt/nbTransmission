@@ -190,7 +190,7 @@ clusterInfectors <- function(df, indIDVar, pVar,
 ## Function to find clusters using kernel density estimation ##
 
 findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE,
-                           colors = c("#00BFC4", "#F8766D")){
+                           colors = c("#00BFC4", "#F8766D"), size){
   
   df <- as.data.frame(df)
   df <- df[order(df[, pVar]),]
@@ -274,7 +274,7 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE,
         ggplot2::xlab("Relative Probability") +
         ggplot2::ylab("Count") +
         ggplot2::scale_fill_manual(values = colors, drop = FALSE) +
-        ggplot2::theme_bw() +
+        theme_bw(base_size = size) +
         ggplot2::theme(legend.position = "none")
       
       print(p)
