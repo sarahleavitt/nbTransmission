@@ -39,7 +39,7 @@ You can install nbTransmission in R using the following command:
 
 
 ## Tutorial
-Included in the package is a vingette that walks through how to use this method to analyze an infectious disease outbreak using the simulated datasets also included in this package.
+Included in the package is a vingette that walks through how to use this method to analyze an infectious disease outbreak using the simulated datasets also included in this package. You can also access the tutorial at: https://sarahleavitt.github.io/nbTransmission/
 
 If you want to also install the package with the vignette use the following command (this may take a bit longer):
 
