@@ -11,10 +11,10 @@
 #' where the individual-level reproductive number is estimated by summing
 #' the relative probability that the individual infected any other individual. 
 #' 
-#' If \eqn{p_{ij}} equals the relative probability that case \eqn{i} infected
-#' case \eqn{j}, then the individual-level reproductive number (\eqn{R_i}) is calculated by:
+#' If \eqn{p_{ij}} equals the relative probability that case \eqn{i} was infected by
+#' case \eqn{j}, then the individual-level reproductive number (\eqn{R_j}) is calculated by:
 #'
-#' \deqn{\sum_{m \ne i} {p_{im}}}
+#' \deqn{R_j = \sum_{m \ne j} {p_{mj}}}
 #' 
 #' The time-level reproductive number is then estimated by averaging the individual-level
 #' reproductive numbers for all individuals observed in the time frame (can specify days,
