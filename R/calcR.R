@@ -109,7 +109,7 @@
 #' rFinal <- estimateR(nbResults, dateVar = "infectionDate",
 #'              indIDVar = "individualID", pVar = "pScaled",
 #'              timeFrame = "months", rangeForAvg = c(cut1, cut2),
-#'              bootSamples = 10, alpha = 0.05)
+#'              bootSamples = 2, alpha = 0.05)
 #'
 #' rFinal$RtAvgDf
 #' 
@@ -425,7 +425,7 @@ estimateRtAvg <- function(rtData, rangeForAvg = NULL){
   if(is.null(rangeForAvg)){
     #Finding the mean of the time-level reproductive numbers
     RtAvg <- mean(rtData$Rt)
-    print("Please choose the stable portion of the outbreak to calculate the average Rt")
+    message("Please choose the stable portion of the outbreak to calculate the average Rt")
   }else{
     #Restricting to the time-level reproductive numbers within the rangeForAverage.
     rtCut <- rtData[rtData$timeRank > rangeForAvg[1] &

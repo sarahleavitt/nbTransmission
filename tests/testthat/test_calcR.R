@@ -8,7 +8,7 @@ estimateRWrapper <- function(nbResults,
                          indIDVar = "individualID",
                          pVar = "pScaled",
                          timeFrame = "months",
-                         rangeForAvg = NULL,
+                         rangeForAvg = c(10, 100),
                          bootSamples = 0,
                          alpha = 0.05){
   
@@ -20,14 +20,9 @@ estimateRWrapper <- function(nbResults,
 }
 
 #Run with range specified and no CI
-rDataR <- estimateRWrapper(nbResults, rangeForAvg = c(10, 100))
+rDataR <- estimateRWrapper(nbResults)
 #Run with range specified and CI
-rDataRC <- estimateRWrapper(nbResults, rangeForAvg = c(10, 100), bootSamples = 2)
-
-#Run with no range specified and no CI
-#rData <- estimateRWrapper(nbResults)
-#Run with no range specified and CI
-#rDataC <- estimateRWrapper(nbResults, bootSamples = 10)
+rDataRC <- estimateRWrapper(nbResults, bootSamples = 2)
 
 
 test_that("estimateR returns a list of three data frames for valid input",{
@@ -101,6 +96,17 @@ test_that("Descriptive error messages returned",{
   expect_error(estimateRWrapper(nbResults, timeFrame = "garbage"),
                paste0("timeFrame must be one of: ",
                       paste0( c("days", "months", "weeks", "years"), collapse = ", ")))
+})
+
+
+
+test_that("Message printed in no range for average", {
+  
+  expect_message(estimateRWrapper(nbResults, rangeForAvg = NULL),
+                 "Please choose the stable portion of the outbreak to calculate the average Rt")
+
+  expect_message(estimateRWrapper(nbResults, rangeForAvg = NULL, bootSamples = 2),
+                 "Please choose the stable portion of the outbreak to calculate the average Rt")
 })
 
 

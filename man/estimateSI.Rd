@@ -13,7 +13,7 @@ estimateSI(
   cutoffs = NULL,
   initialPars,
   shift = 0,
-  epsilon = 0.00001,
+  epsilon = 1e-05,
   bootSamples = 0,
   alpha = 0.05
 )
@@ -186,7 +186,7 @@ estimateSI(nbResultsNoT, indIDVar = "individualID",
 estimateSI(nbResultsNoT, indIDVar = "individualID",
              timeDiffVar = "infectionDiffY", pVar = "pScaled",
              clustMethod = "hc_absolute", cutoff = 0.05,
-             initialPars = c(2, 2), shift = 0.25, bootSamples = 5)
+             initialPars = c(2, 2), shift = 0.25, bootSamples = 2)
 
 }
 \references{

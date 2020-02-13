@@ -159,7 +159,7 @@
 #' estimateSI(nbResultsNoT, indIDVar = "individualID",
 #'              timeDiffVar = "infectionDiffY", pVar = "pScaled",
 #'              clustMethod = "hc_absolute", cutoff = 0.05,
-#'              initialPars = c(2, 2), shift = 0.25, bootSamples = 5)
+#'              initialPars = c(2, 2), shift = 0.25, bootSamples = 2)
 #' 
 #' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
 #'  \code{\link{performPEM}}

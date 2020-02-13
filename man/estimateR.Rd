@@ -132,7 +132,7 @@ cut2 <- 125
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
              indIDVar = "individualID", pVar = "pScaled",
              timeFrame = "months", rangeForAvg = c(cut1, cut2),
-             bootSamples = 10, alpha = 0.05)
+             bootSamples = 2, alpha = 0.05)
 
 rFinal$RtAvgDf
 

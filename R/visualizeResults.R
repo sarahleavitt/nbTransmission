@@ -67,25 +67,6 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
                       probBreaks = c(-0.01, 0.001, 0.005, 0.01,
                                      0.05, 0.1, 0.25, 0.5, 0.75, 1)){
   
-  
-  #If clustMethod is not specified, setting it to "none"
-  if(length(clustMethod) > 1){
-    clustMethod <- "none"
-  }
-  
-  #Making sure probBreaks has the right form
-  if(probBreaks[1] > 0){
-    probBreaks <- c(-0.01, probBreaks)
-    print("First element of probBreaks is not negative so -0.01 was added to the beginning")
-  }
-  if(probBreaks[length(probBreaks)] != 1){
-    probBreaks <- c(-0.01, probBreaks)
-    print("Last element of probBreaks is not 1 so 1 was added to the end")
-  }
-  if(length(probBreaks) < 3 | length(probBreaks) > 10){
-    stop("Please make sure probBreaks has between 3 and 10 elements")
-  }
-  
   #Create a network of the probabilities
   net <- createNetwork(df, indIDVar = indIDVar, dateVar = dateVar, pVar  = pVar,
                        clustMethod = clustMethod, cutoff = cutoff, probBreaks = probBreaks)
@@ -184,11 +165,6 @@ nbNetwork <- function(df, indIDVar, dateVar, pVar,
                       probBreaks = c(-0.01, 0.001, 0.005, 0.01,
                                      0.05, 0.1, 0.25, 0.5, 0.75, 1)){
   
-  #If clustMethod is not specified, setting it to "none"
-  if(length(clustMethod) > 1){
-    clustMethod <- "none"
-  }
-  
   #Create a network of the probabilities
   net <- createNetwork(df, indIDVar = indIDVar, dateVar = dateVar, pVar  = pVar,
                       clustMethod = clustMethod, cutoff = cutoff,
@@ -213,6 +189,8 @@ nbNetwork <- function(df, indIDVar, dateVar, pVar,
   
 }
 
+
+
 ## Function that creates a network from probabilities; called by nbHeatmap and nbNetwork
 createNetwork <- function(df, indIDVar, dateVar, pVar,
                             clustMethod = c("none", "n", "kd",
@@ -226,8 +204,69 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
   indIDVar2 <- paste0(indIDVar, ".2")
   dateVar1 <- paste0(dateVar, ".1")
   dateVar2 <-  paste0(dateVar, ".2")
-  #Renaming probability to pScaled because need to call it using $ notation
+  
+  
+  #Checking that the named variables are in the data frame
+  if(!indIDVar1 %in% names(df)){
+    stop(paste0(indIDVar1, " is not in the data frame."))
+  }
+  if(!indIDVar2 %in% names(df)){
+    stop(paste0(indIDVar2, " is not in the data frame."))
+  }
+  if(!dateVar1 %in% names(df)){
+    stop(paste0(dateVar1, " is not in the data frame."))
+  }
+  if(!dateVar2 %in% names(df)){
+    stop(paste0(dateVar2, " is not in the data frame."))
+  }
+  if(!pVar %in% names(df)){
+    stop(paste0(pVar, " is not in the data frame."))
+  }
+  #Renaming probability to pScaled because I need to call it using $ notation
   df$pScaled <- df[, pVar]
+  
+  #Checking that the date variables are in a date form
+  if(lubridate::is.Date(df[, dateVar1]) == FALSE &
+     lubridate::is.POSIXt(df[, dateVar1]) == FALSE){
+    stop(paste0(dateVar1, " must be either a date or a date-time (POSIXt) object."))
+  }
+  if(lubridate::is.Date(df[, dateVar2]) == FALSE &
+     lubridate::is.POSIXt(df[, dateVar2]) == FALSE){
+    stop(paste0(dateVar2, " must be either a date or a date-time (POSIXt) object."))
+  }
+  
+  
+  #If clustMethod is not specified, setting it to "none"
+  if(length(clustMethod) > 1){
+    clustMethod <- "none"
+    warning("No clustMethod was provided so it was set to 'none'")
+  }
+  if(!clustMethod %in% c("none", "n", "kd", "hc_absolute", "hc_relative")){
+    stop("clustMethod must be one of: none, n, kd, hc_absolute, hc_relative")
+  }
+  
+  #Make sure cutoff is provided if clustMethod is not "none"
+  if(clustMethod != "none" & is.null(cutoff)){
+    stop("Please provide one or more cutoff values")
+  }
+  
+  #Making sure probBreaks has the right form
+  testValue <- probBreaks <= 1
+  if(sum(testValue) != length(probBreaks)){
+   stop("All values of probBreaks should be less than 1") 
+  }
+  if(probBreaks[1] > 0){
+    probBreaks <- c(-0.01, probBreaks)
+    message("First element of probBreaks is not negative so -0.01 was added to the beginning")
+  }
+  if(probBreaks[length(probBreaks)] != 1){
+    probBreaks <- c(probBreaks, 1)
+    message("Last element of probBreaks is not 1 so 1 was added to the end")
+  }
+  if(length(probBreaks) < 3 | length(probBreaks) > 10){
+    stop("Please make sure probBreaks has between 3 and 10 elements")
+  }
+  
   
   #If clustMethod is "none" setting assigning all pairs to cluster 1 or clustering
   #the probabilities based on clustMethod and cutoff, then restricting to
@@ -344,6 +383,14 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
 plotRt <- function(rData, includeRtAvg = FALSE,
                    includeRtCI = FALSE, includeRtAvgCI = FALSE){
   
+  #Checking to make sure rData has the right form
+  if(class(rData) != "list"){
+    stop("The rData argument should be the list output from the function estimateR")
+  }
+  if(identical(names(rData), c("RiDf", "RtDf", "RtAvgDf", "timeFrame", "rangeForAvg")) == FALSE){
+    stop("The rData argument should be the list output from the function estimateR")
+  }
+  
   #Translating the timeFrame into labels for the axes
   xlabel <- gsub("s$", "", Hmisc::capitalize(rData$timeFrame))
   if(rData$timeFrame == "days"){
@@ -368,7 +415,7 @@ plotRt <- function(rData, includeRtAvg = FALSE,
     }
     p <- p +
       ggplot2::geom_errorbar(ggplot2::aes(ymin = rData$RtDf$ciLower, ymax = rData$RtDf$ciUpper),
-                    width = 0.1, color = "dark grey")
+                    width = 0.1, color = "darkgrey")
   }
   
   #Adding horizontal line for Rt and vertical lines showing range included in average
@@ -397,9 +444,9 @@ plotRt <- function(rData, includeRtAvg = FALSE,
       
       p <- p +
         ggplot2::geom_hline(data = rData$RtAvgDf, ggplot2::aes(yintercept = rData$RtAvgDf$ciLower),
-                   linetype = 2, size = 0.7, color = "dark grey") +
+                   linetype = 2, size = 0.7, color = "darkgrey") +
         ggplot2::geom_hline(data = rData$RtAvgDf, ggplot2::aes(yintercept = rData$RtAvgDf$ciUpper),
-                   linetype = 2, size = 0.7, color = "dark grey") 
+                   linetype = 2, size = 0.7, color = "darkgrey") 
     }
   }
   
