@@ -340,8 +340,8 @@ estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months",
   
   #Finding the full range of time frames
   day <- 60*60*24
-  times <- seq(round(min(riData[, dateVar]), unit = "day") - day,
-               round(max(riData[, dateVar]), unit = "day") + day, by = timeFrame)
+  times <- seq(trunc(min(riData[, dateVar]), unit = "day"),
+               trunc(max(riData[, dateVar]), unit = "day"), by = timeFrame)
   
   #Defining the format for the time frame
   if(timeFrame == "days"){

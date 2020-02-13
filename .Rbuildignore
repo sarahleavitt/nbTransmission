@@ -3,3 +3,6 @@
 ^PackageSetup\.R$
 ^SimData\.R$
 ^README\.Rmd$
+^\.travis\.yml$
+^\_config\.yml$
+^docs$

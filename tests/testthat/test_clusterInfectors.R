@@ -35,8 +35,10 @@ test_that("clusterInf returns a dataframe with cluster column",{
   expect_true(nrow(clustHCR) == nrow(nbResults))
   expect_true(nrow(clustN) == nrow(nbResults))
   
-  expect_true("cluster" %in% names(clustKD))
-  expect_true("cluster" %in% names(clustHC))
+  expect_true("cluster" %in% names(clustKD1))
+  expect_true("cluster" %in% names(clustKD2))
+  expect_true("cluster" %in% names(clustHC1))
+  expect_true("cluster" %in% names(clustHC2))
   expect_true("cluster" %in% names(clustHCR))
   expect_true("cluster" %in% names(clustN))
   

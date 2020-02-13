@@ -67,7 +67,7 @@ par(mar = c(0, 0, 0.2, 0))
 nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 pVar = "pScaled", clustMethod = "none")
 
-## Adding stars for the top cluster, in black and white, changing the probability breaks
+## Network of just the top cluster of infectors, in black and white, changing the probability breaks
 par(mar = c(0, 0, 0.2, 0))
 nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,

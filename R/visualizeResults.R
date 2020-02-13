@@ -146,7 +146,7 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 #' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 #' pVar = "pScaled", clustMethod = "none")
 #'
-#'## Adding stars for the top cluster, in black and white, changing the probability breaks
+#'## Network of just the top cluster of infectors, in black and white, changing the probability breaks
 #' par(mar = c(0, 0, 0.2, 0))
 #' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 #'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
@@ -370,7 +370,7 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
 #' rFinal <- estimateR(nbResults, dateVar = "infectionDate",
 #'              indIDVar = "individualID", pVar = "pScaled",
 #'              timeFrame = "months", rangeForAvg = c(cut1, cut2),
-#'              bootSamples = 10, alpha = 0.05)
+#'              bootSamples = 5, alpha = 0.05)
 #' 
 #' ## Ploting the final result              
 #' plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)

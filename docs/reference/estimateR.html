@@ -225,9 +225,9 @@ will produce in a population of both susceptible and non-susceptibe individuals.
 The rational behind this reproductive number estimation is Wallinga and Teunis (2004)
 where the individual-level reproductive number is estimated by summing
 the relative probability that the individual infected any other individual.</p>
-<p>If \(p_{ij}\) equals the relative probability that case \(i\) infected
-case \(j\), then the individual-level reproductive number (\(R_i\)) is calculated by:</p>
-<p>$$\sum_{m \ne i} {p_{im}}$$</p>
+<p>If \(p_{ij}\) equals the relative probability that case \(i\) was infected by
+case \(j\), then the individual-level reproductive number (\(R_j\)) is calculated by:</p>
+<p>$$R_j = \sum_{m \ne j} {p_{mj}}$$</p>
 <p>The time-level reproductive number is then estimated by averaging the individual-level
 reproductive numbers for all individuals observed in the time frame (can specify days,
 weeks, months, years).</p>
@@ -256,7 +256,7 @@ syndrome reveal similar impacts of control measures.
 <span class='co'># (without specifying rangeForAvg and without confidence intervals)</span>
 <span class='no'>rInitial</span> <span class='kw'>&lt;-</span> <span class='fu'>estimateR</span>(<span class='no'>nbResults</span>, <span class='kw'>dateVar</span> <span class='kw'>=</span> <span class='st'>"infectionDate"</span>,
                <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-               <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='st'>"months"</span>)</div><div class='output co'>#&gt; [1] "Please choose the stable portion of the outbreak to calculate the average Rt"</div><div class='input'>
+               <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='st'>"months"</span>)</div><div class='output co'>#&gt; <span class='message'>Please choose the stable portion of the outbreak to calculate the average Rt</span></div><div class='input'>
 <span class='co'>## Finding the stable portion of the outbreak for rangeForAvg using plot</span>
 <span class='no'>cut1</span> <span class='kw'>&lt;-</span> <span class='fl'>25</span>
 <span class='no'>cut2</span> <span class='kw'>&lt;-</span> <span class='fl'>125</span>
@@ -274,9 +274,9 @@ syndrome reveal similar impacts of control measures.
 <span class='no'>rFinal</span> <span class='kw'>&lt;-</span> <span class='fu'>estimateR</span>(<span class='no'>nbResults</span>, <span class='kw'>dateVar</span> <span class='kw'>=</span> <span class='st'>"infectionDate"</span>,
              <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
              <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>rangeForAvg</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>cut1</span>, <span class='no'>cut2</span>),
-             <span class='kw'>bootSamples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>)</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%  |                                                                              |===============================================================       |  90%  |                                                                              |======================================================================| 100%</div><div class='input'>
+             <span class='kw'>bootSamples</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>)</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</div><div class='input'>
 <span class='no'>rFinal</span>$<span class='no'>RtAvgDf</span></div><div class='output co'>#&gt;      RtAvg   ciLower  ciUpper
-#&gt; 1 1.125558 0.9525751 1.298096</div><div class='input'>
+#&gt; 1 1.125558 0.9528876 1.178513</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
