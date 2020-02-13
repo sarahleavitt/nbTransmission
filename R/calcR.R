@@ -339,7 +339,9 @@ estimateRt <- function(riData, dateVar, timeFrame = c("days", "weeks", "months",
   #### Creating ranks for the time interval ####
   
   #Finding the full range of time frames
-  times <- seq(min(riData[, dateVar]), max(riData[, dateVar]), by = timeFrame)
+  day <- 60*60*24
+  times <- seq(round(min(riData[, dateVar]), unit = "day") - day,
+               round(max(riData[, dateVar]), unit = "day") + day, by = timeFrame)
   
   #Defining the format for the time frame
   if(timeFrame == "days"){
@@ -424,7 +426,7 @@ estimateRtAvg <- function(rtData, rangeForAvg = NULL){
   #Printing a note if you do not specify a range for the average 
   if(is.null(rangeForAvg)){
     #Finding the mean of the time-level reproductive numbers
-    RtAvg <- mean(rtData$Rt)
+    RtAvg <- mean(rtData$Rt, na.rm = TRUE)
     message("Please choose the stable portion of the outbreak to calculate the average Rt")
   }else{
     #Restricting to the time-level reproductive numbers within the rangeForAverage.

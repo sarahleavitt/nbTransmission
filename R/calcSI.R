@@ -361,7 +361,7 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
                          shift = shift, epsilon = epsilon)
       
     }else{
-      print(paste0("With ", clustMethod, " and ", cutoff,
+      message(paste0("With ", clustMethod, " and ", cutoff,
                    ", fewer than 10 individuals would be used for estimation"))
       pars <- cbind.data.frame("shape" = NA, "scale" = NA)
     }

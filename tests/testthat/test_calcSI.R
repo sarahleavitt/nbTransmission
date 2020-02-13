@@ -109,4 +109,10 @@ test_that("Descriptive error messages returned",{
   expect_error(estimateSIWrapper(nbResults, clustMethod = "hc_absolute"),
                "Please provide one or more cutoff values")
   
+  #Too few infectors
+  expect_message(estimateSIWrapper(testData, clustMethod = "hc_absolute", cutoff = 0.5),
+                 "hc_absolute and 0.5, fewer than 10 individuals would be used for estimation")
+  
 })
+
+

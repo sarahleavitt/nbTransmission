@@ -246,7 +246,7 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
   }
   
   #Make sure cutoff is provided if clustMethod is not "none"
-  if(clustMethod != "none" & is.null(cutoff)){
+  if(clustMethod != "none" & is.na(cutoff)){
     stop("Please provide one or more cutoff values")
   }
   
@@ -423,7 +423,7 @@ plotRt <- function(rData, includeRtAvg = FALSE,
     
     if(is.null(rData$rangeForAvg)){
       cut1 <- 0
-      cut2 <- max(rData$RtDf$timeRank)
+      cut2 <- max(rData$RtDf$timeRank, na.rm = TRUE)
     }else{
       cut1 <- rData$rangeForAvg[1]
       cut2 <- rData$rangeForAvg[2]

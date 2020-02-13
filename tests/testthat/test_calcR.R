@@ -36,6 +36,7 @@ test_that("estimateR returns a list of three data frames for valid input",{
   expect_true(is.data.frame(rDataRC[[3]]))
 })
 
+
 test_that("estimateR with returns the right column names based on bootSamples",{
   
   expect_true("ciLower" %in% names(rDataRC[[2]]))
@@ -43,6 +44,22 @@ test_that("estimateR with returns the right column names based on bootSamples",{
   
   expect_false("ciLower" %in% names(rDataR[[2]]))
   expect_false("ciLower" %in% names(rDataR[[3]]))
+})
+
+
+test_that("Time frame is correct",{
+
+  expect_true(rDataR$timeFrame == "months")
+  
+  rDataD <- estimateRWrapper(nbResults, timeFrame = "days")
+  expect_true(rDataD$timeFrame == "days")
+  
+  rDataY <- estimateRWrapper(nbResults, timeFrame = "years")
+  expect_true(rDataY$timeFrame == "years")
+  
+  rDataW <- estimateRWrapper(nbResults, timeFrame = "weeks")
+  expect_true(rDataW$timeFrame == "weeks")
+  
 })
 
 

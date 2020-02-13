@@ -4,14 +4,13 @@ library(nbTransmission)
 
 ## Use the pairData dataset which represents a TB-like outbreak
 # First create a dataset of ordered pairs
-orderedPair <- pairData[pairData$infectionDiffY > 0, ]
+orderedPair <- pairData[pairData$infectionDiffY >= 0, ]
 
 ## Create a variable called snpClose that will define probable links
 # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
 # will not be used to train.
 orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
                                ifelse(orderedPair$snpDist > 12, FALSE, NA))
-covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
 
 ## Running the algorithm
 
@@ -27,7 +26,7 @@ nbProbWrapper <- function(orderedPair,
                               indIDVar = indIDVar,
                               pairIDVar = pairIDVar,
                               goldStdVar = goldStdVar,
-                              covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
+                              covariates = covariates,
                               nReps = nReps)
   return(resGen)
 }
@@ -62,14 +61,18 @@ test_that("Descriptive error messages returned",{
  expect_error(nbProbWrapper(orderedPair3, indIDVar = "individualID"),
               "individualID.2 is not in the data frame.")
 
+ #Using garbage covariates
+ expect_error(nbProbWrapper(orderedPair, covariates = "garbage"),
+              "At least one of the covariates is not in the data frame.")
+ 
  #Making some covariates factors
  orderedPair4 <- orderedPair
  orderedPair4$Z1 <- as.character(orderedPair4$Z1)
- expect_error(nbProbWrapper(orderedPair4, indIDVar = "individualID"),
+ expect_error(nbProbWrapper(orderedPair4),
               paste0("Z1 is not a factor"))
  
  orderedPair4$Z2 <- as.character(orderedPair4$Z2)
- expect_error(nbProbWrapper(orderedPair4, indIDVar = "individualID"),
+ expect_error(nbProbWrapper(orderedPair4),
               paste0("Z1, Z2 are not factors"))
  
 })

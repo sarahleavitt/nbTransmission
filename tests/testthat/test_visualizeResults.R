@@ -141,6 +141,11 @@ test_that("Descriptive error messages returned from internal createNetwork funct
   #Providing an invalid clustering method
   expect_error(createNetworkWrapper(nbResults, clustMethod = "garbage"),
                "clustMethod must be one of: none, n, kd, hc_absolute, hc_relative")
+  
+  #Providing a clust method with no cutoff
+  expect_error(createNetworkWrapper(nbResults, clustMethod = "hc_absolute"),
+               "Please provide one or more cutoff values")
+
 })
 
 
@@ -177,7 +182,11 @@ test_that("Descriptive error messages returned for probBreaks",{
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
                     indIDVar = "individualID", pVar = "pScaled",
                     timeFrame = "months", rangeForAvg = c(10, 150),
-                    bootSamples = 5, alpha = 0.05)
+                    bootSamples = 2, alpha = 0.05)
+
+rFinal2 <- estimateR(nbResults, dateVar = "infectionDate",
+                    indIDVar = "individualID", pVar = "pScaled",
+                    timeFrame = "days", alpha = 0.05)
 
 
 test_that("Plot functions return null objects with no errors",{
@@ -188,6 +197,7 @@ test_that("Plot functions return null objects with no errors",{
   rt4 <- plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = FALSE, includeRtAvgCI = TRUE)
   rt5 <- plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = FALSE, includeRtAvgCI = FALSE)
   rt6 <- plotRt(rFinal, includeRtAvg = FALSE, includeRtCI = FALSE, includeRtAvgCI = FALSE)
+  rt7 <- plotRt(rFinal2, includeRtAvg = TRUE)
   
   expect_true("ggplot" %in% class(rt1))
   expect_true("ggplot" %in% class(rt2))
@@ -195,6 +205,7 @@ test_that("Plot functions return null objects with no errors",{
   expect_true("ggplot" %in% class(rt4))
   expect_true("ggplot" %in% class(rt5))
   expect_true("ggplot" %in% class(rt6))
+  expect_true("ggplot" %in% class(rt7))
   
 })
 
@@ -206,11 +217,6 @@ test_that("Descriptive error messages returned for plotRt", {
   
   expect_error(plotRt(list("garbage")),
                "The rData argument should be the list output from the function estimateR")
-  
-  rFinal2 <- estimateR(nbResults, dateVar = "infectionDate",
-                      indIDVar = "individualID", pVar = "pScaled",
-                      timeFrame = "months", rangeForAvg = c(10, 150),
-                      bootSamples = 0, alpha = 0.05)
   
   expect_error(plotRt(rFinal2, includeRtAvgCI = TRUE),
                "Please provide a rData list that has confidence intervals")

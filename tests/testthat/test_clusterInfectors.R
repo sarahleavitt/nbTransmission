@@ -17,20 +17,21 @@ clusterInfWrapper <- function(nbResults,
 }
 
 
-clustKD <- clusterInfWrapper(nbResults, clustMethod = "kd", cutoff = 0.02)
-#Run with hc_absolute clustering and no CI
-clustHC <- clusterInfWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.05)
-#Run with hc_relative clustering and no CI
-clustHCR <- clusterInfWrapper(nbResults, clustMethod = "hc_relative", cutoff = 1)
-#Run with n clustering and no CI
+clustKD1 <- clusterInfWrapper(nbResults, clustMethod = "kd", cutoff = 0.02)
+clustKD2 <- clusterInfWrapper(nbResults, clustMethod = "kd", cutoff = 0.1)
+clustHC1 <- clusterInfWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.01)
+clustHC2 <- clusterInfWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.1)
+clustHCR <- clusterInfWrapper(nbResults, clustMethod = "hc_relative", cutoff = 2)
 clustN <- clusterInfWrapper(nbResults, clustMethod = "n", cutoff = 1)
 
 
 
 test_that("clusterInf returns a dataframe with cluster column",{
   
-  expect_true(nrow(clustKD) == nrow(nbResults))
-  expect_true(nrow(clustHC) == nrow(nbResults))
+  expect_true(nrow(clustKD1) == nrow(nbResults))
+  expect_true(nrow(clustKD2) == nrow(nbResults))
+  expect_true(nrow(clustHC1) == nrow(nbResults))
+  expect_true(nrow(clustHC2) == nrow(nbResults))
   expect_true(nrow(clustHCR) == nrow(nbResults))
   expect_true(nrow(clustN) == nrow(nbResults))
   
