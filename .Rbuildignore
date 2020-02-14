@@ -1,6 +1,7 @@
 ^\.Rhistory$
 ^\.gitignore$
 ^PackageSetup\.R$
+^PackageSimData\.R$
 ^SimData\.R$
 ^README\.Rmd$
 ^\.travis\.yml$

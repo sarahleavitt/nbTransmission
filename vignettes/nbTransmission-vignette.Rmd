@@ -81,12 +81,14 @@ The pairData dataset also has a column called snpDist with the number of single 
 
 Here are details about the individual-level covariates and how they were transformed into pair-level covariates. They were simulated to be associated with transmission in different degrees.
 
-Variable | Individual-level | Pair-level  | Possible motivation |
+Variable | Individual-level | Pair-level  |  Motivation |
 :-------:| :--------------: | :---------: | :-----------------: | 
 X1/Z1 | 2 options: a, b | Z1 = 1 if same <br> Z1 = 0 if different | Sex |
 X2/Z2 | 4 options: a, b, c, d | Z2 = 0 if same <br> Z2 = 0 if different | Nationality |
 X3/Z3 | 2 options: a, b | Z3 = 1 if a-a <br> Z3 = 2 if b-b <br> Z3 = 3 if a-b <br> Z3 = 4 if b-a | Homelessness |
 X4/Z4 | 10 options: a-j | Z4 = 1 if same <br> Z4 = 2 if adjacent <br> Z4 = 3 if other | County of residence |
+timeCat |  infectionDate | Time between cases <br> timeCat = 1 if <1yr <br> timeCat = 2 if 1-2yrs <br> timeCat = 3 if 2-3yrs <br> timeCat = 4 if 3-4yrs. <br> timeCat = 5 if 4-5yrs. <br> timeCat = 6 if >5yrs. | Generation interval |
+
 
 
 Here are the distributions of the individual-level covariates:
@@ -171,14 +173,13 @@ Log odds ratios that are greater than 0 mean that having that value of that cova
 ```{r covarTab}
 library(knitr)
 #Exponentiating the log odds ratios and creating a table of odds ratios
-orTab <- (resGen$estimates
-          %>% mutate(orMean = round(exp(logorMean), 2),
-                     orCILB = round(exp(logorCILB), 2),
-                     orCIUB = round(exp(logorCIUB), 2),
-                     Value = gsub("[A-z0-9]+\\:", "", level),
-                     Variable = gsub("\\:[A-z0-9+-<=>]+", "", level))
-          %>% select(Variable, Value, orMean, orCILB, orCIUB)
-)
+orTab <- resGen$estimates
+orTab$orMean <- round(exp(orTab$logorMean), 2)
+orTab$orCILB <- round(exp(orTab$logorCILB), 2)
+orTab$orCIUB <- round(exp(orTab$logorCIUB), 2)
+orTab$Value <- gsub("[A-z0-9]+\\:", "", orTab$level)
+orTab$Variable <- gsub("\\:[A-z0-9+-<=>]+", "", orTab$level)
+orTab <- orTab[, c("Variable", "Value", "orMean", "orCILB", "orCIUB")]
 ```
 
 #### Table of contribution of covariates
@@ -229,7 +230,7 @@ With this clustering method, the `r nrow(clustHC)` possible pairs are reduced to
 #### Clustering Illustration
 
 ```{r clustExample, fig.height=3, fig.width=7}
-ggplot(data = clustHC %>% filter(individualID.2 %in% c(32, 40)),
+ggplot(data = clustHC[clustHC$individualID.2 %in% c(32, 40), ],
         aes(x = pRank, y = pScaled, color = cluster, shape = transmission)) +
    geom_point() +
    facet_wrap(~individualID.2, scales = "free") +
