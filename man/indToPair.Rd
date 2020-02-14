@@ -4,7 +4,14 @@
 \alias{indToPair}
 \title{Individual to Pair}
 \usage{
-indToPair(indData, indIDVar, separator = "_", dateVar = NULL, ordered = FALSE)
+indToPair(
+  indData,
+  indIDVar,
+  separator = "_",
+  dateVar = NULL,
+  units = c("mins", "hours", "days", "weeks"),
+  ordered = FALSE
+)
 }
 \arguments{
 \item{indData}{An individual-level dataframe.}
@@ -16,23 +23,16 @@ the pairID.}
 
 \item{dateVar}{The name (in quotes) of the column with the dates that the individuals are observed
 (optional unless ordered = TRUE). This column must be a date or date-time (POSIXt) object.
-If supplied, the time difference in days and years between individuals will be calculated.}
+If supplied, the time difference between individuals will be calculated in the units specified.}
+
+\item{units}{The units for the time difference, only necessary if \code{dateVar} is supplied.
+Must be one of \code{"mins", "hours", "days", "weeks"}.}
 
 \item{ordered}{A logical indicating if a set of ordered pairs should be returned
 (dateVar.1 before dateVar.2). If FALSE a dataframe of all pairs will be returned}
 }
 \value{
-A dataframe of either all possible pairs of individuals (ordered = FALSE) or ordered
-pairs of individuals (ordered = TRUE). The dataframe will have all of the original variables
-with suffixes ".1" and ".2" corresponding to the original values of 
-\code{indIDVar.1} and \code{indIDVar.2}.
 
-Added to the dataframe will be a column called \code{pairID} which is \code{indIDVar.1}
-and \code{indIDVar.2} separated by \code{separator}.
-
-If dateVar is provided the dataframe will also include variables \code{<dateVar>.Diff} and 
-\code{<dateVar>.DiffY} giving the difference of time in days and years respectively between the value
-of \code{dateVar} for \code{indIDVar.1} and \code{indIDVar.2}
 }
 \description{
 Transforms a dataset of individuals to a dataset of pairs
@@ -55,10 +55,10 @@ pairU <- indToPair(indData = indData, indIDVar = "individualID")
 
 ## Create a dataset of all pairs with a date variable
 pairUD <- indToPair(indData = indData, indIDVar = "individualID",
-                      dateVar = "infectionDate")
+                      dateVar = "infectionDate", units = "days")
 
 ## Create a dataset of ordered pairs
 pairO <- indToPair(indData = indData, indIDVar = "individualID",
-                     dateVar = "infectionDate", ordered = TRUE)
+                     dateVar = "infectionDate", units = "days", ordered = TRUE)
 
 }

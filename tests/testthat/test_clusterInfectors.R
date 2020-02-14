@@ -63,7 +63,7 @@ test_that("Descriptive error messages returned",{
   expect_error(clusterInfWrapper(nbResults3, indIDVar = "individualID"),
                "individualID.2 is not in the data frame.")
   
-  #Testing that misclustng clustMethod gets set to none and gives warning
+  #Testing that missing clustMethod gives an error
   expect_error(clusterInfWrapper(nbResults),
                  "Please provide a clustering method")
   

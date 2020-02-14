@@ -36,8 +36,8 @@
 #' The output of this function is a list of two dataframes: one with the estimates of the
 #' transmission probabilities (\code{probabilities}) and the other with the contribution of
 #' the covariates to the probabilities in the form of odds ratios (\code{estimates}). The 
-#' 95% confidence intervals reported for these odds ratios use Rubin's Rules to pool the 
-#' error across all iterations.
+#' 95% confidence intervals reported for these odds ratios use Rubin's Rules, a technique developed
+#' for multiple imputation, to pool the error across all iterations.
 #' 
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
@@ -109,6 +109,10 @@
 #'                             
 #' ## Merging the probabilities back with the pair-level data
 #' nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+#' 
+#' @references 
+#' Barnard J. and Rubin D. Small-Sample Degrees of Freedom with Multiple Imputation
+#' \emph{Biometrika}. 1999 Dec;86(4):948-55.
 #' 
 #' @export
 

@@ -5,9 +5,9 @@ library(nbTransmission)
 #Running on indData provided in package
 pairU <- indToPair(indData = indData, indIDVar = "individualID", ordered = FALSE)
 pairUD <- indToPair(indData = indData, indIDVar = "individualID",
-                     dateVar = "infectionDate", ordered = FALSE)
+                     dateVar = "infectionDate", units = "days", ordered = FALSE)
 pairO <- indToPair(indData = indData, indIDVar = "individualID",
-                   dateVar = "infectionDate", ordered = TRUE)
+                   dateVar = "infectionDate", units = "hours", ordered = TRUE)
 
 test_that("indToPair returns a dataframe of the correct length",{
   
@@ -46,6 +46,15 @@ test_that("Descriptive error messages returned",{
   #Testing error about having ordered = TRUE with no date
   expect_error(indToPair(indData, indIDVar = "individualID", ordered = TRUE),
                "If ordered = TRUE, then dateVar must be provided")
+  
+  #Testing that missing units gives an error
+  expect_error(indToPair(indData, indIDVar = "individualID", dateVar = "infectionDate"),
+               "Please provide units for the time difference")
+  
+  #Providing an invalid clustering method
+  expect_error(indToPair(indData, indIDVar = "individualID", dateVar = "infectionDate",
+                         units = "garbage"),
+               "units must be one of: mins, hours, days, weeks")
 })
 
 

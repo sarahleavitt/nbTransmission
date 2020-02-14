@@ -20,7 +20,9 @@
 #' the pairID.
 #' @param dateVar The name (in quotes) of the column with the dates that the individuals are observed
 #' (optional unless ordered = TRUE). This column must be a date or date-time (POSIXt) object.
-#' If supplied, the time difference in days and years between individuals will be calculated.
+#' If supplied, the time difference between individuals will be calculated in the units specified.
+#' @param units The units for the time difference, only necessary if \code{dateVar} is supplied.
+#' Must be one of \code{"mins", "hours", "days", "weeks"}.
 #' @param ordered A logical indicating if a set of ordered pairs should be returned
 #' (dateVar.1 before dateVar.2). If FALSE a dataframe of all pairs will be returned
 #'
@@ -32,9 +34,9 @@
 #' Added to the dataframe will be a column called \code{pairID} which is \code{indIDVar.1}
 #' and \code{indIDVar.2} separated by \code{separator}.
 #' 
-#' If dateVar is provided the dataframe will also include variables \code{<dateVar>.Diff} and 
-#' \code{<dateVar>.DiffY} giving the difference of time in days and years respectively between the value
-#' of \code{dateVar} for \code{indIDVar.1} and \code{indIDVar.2}
+#' If dateVar is provided the dataframe will also include variables \code{<dateVar>.Diff giving 
+#' the difference of time in the units specified of \code{dateVar} for \code{indIDVar.1} 
+#' and \code{indIDVar.2}
 #'
 #' @examples
 #' ## Create a dataset of all pairs with no date variable
@@ -42,18 +44,19 @@
 #' 
 #' ## Create a dataset of all pairs with a date variable
 #' pairUD <- indToPair(indData = indData, indIDVar = "individualID",
-#'                       dateVar = "infectionDate")
+#'                       dateVar = "infectionDate", units = "days")
 #' 
 #' ## Create a dataset of ordered pairs
 #' pairO <- indToPair(indData = indData, indIDVar = "individualID",
-#'                      dateVar = "infectionDate", ordered = TRUE)
+#'                      dateVar = "infectionDate", units = "days", ordered = TRUE)
 #' 
 #' @export
 #' 
 
 
 
-indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordered = FALSE){
+indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL,
+                      units = c("mins", "hours", "days", "weeks"), ordered = FALSE){
   
   indData <- as.data.frame(indData)
   
@@ -80,6 +83,15 @@ indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordere
     stop("If ordered = TRUE, then dateVar must be provided")
   }
   
+  #Making sure units are correctly specified
+  if(length(units > 1) & is.null(dateVar)){
+  } else if(length(units) > 1 & !is.null(dateVar)){
+    stop("Please provide units for the time difference")
+  } else if(!units %in% c("mins", "hours", "days", "weeks")){
+    stop("units must be one of: mins, hours, days, weeks")
+  }
+  
+  
   
   #Finding all pairs of IDs (order matters)
   pairs <- expand.grid(indData[, indIDVar], indData[, indIDVar])
@@ -102,12 +114,11 @@ indToPair <- function(indData, indIDVar, separator = "_", dateVar = NULL, ordere
   if(!is.null(dateVar)){
     pairData2[, paste0(dateVar, ".Diff")] <- as.numeric(difftime(pairData2[, paste0(dateVar, ".2")],
                                               pairData2[, paste0(dateVar, ".1")],
-                                              units = "days"))
-    pairData2[, paste0(dateVar, ".DiffY")] <- pairData2[, paste0(dateVar, ".Diff")] / 365
+                                              units = units))
   }
   
   if(ordered == TRUE){
-    orderedData <- pairData2[pairData2[, paste0(dateVar, ".Diff")] >= 0, ]
+    orderedData <- pairData2[pairData2[, paste0(dateVar, ".2")] >= pairData2[, paste0(dateVar, ".1")], ]
     return(orderedData)
   }else{
     return(pairData2)
