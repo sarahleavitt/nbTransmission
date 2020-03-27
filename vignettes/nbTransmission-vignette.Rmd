@@ -396,7 +396,7 @@ ggplot(data = nbResultsNoT, aes(x = infectionDiffY)) +
 
 In this tutorial, we have illustrated how to use the nbTransmission package to do the following:
 
-* Create a pair-level dataset from an individual dataset
+* Create a dataset of pairs from a dataset of individuals
 * Estimate the relative transmission probabilities for all pairs of cases in an outbreak
 * Find the contribution of the covariate values to the probabilities
 * Find the top cluster of infectors for each case

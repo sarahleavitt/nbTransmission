@@ -34,8 +34,8 @@
 #' Added to the dataframe will be a column called \code{pairID} which is \code{indIDVar.1}
 #' and \code{indIDVar.2} separated by \code{separator}.
 #' 
-#' If dateVar is provided the dataframe will also include variables \code{<dateVar>.Diff giving 
-#' the difference of time in the units specified of \code{dateVar} for \code{indIDVar.1} 
+#' If dateVar is provided the dataframe will also include variables \code{<dateVar>.Diff} giving 
+#' the difference of time of \code{dateVar} in the units specified for \code{indIDVar.1} 
 #' and \code{indIDVar.2}
 #'
 #' @examples

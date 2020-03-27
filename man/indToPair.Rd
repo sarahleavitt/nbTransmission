@@ -32,7 +32,17 @@ Must be one of \code{"mins", "hours", "days", "weeks"}.}
 (dateVar.1 before dateVar.2). If FALSE a dataframe of all pairs will be returned}
 }
 \value{
+A dataframe of either all possible pairs of individuals (ordered = FALSE) or ordered
+pairs of individuals (ordered = TRUE). The dataframe will have all of the original variables
+with suffixes ".1" and ".2" corresponding to the original values of 
+\code{indIDVar.1} and \code{indIDVar.2}.
 
+Added to the dataframe will be a column called \code{pairID} which is \code{indIDVar.1}
+and \code{indIDVar.2} separated by \code{separator}.
+
+If dateVar is provided the dataframe will also include variables \code{<dateVar>.Diff} giving 
+the difference of time of \code{dateVar} in the units specified for \code{indIDVar.1} 
+and \code{indIDVar.2}
 }
 \description{
 Transforms a dataset of individuals to a dataset of pairs

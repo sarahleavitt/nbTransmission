@@ -248,8 +248,12 @@ in the prediction dataset.</p>
 <p>The output of this function is a list of two dataframes: one with the estimates of the
 transmission probabilities (<code>probabilities</code>) and the other with the contribution of
 the covariates to the probabilities in the form of odds ratios (<code>estimates</code>). The 
-95<!-- % confidence intervals reported for these odds ratios use Rubin's Rules to pool the  -->
-error across all iterations.</p>
+95<!-- % confidence intervals reported for these odds ratios use Rubin's Rules, a technique developed -->
+for multiple imputation, to pool the error across all iterations.</p>
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Barnard J. and Rubin D. Small-Sample Degrees of Freedom with Multiple Imputation
+<em>Biometrika</em>. 1999 Dec;86(4):948-55.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Use the pairData dataset which represents a TB-like outbreak</span>
@@ -282,6 +286,7 @@ error across all iterations.</p>
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
+      <li><a href="#references">References</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 
