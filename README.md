@@ -10,11 +10,12 @@ This package is a group of functions used in infectious diseases analysis.
 It implements an algorithm to calculate relative transmission probabilities between
 cases in an infectious disease outbreak or cluster using naive Bayes. It also
 contians various functions to use these probabilities to estimate
-transmission paramaters such as the serial interval and reproductive number.  
+transmission paramaters such as the serial interval and reproductive number as well as
+estimate the contribution of covariates to the probabilities and visualize the results.  
 
 The ideal use of this package is for infectious disease dataset with metadata on the
 majority of cases but more informative data such as contact tracing or pathogen whole
-genome sequencing (WGS) on only a subset of cases. The packages' algorithm allows
+genome sequencing (WGS) on only a subset of cases. The package's algorithm allows
 a researcher to infer transmission patterns among all cases and not just those
 with the WGS or contact investigation data.  
 
@@ -29,7 +30,7 @@ of a transmission link is estimated for all pairs.
 
 For a more formal discussion of the theory behind and usage of this method, see the following paper:
 
-Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh, Jr,, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, , dyaa031, https://doi.org/10.1093/ije/dyaa031
+Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh, Jr,, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, dyaa031, https://doi.org/10.1093/ije/dyaa031
  
 ## Installation
 
