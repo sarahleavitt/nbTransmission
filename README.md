@@ -29,7 +29,7 @@ of a transmission link is estimated for all pairs.
 
 For a more formal discussion of the theory behind and usage of this method, see the following paper:
 
-Leavitt, S. V., Lee, R. S., Sebastiani, P., Horsburgh, C. R., Jenkins, H. E., & White, L. F. (2019). Estimating the Relative Probability of Direct Transmission between Infectious Disease Patients. bioRxiv, 612945. (https://www.biorxiv.org/content/10.1101/612945v2)
+Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh, Jr,, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, , dyaa031, https://doi.org/10.1093/ije/dyaa031
  
 ## Installation
 
