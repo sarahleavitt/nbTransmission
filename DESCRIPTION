@@ -1,20 +1,15 @@
 Package: nbTransmission
 Title: Naive Bayes Transmission Analysis
-Version: 1.0.0
-Date: 2019-11-20
+Version: 1.1.1
+Date: 2020-06-19
 Authors@R: person("Sarah V", "Leavitt", email = "sv1205@bu.edu", role = c("aut", "cre"))
 Maintainer: Sarah V Leavitt <sv1205@bu.edu>
-Description: This package is a group of functions used in infectious diseases analysis.
-	It implements an algorithm to calculate relative transmission probabilities between
-	cases in an infectious disease outbreak or cluster using naive Bayes. It also
-	contians various functions to use these probabilities to estimate
-    transmission paramaters such as the serial interval and reproductive number
-	and visualize the results.
+Description: Description: Estimates the relative transmission probabilities between cases in an infectious disease outbreak or cluster using naive Bayes. Included are various functions to use these probabilities to estimate transmission paramaters such as the serial interval and reproductive number as well as finding the contribution of covariates to the probabilities and visualizing results. The ideal use is for an infectious disease dataset with metadata on the majority of cases but more informative data such as contact tracing or pathogen whole genome sequencing on only a subset of cases.
 Depends: R (>= 3.4.0)
-RoxygenNote: 7.0.0
+RoxygenNote: 7.1.0
 Encoding: UTF-8
 License: MIT + file LICENSE
-URL: https://github.com/sv1205/nbTransmission 
+URL: https://sarahleavitt.github.io/nbTransmission
 BugReports: https://github.com/sv1205/nbTransmission/issues
 LazyData: true
 Imports:

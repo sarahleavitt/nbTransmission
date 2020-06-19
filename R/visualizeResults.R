@@ -44,16 +44,19 @@
 #' 
 #' @examples
 #' 
-#' ## Heatmap with no clustering in color with the default probability breaks
-#' par(mar = c(0, 0, 1, 0))
-#' nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
-#' pVar = "pScaled", clustMethod = "none")
+#' ## NOT RUN ##
+#' # ## Heatmap with no clustering in color with the default probability breaks
+#' # par(mar = c(0, 0, 1, 0))
+#' # nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#' # pVar = "pScaled", clustMethod = "none")
 #'
-#' ## Adding stars for the top cluster, in black and white, changing the probability breaks
-#' par(mar = c(0, 0, 1, 0))
-#' nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
-#'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-#'           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
+#'
+#' ## NOT RUN ##
+#' # ## Adding stars for the top cluster, in black and white, changing the probability breaks
+#' # par(mar = c(0, 0, 1, 0))
+#' # nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#' #           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+#' #           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
 #' 
 #' 
 #' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
@@ -141,16 +144,19 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 #' 
 #' @examples
 #' 
-#' ## Network of all pairs in color with the default probability breaks
-#' par(mar = c(0, 0, 0.2, 0))
-#' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
-#' pVar = "pScaled", clustMethod = "none")
+#' ## NOT RUN ##
+#' # ## Network of all pairs in color with the default probability breaks
+#' # par(mar = c(0, 0, 0.2, 0))
+#' # nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#' # pVar = "pScaled", clustMethod = "none")
 #'
-#'## Network of just the top cluster of infectors, in black and white, changing the probability breaks
-#' par(mar = c(0, 0, 0.2, 0))
-#' nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
-#'           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-#'           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
+#'
+#' ## NOT RUN ##
+#' # ## Network of just the top cluster of infectors, black and white, changing the probability breaks
+#' # par(mar = c(0, 0, 0.2, 0))
+#' # nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
+#' #           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+#' #           blackAndWhite = TRUE, probBreaks = c(-0.01, 0.01, 0.1, 0.25, 0.5, 1))
 #' 
 #' 
 #' @seealso \code{\link{nbProbabilities}} \code{\link{clusterInfectors}}
@@ -366,7 +372,7 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
 #' cut2 <- 125
 #' 
 #' ## Finding the final reproductive number estimates with confidence intervals
-#' # NOTE should run with bootSamples > 10.
+#' # NOTE should run with bootSamples > 5.
 #' rFinal <- estimateR(nbResults, dateVar = "infectionDate",
 #'              indIDVar = "individualID", pVar = "pScaled",
 #'              timeFrame = "months", rangeForAvg = c(cut1, cut2),

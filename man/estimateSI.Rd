@@ -145,7 +145,7 @@ orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
 table(orderedPair$snpClose)
 
 ## Running the algorithm
-#NOTE should run with nReps > 1.
+# NOTE should run with nReps > 1.
 resGen <- nbProbabilities(orderedPair = orderedPair,
                             indIDVar = "individualID",
                             pairIDVar = "pairID",
@@ -159,30 +159,36 @@ nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 ## Estimating the serial interval
 
-# Using all pairs
-estimateSI(nbResultsNoT, indIDVar = "individualID",
-             timeDiffVar = "infectionDiffY", pVar = "pScaled",
-             clustMethod = "none", initialPars = c(2, 2))
-
 # Using hierarchical clustering with a 0.05 absolute difference cutoff
 estimateSI(nbResultsNoT, indIDVar = "individualID",
              timeDiffVar = "infectionDiffY", pVar = "pScaled",
              clustMethod = "hc_absolute", cutoff = 0.05, initialPars = c(2, 2))
+             
+## NOT RUN ##
+# # Using all pairs
+# estimateSI(nbResultsNoT, indIDVar = "individualID",
+#              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#              clustMethod = "none", initialPars = c(2, 2))
 
-# Using a shifted gamma distribution:
-# not allowing serial intervals of less than 3 months (0.25 years)
-estimateSI(nbResultsNoT, indIDVar = "individualID",
-             timeDiffVar = "infectionDiffY", pVar = "pScaled",
-             clustMethod = "hc_absolute", cutoff = 0.05,
-             initialPars = c(2, 2), shift = 0.25)
 
-# Using multiple cutoffs
-estimateSI(nbResultsNoT, indIDVar = "individualID",
-             timeDiffVar = "infectionDiffY", pVar = "pScaled",
-             clustMethod = "hc_absolute", cutoff = c(0.025, 0.05), initialPars = c(2, 2))
+## NOT RUN ##
+# # Using a shifted gamma distribution:
+# # not allowing serial intervals of less than 3 months (0.25 years)
+# estimateSI(nbResultsNoT, indIDVar = "individualID",
+#              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#              clustMethod = "hc_absolute", cutoff = 0.05,
+#              initialPars = c(2, 2), shift = 0.25)
+
+
+## NOT RUN ##
+# # Using multiple cutoffs
+# estimateSI(nbResultsNoT, indIDVar = "individualID",
+#              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+#              clustMethod = "hc_absolute", cutoff = c(0.025, 0.05), initialPars = c(2, 2))
+
 
 ## Adding confidence intervals
-# NOTE should run with bootSamples > 5.
+# NOTE should run with bootSamples > 2.
 estimateSI(nbResultsNoT, indIDVar = "individualID",
              timeDiffVar = "infectionDiffY", pVar = "pScaled",
              clustMethod = "hc_absolute", cutoff = 0.05,

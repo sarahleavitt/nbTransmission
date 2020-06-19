@@ -58,7 +58,7 @@ cut1 <- 25
 cut2 <- 125
 
 ## Finding the final reproductive number estimates with confidence intervals
-# NOTE should run with bootSamples > 10.
+# NOTE should run with bootSamples > 5.
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
              indIDVar = "individualID", pVar = "pScaled",
              timeFrame = "months", rangeForAvg = c(cut1, cut2),

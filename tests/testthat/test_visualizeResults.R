@@ -50,21 +50,24 @@ createNetworkWrapper <- function(nbResults,
             probBreaks = probBreaks)
 }
 
+#Shortening dataset for sake of speed
+testData <- nbResults[1:500, ]
+
 
 test_that("Plot functions return null objects with no errors",{
   
-  net1 <- nbNetworkWrapper(nbResults)
-  net2 <- nbNetworkWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.05)
-  net3 <- nbNetworkWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.05,
+  net1 <- nbNetworkWrapper(testData)
+  net2 <- nbNetworkWrapper(testData, clustMethod = "hc_absolute", cutoff = 0.05)
+  net3 <- nbNetworkWrapper(testData, clustMethod = "hc_absolute", cutoff = 0.05,
                            blackAndWhite = TRUE)
   
   expect_true(class(net1) == "NULL")
   expect_true(class(net2) == "NULL")
   expect_true(class(net3) == "NULL")
   
-  heat1 <- nbHeatmapWrapper(nbResults)
-  heat2 <- nbHeatmapWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.05)
-  heat3 <- nbHeatmapWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.05,
+  heat1 <- nbHeatmapWrapper(testData)
+  heat2 <- nbHeatmapWrapper(testData, clustMethod = "hc_absolute", cutoff = 0.05)
+  heat3 <- nbHeatmapWrapper(testData, clustMethod = "hc_absolute", cutoff = 0.05,
                             blackAndWhite = TRUE)
   
   expect_true(class(heat1) == "pheatmap")
@@ -76,8 +79,8 @@ test_that("Plot functions return null objects with no errors",{
 
 test_that("Internal createNetwork function returns igraph object",{
   
-  net1 <- createNetworkWrapper(nbResults)
-  net2 <- createNetworkWrapper(nbResults, clustMethod = "hc_absolute", cutoff = 0.05)
+  net1 <- createNetworkWrapper(testData)
+  net2 <- createNetworkWrapper(testData, clustMethod = "hc_absolute", cutoff = 0.05)
   
   expect_true(class(net1) == "igraph")
   expect_true(class(net2) == "igraph")
@@ -88,62 +91,62 @@ test_that("Internal createNetwork function returns igraph object",{
 #Only need to test for the internal function because both nbNetwork and nbHeatmap call it
 test_that("Descriptive error messages returned from internal createNetwork function",{
   
-  expect_error(createNetworkWrapper(nbResults, indIDVar = "garbage"),
+  expect_error(createNetworkWrapper(testData, indIDVar = "garbage"),
                "garbage.1 is not in the data frame.")
   
-  expect_error(createNetworkWrapper(nbResults, dateVar = "garbage"),
+  expect_error(createNetworkWrapper(testData, dateVar = "garbage"),
                "garbage.1 is not in the data frame.")
   
-  expect_error(createNetworkWrapper(nbResults, pVar = "garbage"),
+  expect_error(createNetworkWrapper(testData, pVar = "garbage"),
                "garbage is not in the data frame.")
   
   #Removing individualID columns
-  nbResults2 <- nbResults[!names(nbResults) %in% c("individualID.1")]
-  expect_error(createNetworkWrapper(nbResults2, indIDVar = "individualID"),
+  testData2 <- testData[!names(testData) %in% c("individualID.1")]
+  expect_error(createNetworkWrapper(testData2, indIDVar = "individualID"),
                "individualID.1 is not in the data frame.")
   
-  nbResults3 <- nbResults[!names(nbResults) %in% c("individualID.2")]
-  expect_error(createNetworkWrapper(nbResults3, indIDVar = "individualID"),
+  testData3 <- testData[!names(testData) %in% c("individualID.2")]
+  expect_error(createNetworkWrapper(testData3, indIDVar = "individualID"),
                "individualID.2 is not in the data frame.")
   
   #Removing the date columns
-  nbResults4 <- nbResults[!names(nbResults) %in% c("infectionDate.1")]
-  expect_error(createNetworkWrapper(nbResults4, dateVar = "infectionDate"),
+  testData4 <- testData[!names(testData) %in% c("infectionDate.1")]
+  expect_error(createNetworkWrapper(testData4, dateVar = "infectionDate"),
                "infectionDate.1 is not in the data frame.")
   
-  nbResults5 <- nbResults[!names(nbResults) %in% c("infectionDate.2")]
-  expect_error(createNetworkWrapper(nbResults5, dateVar = "infectionDate"),
+  testData5 <- testData[!names(testData) %in% c("infectionDate.2")]
+  expect_error(createNetworkWrapper(testData5, dateVar = "infectionDate"),
                "infectionDate.2 is not in the data frame.")
   
   #Changing dates to character variables
-  nbResults$infectionDatec.1 <- as.character(nbResults$infectionDate.1)
-  nbResults$infectionDatec.2 <- nbResults$infectionDate.2
-  expect_error(createNetworkWrapper(nbResults, dateVar = "infectionDatec"),
+  testData$infectionDatec.1 <- as.character(testData$infectionDate.1)
+  testData$infectionDatec.2 <- testData$infectionDate.2
+  expect_error(createNetworkWrapper(testData, dateVar = "infectionDatec"),
                "infectionDatec.1 must be either a date or a date-time (POSIXt) object.",
                fixed = TRUE)
   
-  nbResults$infectionDatec.1 <- nbResults$infectionDate.1
-  nbResults$infectionDatec.2 <- as.character(nbResults$infectionDate.2)
-  expect_error(createNetworkWrapper(nbResults, dateVar = "infectionDatec"),
+  testData$infectionDatec.1 <- testData$infectionDate.1
+  testData$infectionDatec.2 <- as.character(testData$infectionDate.2)
+  expect_error(createNetworkWrapper(testData, dateVar = "infectionDatec"),
                "infectionDatec.2 must be either a date or a date-time (POSIXt) object.",
                fixed = TRUE)
   
-  nbResults5 <- nbResults[!names(nbResults) %in% c("infectionDate.2")]
-  expect_error(createNetworkWrapper(nbResults5, indIDVar = "infectionDate"),
+  testData5 <- testData[!names(testData) %in% c("infectionDate.2")]
+  expect_error(createNetworkWrapper(testData5, indIDVar = "infectionDate"),
                "infectionDate.2 is not in the data frame.")
   
   
   #Testing that misclustng clustMethod gets set to none and gives warning
-  expect_warning(createNetwork(nbResults, dateVar = "infectionDate", indIDVar = "individualID",
+  expect_warning(createNetwork(testData, dateVar = "infectionDate", indIDVar = "individualID",
                            pVar = "pScaled"),
                  "No clustMethod was provided so it was set to 'none'")
   
   #Providing an invalid clustering method
-  expect_error(createNetworkWrapper(nbResults, clustMethod = "garbage"),
+  expect_error(createNetworkWrapper(testData, clustMethod = "garbage"),
                "clustMethod must be one of: none, n, kd, hc_absolute, hc_relative")
   
   #Providing a clust method with no cutoff
-  expect_error(createNetworkWrapper(nbResults, clustMethod = "hc_absolute"),
+  expect_error(createNetworkWrapper(testData, clustMethod = "hc_absolute"),
                "Please provide one or more cutoff values")
 
 })

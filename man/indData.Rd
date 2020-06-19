@@ -4,7 +4,8 @@
 \name{indData}
 \alias{indData}
 \title{Individual-level Outbreak Dataset}
-\format{A data frame with 100 rows and 8 variables:
+\format{
+A data frame with 100 rows and 8 variables:
 \describe{
 \item{individualID}{An individual-level id for each case.}
 \item{infector}{The individualID of the true infector.}
@@ -14,7 +15,8 @@
 \item{X2}{Covariate with 4 values: a, b, c, d (e.g. nationality).}
 \item{X3}{Covariate with 2 values: a, b (e.g. homelessness).}
 \item{X4}{Covariate with 10 values: a-j (e.g. county of residence).}
-}}
+}
+}
 \usage{
 indData
 }

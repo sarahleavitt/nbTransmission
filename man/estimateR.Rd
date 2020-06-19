@@ -128,7 +128,7 @@ cut2 <- 125
 #   geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)
   
 ## Finding the final reproductive number estimates with confidence intervals
-# NOTE should run with bootSamples > 10.
+# NOTE should run with bootSamples > 2.
 rFinal <- estimateR(nbResults, dateVar = "infectionDate",
              indIDVar = "individualID", pVar = "pScaled",
              timeFrame = "months", rangeForAvg = c(cut1, cut2),

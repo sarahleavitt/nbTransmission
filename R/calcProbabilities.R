@@ -2,12 +2,11 @@
 #' Calculates Relative Transmission Probabilities
 #'
 #' The function \code{nbProbabilities} uses naive Bayes and an interative estimation
-#' procedure to calculate relative transmission probabilities
+#' procedure to estimate relative transmission probabilities
 #'
 #' This algorithm takes a dataset of ordered possible infector-infectee pairs in an
 #' infectious disease outbreak or cluster and estimates the relative probability the cases are
 #' linked by direct transmission using a classification technique called naive Bayes (NB).
-#' 
 #' NB is a simple machine learning algorithm that uses Bayes rule to estimate the
 #' probability of an outcome in a prediction dataset given a set of covariates from
 #' the observed frequencies in a training dataset.
@@ -50,9 +49,9 @@
 #' All covariates need to be categorical factor variables.
 #' @param label An optional label string for the run.
 #' @param l Laplace smoothing parameter that is added to each cell.
-#' @param n The number of folds for nxm cross validation
+#' @param n The number of folds for nxm cross validation (should be at least 10).
 #' @param m The number of times to create n folds in nxm cross validation.
-#' @param nReps The number of times to randomly select the "true" infector.
+#' @param nReps The number of times to randomly select the "true" infector (should be at least 10).
 #'
 #' @return List containing two data frames:
 #' \enumerate{
@@ -60,18 +59,18 @@
 #'      \itemize{
 #'        \item \code{label} - the optional label of the run.
 #'        \item \code{<pairIDVar>} - the pair ID with the name specified.
-#'        \item \code{pAvg} - the mean transmission probability for the pair over all runs.
+#'        \item \code{pAvg} - the mean transmission probability for the pair over all iterations.
 #'        \item \code{pSD} - the standard deviation of the transmission probability for the pair
-#'         over all runs.
+#'         over all iterations.
 #'        \item \code{pScaled} - the mean relative transmission probability for the pair over.
-#'         all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
+#'         all iterations: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
 #'        \item \code{pRank} - the rank of the probability of the the pair out of all pairs for that
 #'        infectee (in case of ties all values have the minimum rank of the group).
 #'        \item \code{nEstimates} - the number of probability estimates that contributed to pAvg. This
 #'        represents the number of prediction datasets this pair was included in over the \code{nxm}
 #'        cross prediction repeated \code{nReps} times.
 #'      }
-#'   \item \code{estimates} - a data frame with the effect estimates. Column names:
+#'   \item \code{estimates} - a data frame with the contribution of covariates. Column names:
 #'      \itemize{
 #'        \item \code{label} - the optional label of the run
 #'        \item \code{level} - the covariate name and level
@@ -198,7 +197,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
   }
   
   
-  #### Summarizing Probabilities Over Runs ####
+  #### Summarizing Probabilities Over iterations ####
   
   #Averaging the probabilities over all the replicates
   sumData1 <- dplyr::group_by(rAll, !!rlang::sym(pairIDVar))
@@ -231,7 +230,7 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
   probs2 <- probs2[, c("label", pairIDVar, "pAvg", "pSD", "pScaled", "pRank", "nEstimates")]
   
   
-  #### Summarizing Measures of Effect Over Runs ####
+  #### Summarizing Measures of Effect Over iterations ####
   
   #Averaging over the measures of effect
   coeffL <- by(cAll,
@@ -355,7 +354,7 @@ runCV <- function(posTrain, orderedPair, indIDVar, pairIDVar,
     sim <- performNB(training, prediction, obsIDVar = pairIDVar,
                      goldStdVar = "linked", covariates, l)
     
-    #Combining the results from fold run with the previous folds
+    #Combining the results from fold iteration with the previous folds
     rFolds <- dplyr::bind_rows(rFolds, sim[[1]])
     sim[[2]]$rowOrder <- 1:nrow(sim[[2]])
     cFolds <- dplyr::bind_rows(cFolds, sim[[2]])

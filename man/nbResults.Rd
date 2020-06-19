@@ -4,7 +4,8 @@
 \name{nbResults}
 \alias{nbResults}
 \title{Dataset with results of \code{\link{nbProbabilities}}}
-\format{A data frame with 9900 rows and 24 variables:
+\format{
+A data frame with 9900 rows and 24 variables:
 \describe{
 \item{pairID}{A pair-level ID variable (the individual IDs separated by an '_').}
 \item{label}{The label for the run, here "SNPs".}
@@ -35,7 +36,8 @@
 \item{Z4}{Pair-level covariate derived from X4: 1 if match, 2 if adjacent, 2 otherwise.}
 \item{snpClose}{Logical value indicating if a pair is a probable link. 
          TRUE if the pair has fewer than 3 SNPs, FALSE if the pair has more than 12 SNPs, NA otherwise}
-}}
+}
+}
 \usage{
 nbResults
 }

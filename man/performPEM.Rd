@@ -96,9 +96,11 @@ nbResultsNoT <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
 ## Estimating the serial interval
 
-# Using all pairs and plotting the parameters
-performPEM(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)
+## NOT RUN ##
+# # Using all pairs and plotting the parameters
+# performPEM(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+# pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)
+
 
 # Clustering the probabilities first
 allClust <- clusterInfectors(nbResultsNoT, indIDVar = "individualID", pVar = "pScaled",
@@ -107,12 +109,13 @@ allClust <- clusterInfectors(nbResultsNoT, indIDVar = "individualID", pVar = "pS
 performPEM(allClust[allClust$cluster == 1, ], indIDVar = "individualID",
            timeDiffVar = "infectionDiffY", pVar = "pScaled",
            initialPars = c(2, 2), shift = 0, plot = TRUE)
-           
-# The above is equivalent to the following code using the function estimateSI()
-# though the plot will not be printed and more details will be added
-estimateSI(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-          pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-          initialPars = c(2, 2))
+
+## NOT RUN ##            
+# # The above is equivalent to the following code using the function estimateSI()
+# # though the plot will not be printed and more details will be added
+# estimateSI(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
+#           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
+#           initialPars = c(2, 2))
 
 
 }

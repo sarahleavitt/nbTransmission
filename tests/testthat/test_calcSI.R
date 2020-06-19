@@ -23,7 +23,7 @@ estimateSIWrapper <- function(nbResults,
 }
 
 #Shortening dataset for sake of speed
-testData <- nbResults[1:1000, ]
+testData <- nbResults[1:500, ]
 
 #Run with no clustering and no CI
 siNone <- estimateSIWrapper(testData, clustMethod = "none")

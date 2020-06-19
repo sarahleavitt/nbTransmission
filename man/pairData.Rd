@@ -4,7 +4,8 @@
 \name{pairData}
 \alias{pairData}
 \title{Pair-level Outbreak Dataset}
-\format{A data frame with 9900 rows and 17 variables:
+\format{
+A data frame with 9900 rows and 17 variables:
 \describe{
 \item{pairID}{A pair-level ID variable (the individual IDs separated by an '_').}
 \item{individualID.1}{The ID of the potential "infector".}
@@ -23,7 +24,8 @@
 \item{Z2}{Pair-level covariate derived from X2: 1 if match, 0 if not match.}
 \item{Z3}{Pair-level covariate derived from X3: 1 if a-a, 2 if b-b, 3 if a-b, 4 if b-a.}
 \item{Z4}{Pair-level covariate derived from X4: 1 if match, 2 if adjacent, 2 otherwise.}
-}}
+}
+}
 \usage{
 pairData
 }
