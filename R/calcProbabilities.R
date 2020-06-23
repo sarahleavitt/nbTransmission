@@ -1,5 +1,5 @@
 
-#' Calculates Relative Transmission Probabilities
+#' Estimates relative transmission probabilities
 #'
 #' The function \code{nbProbabilities} uses naive Bayes and an interative estimation
 #' procedure to estimate relative transmission probabilities

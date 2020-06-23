@@ -1,22 +1,24 @@
 
-#' Estimates the serial interval distribution
+#' Estimates the generation/serial interval distribution
 #'
 #' The function \code{estimateSI} uses the relative transmission probabilities to estimate
-#' the serial interval (SI) distribution assuming a gamma distribution.
+#' the generation/serial interval distribution assuming a gamma distribution.
 #' It uses the PEM algorithm developed by Hens et al. 2012 extending their method to include
 #' restricting analysis to the top cluster of possible infectors.
 #' 
 #' The PEM algorithm uses the prior probability that each pair is connected by direct
-#' transmission to estimate the serial interval using estimation maximization. The
-#' current serial interval distribution parameters are used to update the probabilities
-#' which are then used to update the serial interval distribution parameters. The process
+#' transmission to estimate the generation/serial interval using estimation maximization.
+#' This code will provide an estimate of the generation interval if \code{timeDiffVar} represents the
+#' difference in infection dates and the serial interval if it represents the difference in symptom onset dates.
+#' The current generation/serial interval distribution parameters are used to update the probabilities
+#' which are then used to update the generation/serial interval distribution parameters. The process
 #' continues until the parameters converge (indicated by a change of less than \code{epsilon})
 #' between interations. \emph{Note: time difference between pairs should not be used to 
 #' estimate the probabilities}
 #' 
 #' This function acts as a wrapper around \code{\link{performPEM}} which integrates
-#' estimation of the SI distribution with clustering the infectors and calculates
-#' derived parameters (mean, median, sd) of the SI distribution. Generally, this function
+#' estimation of the generation/serial interval distribution with clustering the infectors and calculates
+#' derived parameters (mean, median, sd) of the distribution. Generally, this function
 #' should be called instead of \code{\link{performPEM}} directly.
 #' 
 #' All pairs of cases can be used in the estimation process by setting
@@ -27,13 +29,13 @@
 #' are passed into \code{\link{clusterInfectors}}. See the details of this function for
 #' a description of the different clustering methods.
 #' 
-#' The method can be performed with any serial interval distribution,
-#' but this version of this function assumes that the serial interval has a gamma distribution.
+#' The method can be performed with any generation/serial interval distribution,
+#' but this version of this function assumes that the generation/serial interval has a gamma distribution.
 #' The function does allow for a shifted gamma distribution. The \code{shift} argument
-#' defines how much the gamma distribution should be shifted. Any observed serial intervals
+#' defines how much the gamma distribution should be shifted. Any observed generation/serial intervals
 #' that are less than this shift will have probability 0. This parameter should be used if 
-#' there is a clinically lower bound for the possible serial interval. If this argument
-#' is not specified then a standard gamma function is used. The units of the
+#' there is a clinical lower bound for the possible generation/serial interval. If this argument
+#' is not specified then an unmodified gamma function is used. The units of the
 #' estimated gamma distribution will be defined by the units of the provided
 #' \code{<timeDiffVar>} column. The value of the \code{shift} should be in the same units.
 #' 
@@ -54,9 +56,9 @@
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param timeDiffVar The name (in quotes) of the column with the difference
-#' in time between symptom onset (or its proxy) for the pair of cases. The
-#' units of this variable (hours, days, years) defines the units of the resulting
-#' SI distribution.
+#' in time between infection (generation interval) or symptom onset (serial interval) for the
+#' pair of cases. The units of this variable (hours, days, years) defines the units of the 
+#' resulting distribution.
 #' @param pVar The column name (in quotes) of the transmission probabilities.
 #' @param clustMethod The method used to cluster the infectors; one of 
 #' \code{"none", "n", "kd", "hc_absolute", "hc_relative"} where \code{"none"} or
@@ -67,8 +69,8 @@
 #' @param initialPars A vector of length two with the shape and scale 
 #' to initialize the gamma distribution parameters.
 #' @param shift A value in the same units as \code{timeDiffVar} that the
-#' gamma distribution should be shifted. The default value of 0 is a 
-#' standard gamma distribution.
+#' gamma distribution should be shifted. The default value of 0 is an 
+#' unmodifed gamma distribution.
 #' @param epsilon The difference between successive estimates of the shape and
 #' scale parameters that indicates convergence.
 #' @param bootSamples The number of bootstrap samples; if 0, then no confidence intervals
@@ -78,17 +80,17 @@
 #'
 #' @return A data frame with one row and the following columns:
 #' \itemize{
-#'    \item \code{nIndividuals} - the number of infectees who have SIs included in the SI estimate.
-#'    \item \code{pCluster} - the proportion of cases who have SIs included in the SI estimate.
+#'    \item \code{nIndividuals} - the number of infectees who have intervals included in the estimate.
+#'    \item \code{pCluster} - the proportion of cases who have intervals included in the estimate.
 #'    \item \code{nInfectors} - the average number of infectors in the top cluster.
-#'    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
-#'    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
-#'    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
+#'    \item \code{shape} - the shape of the estimated gamma distribution for the interval
+#'    \item \code{scale} - the scale of the estimated gamma distribution for the interval
+#'    \item \code{meanSI} - the mean of the estimated gamma distribution for the interval 
 #'    (\code{shape * scale + shift})
-#'    \item \code{medianSI} - the median of the estimated gamma distribution for the SI
+#'    \item \code{medianSI} - the median of the estimated gamma distribution for the interval
 #'    (\code{qgamma(0.5, shape, scale) + shift)})
 #'    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
-#'    the SI (\code{shape * scale ^ 2})
+#'    the interval (\code{shape * scale ^ 2})
 #'  }
 #'  If bootSamples > 0, then the data frame also includes the following columns:
 #'  \itemize{
@@ -97,11 +99,11 @@
 #'     \item \code{scaleCILB} and \code{scaleCIUB} - lower bound and upper bounds
 #'     of the bootstrap confidence interval for the scale parameter
 #'     \item \code{meanCILB} and \code{meanCIUB} - lower bound and upper bounds
-#'     of the bootstrap confidence interval for the mean of the SI distribution
+#'     of the bootstrap confidence interval for the mean of the interval distribution
 #'     \item \code{medianCILB} and \code{medianCIUB} - lower bound and upper bounds
-#'     of the bootstrap confidence interval for the median of the SI distribution
+#'     of the bootstrap confidence interval for the median of the interval distribution
 #'     \item \code{sdCILB} and \code{sdCIUB} - lower bound and upper bounds
-#'     of the bootstrap confidence interval for the sd of the SI distribution
+#'     of the bootstrap confidence interval for the sd of the interval distribution
 #'  }
 #' 
 #' 
@@ -399,14 +401,14 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
 
 
 
-#' Executes the PEM algorthim to estimate the serial interval distribution
+#' Executes the PEM algorthim to estimate the generation/serial interval distribution
 #'
 #' The function \code{performPEM} uses relative transmission probabilities to estimate
-#' the serial interval distribution
+#' the generation/serial interval distribution
 #' 
 #' This function is meant to be called by \code{\link{estimateSI}}
-#' which estimates the serial interval distribution as well as clustering the
-#' probabilities but can be called directly. The main reason to call \code{performPEM}
+#' which estimates the generation/serial interval distribution as well as clustering the
+#' probabilities, but can be called directly. The main reason to call \code{performPEM}
 #' directly is for the \code{plot} argument. Setting this argument to \code{TRUE}
 #' will produce a plot of the shape and scale parameters at each iteration.
 #' For more details on the PEM algorithm see \code{\link{estimateSI}}.
@@ -417,15 +419,15 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
 #' (data frame \code{df} must have variables called \code{<indIDVar>.1}
 #'  and \code{<indIDVar>.2}).
 #' @param timeDiffVar The name (in quotes) of the column with the difference
-#' in time between symptom onset (or its proxy) for the pair of cases. The
-#' units of this variable (hours, days, years) defines the units of the resulting
-#' SI distribution.
+#' in time between infection (generation interval) or symptom onset (serial interval) for the
+#' pair of cases. The units of this variable (hours, days, years) defines the units of the 
+#' resulting distribution.
 #' @param pVar The column name (in quotes) of the transmission probabilities.
 #' @param initialPars A vector of length two with the shape and scale 
 #' to initialize the gamma distribution parameters.
 #' @param shift A value in the same units as \code{timeDiffVar} that the
-#' gamma distribution should be shifted. The Default value of 0 is a 
-#' standard gamma distribution.
+#' gamma distribution should be shifted. The Default value of 0 is an 
+#' unmodifed gamma distribution.
 #' @param epsilon The difference between successive estimates of the shape and
 #' scale parameters that indicates convergence.
 #' @param plot A logical indicating if a plot should be printed showing the
@@ -434,16 +436,16 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
 #'
 #' @return A data frame with one row and the following columns:
 #' \itemize{
-#'    \item \code{nIndividuals} - the number of infectees who have SIs included
+#'    \item \code{nIndividuals} - the number of infectees who have intervals included
 #'    in the SI estimate.
-#'    \item \code{shape} - the shape of the estimated gamma distribution for the SI.
-#'    \item \code{scale} - the scale of the estimated gamma distribution for the SI.
-#'    \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
+#'    \item \code{shape} - the shape of the estimated gamma distribution for the interval.
+#'    \item \code{scale} - the scale of the estimated gamma distribution for the interval.
+#'    \item \code{meanSI} - the mean of the estimated gamma distribution for the interval 
 #'    (\code{shape * scale + shift}).
-#'    \item \code{medianSI} - the median of the estimated gamma distribution for the SI
+#'    \item \code{medianSI} - the median of the estimated gamma distribution for the interval
 #'    (\code{qgamma(0.5, shape, scale) + shift)}).
 #'    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
-#'    the SI (\code{shape * scale ^ 2})
+#'    the interval (\code{shape * scale ^ 2})
 #'  }
 #' 
 #' 

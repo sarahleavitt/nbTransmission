@@ -1,0 +1,19 @@
+citHeader("To cite nbTransmission:")
+
+citEntry(
+entry="Article",
+title = "Estimating the relative probability of direct transmission between infectious disease patients",
+author = personList(as.person("Sarah V Leavitt"),
+                   as.person("Robyn S Lee"),
+                   as.person("Paola Sebastiani"),
+                   as.person("C Robert Horsburgh"),
+                   as.person("Helen E Jenkins"),
+                   as.person("Laura F White")),
+journal= "International Journal of Epidemiology",
+doi = "10.1093/ije/dyaa031",
+pages = "",
+url = "https://academic.oup.com/ije/advance-article-abstract/doi/10.1093/ije/dyaa031/5811379",
+volume = "dyaa031",
+year = "2020",
+textVersion = "Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh Jr, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, dyaa031, https://doi.org/10.1093/ije/dyaa031."
+)

@@ -12,17 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Naive Bayes Transmission Analysis">
-<meta property="og:description" content="Estimation of the relative transmission probabilities between cases in an
-    infectious disease outbreak or cluster using naive Bayes. Included are various functions
-    to use these probabilities to estimate transmission paramaters such as the serial interval
-    and reproductive number, find the contribution of covariates to the probabilities, and
-    visualize results. The ideal use of this package is for infectious disease dataset with
-    metadata on the majority of cases but more informative data such as contact tracing or
-    pathogen whole genome sequencing (WGS) on only a subset of cases. This algorithm allows
-    a researcher to infer transmission patterns among all cases and not just those with the
-    WGS or contact investigation data. For a more formal discussion of the theory behind
-    and usage of this method, refer to:
-    Leavitt et al. (2020) &lt;https://doi.org/10.1093/ije/dyaa031&gt;">
+<meta property="og:description" content="Description: Estimates the relative transmission probabilities between cases in an infectious disease outbreak or cluster using naive Bayes. Included are various functions to use these probabilities to estimate transmission paramaters such as the serial interval and reproductive number as well as finding the contribution of covariates to the probabilities and visualizing results. The ideal use is for an infectious disease dataset with metadata on the majority of cases but more informative data such as contact tracing or pathogen whole genome sequencing on only a subset of cases.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -100,7 +90,7 @@
 <p>The ideal use of this package is for infectious disease dataset with metadata on the majority of cases but more informative data such as contact tracing or pathogen whole genome sequencing (WGS) on only a subset of cases. The package’s algorithm allows a researcher to infer transmission patterns among all cases and not just those with the WGS or contact investigation data.</p>
 <p>Naive Bayes is a simple machine learning method that uses Bayes rule to estimate the probability of an outcome in a prediction dataset given a set of covariates from the observed frequencies in a training dataset. In this application, the outcome is whether a pair is linked by direct transmission and the covariates could be spatial, clinical, demographic, and temporal characteristics of the pairs of cases. A subset of cases with pathogen WGS or contact investigation data are used to create a training dataset of probable transmission links and non/links and the relative probability of a transmission link is estimated for all pairs.</p>
 <p>For a more formal discussion of the theory behind and usage of this method, see the following paper:</p>
-<p>Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh, Jr,, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, dyaa031, <a href="https://doi.org/10.1093/ije/dyaa031" class="uri">https://doi.org/10.1093/ije/dyaa031</a></p>
+<p>Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh Jr, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, dyaa031, <a href="https://doi.org/10.1093/ije/dyaa031" class="uri">https://doi.org/10.1093/ije/dyaa031</a></p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -135,6 +125,12 @@
 <li>
 <a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
 </li>
+</ul>
+</div>
+<div class="citation">
+<h2>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html">Citing nbTransmission</a></li>
 </ul>
 </div>
 <div class="developers">

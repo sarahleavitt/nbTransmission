@@ -115,7 +115,7 @@ rInitial <- estimateR(nbResults, dateVar = "infectionDate",
                indIDVar = "individualID", pVar = "pScaled",
                timeFrame = "months")
                
-## Finding the stable portion of the outbreak for rangeForAvg using plot
+## Finding the stable portion of the outbreak for rangeForAvg using plot of Rt
 cut1 <- 25
 cut2 <- 125
 

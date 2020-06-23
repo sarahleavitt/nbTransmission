@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcSI.R
 \name{performPEM}
 \alias{performPEM}
-\title{Executes the PEM algorthim to estimate the serial interval distribution}
+\title{Executes the PEM algorthim to estimate the generation/serial interval distribution}
 \usage{
 performPEM(
   df,
@@ -23,9 +23,9 @@ performPEM(
  and \code{<indIDVar>.2}).}
 
 \item{timeDiffVar}{The name (in quotes) of the column with the difference
-in time between symptom onset (or its proxy) for the pair of cases. The
-units of this variable (hours, days, years) defines the units of the resulting
-SI distribution.}
+in time between infection (generation interval) or symptom onset (serial interval) for the
+pair of cases. The units of this variable (hours, days, years) defines the units of the 
+resulting distribution.}
 
 \item{pVar}{The column name (in quotes) of the transmission probabilities.}
 
@@ -33,8 +33,8 @@ SI distribution.}
 to initialize the gamma distribution parameters.}
 
 \item{shift}{A value in the same units as \code{timeDiffVar} that the
-gamma distribution should be shifted. The Default value of 0 is a 
-standard gamma distribution.}
+gamma distribution should be shifted. The Default value of 0 is an 
+unmodifed gamma distribution.}
 
 \item{epsilon}{The difference between successive estimates of the shape and
 scale parameters that indicates convergence.}
@@ -45,26 +45,26 @@ parameter estimates at each iteration.}
 \value{
 A data frame with one row and the following columns:
 \itemize{
-   \item \code{nIndividuals} - the number of infectees who have SIs included
+   \item \code{nIndividuals} - the number of infectees who have intervals included
    in the SI estimate.
-   \item \code{shape} - the shape of the estimated gamma distribution for the SI.
-   \item \code{scale} - the scale of the estimated gamma distribution for the SI.
-   \item \code{meanSI} - the mean of the estimated gamma distribution for the SI 
+   \item \code{shape} - the shape of the estimated gamma distribution for the interval.
+   \item \code{scale} - the scale of the estimated gamma distribution for the interval.
+   \item \code{meanSI} - the mean of the estimated gamma distribution for the interval 
    (\code{shape * scale + shift}).
-   \item \code{medianSI} - the median of the estimated gamma distribution for the SI
+   \item \code{medianSI} - the median of the estimated gamma distribution for the interval
    (\code{qgamma(0.5, shape, scale) + shift)}).
    \item \code{sdSI} - the standard deviation of the estimated gamma distribution for
-   the SI (\code{shape * scale ^ 2})
+   the interval (\code{shape * scale ^ 2})
  }
 }
 \description{
 The function \code{performPEM} uses relative transmission probabilities to estimate
-the serial interval distribution
+the generation/serial interval distribution
 }
 \details{
 This function is meant to be called by \code{\link{estimateSI}}
-which estimates the serial interval distribution as well as clustering the
-probabilities but can be called directly. The main reason to call \code{performPEM}
+which estimates the generation/serial interval distribution as well as clustering the
+probabilities, but can be called directly. The main reason to call \code{performPEM}
 directly is for the \code{plot} argument. Setting this argument to \code{TRUE}
 will produce a plot of the shape and scale parameters at each iteration.
 For more details on the PEM algorithm see \code{\link{estimateSI}}.

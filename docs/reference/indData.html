@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Individual-level Outbreak Dataset — indData • nbTransmission</title>
+<title>Individual-level simulated outbreak dataset — indData • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,11 @@
 
 
 
-<meta property="og:title" content="Individual-level Outbreak Dataset — indData" />
+<meta property="og:title" content="Individual-level simulated outbreak dataset — indData" />
 <meta property="og:description" content="A dataset of an outbreak of 100 individuals starting from one case.
-It was simulated with using TransPhylo with parameters resembling TB,
-starting from one case:
+It was simulated with using the package TransPhylo with parameters resembling TB:
 average reproductive number = 1.2
-serial interval = gamma(1.2, 2) years
+generation interval = gamma(1.2, 2) years
 outbreak duration = 14 years
 mutation rate 0.5 snps/genome/year
 
@@ -128,17 +127,16 @@ mutation rate 0.5 snps/genome/year
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Individual-level Outbreak Dataset</h1>
+    <h1>Individual-level simulated outbreak dataset</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/indData.R'><code>R/indData.R</code></a></small>
     <div class="hidden name"><code>indData.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>A dataset of an outbreak of 100 individuals starting from one case.
-It was simulated with using TransPhylo with parameters resembling TB,
-starting from one case:</p><ul>
+It was simulated with using the package TransPhylo with parameters resembling TB:</p><ul>
 <li><p>average reproductive number = 1.2</p></li>
-<li><p>serial interval = gamma(1.2, 2) years</p></li>
+<li><p>generation interval = gamma(1.2, 2) years</p></li>
 <li><p>outbreak duration = 14 years</p></li>
 <li><p>mutation rate 0.5 snps/genome/year</p></li>
 </ul>
@@ -162,6 +160,10 @@ starting from one case:</p><ul>
 
 </dl>
 
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Didelot X, Fraser C, Gardy J, Colijn C. Genomic Infectious Disease Epidemiology in Partially
+Sampled and Ongoing Outbreaks. Mol Biol Evol. 2017;34(4):997-1007.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

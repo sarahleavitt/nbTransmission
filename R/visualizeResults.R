@@ -1,7 +1,7 @@
 
-#' Creates a heatmap of the relative transmission probabilities
+#' Plots a heatmap of the relative transmission probabilities
 #'
-#' The function \code{nbHeatmap} creates a heatmap of the transmission probabilities.
+#' The function \code{nbHeatmap} plots a heatmap of the transmission probabilities.
 #' The rows are the possible infectors and the columns are the possible infectees both
 #' ordered by \code{<dateVar>}. The darker the square the higher the probability that
 #' the pair represented by that square is a transmission link. If a cluster method is specified 
@@ -103,13 +103,13 @@ nbHeatmap <- function(df, indIDVar, dateVar, pVar,
 
 
 
-#' Creates a network of the relative transmission probabilities
+#' Plots a network of the relative transmission probabilities
 #'
-#' The function \code{nNetwork} creates a network of the transmission probabilities.
+#' The function \code{nNetwork} plots a network of the transmission probabilities.
 #' The nodes are the individuals and the edges represent possible transmission pairs.
 #' The darker the edge, the higher the probability that the pair is a transmission link.
 #' If a cluster method is specified using \code{clustMethod} and \code{cutoff}, only edges
-#' that are in the top cluster of infectors will be drawn.
+#' that are in the high probability cluster of infectors will be drawn.
 #' 
 #' Users have the option of specifying how the probabilities should be grouped into different
 #' color shades through the argument \code{probBreaks}. The probabilities are split into groups by
@@ -372,11 +372,11 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
 #' cut2 <- 125
 #' 
 #' ## Finding the final reproductive number estimates with confidence intervals
-#' # NOTE should run with bootSamples > 5.
+#' # NOTE should run with bootSamples > 10.
 #' rFinal <- estimateR(nbResults, dateVar = "infectionDate",
 #'              indIDVar = "individualID", pVar = "pScaled",
 #'              timeFrame = "months", rangeForAvg = c(cut1, cut2),
-#'              bootSamples = 5, alpha = 0.05)
+#'              bootSamples = 10, alpha = 0.05)
 #' 
 #' ## Ploting the final result              
 #' plotRt(rFinal, includeRtAvg = TRUE, includeRtCI = TRUE, includeRtAvgCI = TRUE)

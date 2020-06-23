@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creates a heatmap of the relative transmission probabilities — nbHeatmap • nbTransmission</title>
+<title>Plots a heatmap of the relative transmission probabilities — nbHeatmap • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Creates a heatmap of the relative transmission probabilities — nbHeatmap" />
-<meta property="og:description" content="The function nbHeatmap creates a heatmap of the transmission probabilities.
+<meta property="og:title" content="Plots a heatmap of the relative transmission probabilities — nbHeatmap" />
+<meta property="og:description" content="The function nbHeatmap plots a heatmap of the transmission probabilities.
 The rows are the possible infectors and the columns are the possible infectees both
 ordered by &amp;lt;dateVar&amp;gt;. The darker the square the higher the probability that
 the pair represented by that square is a transmission link. If a cluster method is specified 
@@ -125,13 +125,13 @@ infectors in the top cluster." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creates a heatmap of the relative transmission probabilities</h1>
+    <h1>Plots a heatmap of the relative transmission probabilities</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/visualizeResults.R'><code>R/visualizeResults.R</code></a></small>
     <div class="hidden name"><code>nbHeatmap.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>The function <code>nbHeatmap</code> creates a heatmap of the transmission probabilities.
+    <p>The function <code>nbHeatmap</code> plots a heatmap of the transmission probabilities.
 The rows are the possible infectors and the columns are the possible infectees both
 ordered by <code>&lt;dateVar&gt;</code>. The darker the square the higher the probability that
 the pair represented by that square is a transmission link. If a cluster method is specified 
@@ -221,6 +221,7 @@ The colors are defined with the code <code>brewer.pal(length(probBreaks) - 1, "B
 # par(mar = c(0, 0, 1, 0))
 # nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 # pVar = "pScaled", clustMethod = "none")
+
 
 ## NOT RUN ##
 # ## Adding stars for the top cluster, in black and white, changing the probability breaks

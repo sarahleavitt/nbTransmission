@@ -17,8 +17,9 @@
 #' The density for the probabilities for all infectors is estimated using a binwidth defined
 #' by the value of \code{cutoff}. If the density is made up of at least two separate curves
 #' (separated by a region where the density drops to 0) then the infectors with probabilities
-#' greater than the lowest 0 region are assigned into the top cluster. If the density of the
-#' probabilities does not drop to 0 then all infectors are assigned into the bottom cluster.
+#' greater than the lowest 0 region are assigned to the high probability cluster. If the density of the
+#' probabilities does not drop to 0 then all infectors are assigned to the low probability cluster 
+#' (indicating no real clustering).
 #' 
 #' If \code{clustMethod == "hc_absolute"} or \code{clustMethod == "hc_relative"}, then
 #' hierarchical clustering with minimum distance is used to split the possible infectors
@@ -27,10 +28,10 @@
 #' 
 #' Then if \code{clustMethod == "hc_absolute"}, those infectees
 #' where the gap between the two clusters is less than \code{cutoff} have all of their
-#' possible infectors reassigned to the bottom cluster (indicating no real clustering).
+#' possible infectors reassigned to the low probability cluster (indicating no real clustering).
 #' If \code{clustMethod == "hc_relative"}, then all infectees where the gap between the two
 #' clusters is less than \code{cutoff} times the second largest gap in probabilities
-#' are reassigned to the bottom cluster (indicating no real clustering).
+#' are reassigned to the low probability cluster (indicating no real clustering).
 #' 
 #' 
 #' @param df The name of the dateset with transmission probabilities (column \code{pVar}),
@@ -45,8 +46,8 @@
 #' 
 #'
 #' @return The original data frame (\code{df}) with a new column called \code{cluster}
-#' which is a factor variable with value \code{1} if the infector is in the top cluster
-#' or \code{2} if the infector is in the bottom cluster.
+#' which is a factor variable with value \code{1} if the infector is in the high probability cluster
+#' or \code{2} if the infector is in the low probability cluster.
 #' 
 #' 
 #' @examples
@@ -55,7 +56,7 @@
 #' ## of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Clustering using top n
-#' # Top cluster includes infectors with highest 3 probabilities
+#' # High probability cluster includes infectors with highest 3 probabilities
 #' clust1 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
 #'                            clustMethod = "n", cutoff = 3)
 #' table(clust1$cluster)

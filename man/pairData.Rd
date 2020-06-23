@@ -3,7 +3,7 @@
 \docType{data}
 \name{pairData}
 \alias{pairData}
-\title{Pair-level Outbreak Dataset}
+\title{Pair-level simulated outbreak dataset}
 \format{
 A data frame with 9900 rows and 17 variables:
 \describe{
@@ -34,5 +34,8 @@ A dataset of all pairs (unordered) of the outbreak of 100 individuals
 described in \code{\link{indData}} with SNP distance between each pair. Genomes were
 simulated using the package phangorn from the phylogentic tree created
 during the outbreak simulation.
+}
+\references{
+Schliep KP. phangorn: Phylogenetic analysis in R. Bioinformatics. 2011;27(4):592-3.
 }
 \keyword{datasets}

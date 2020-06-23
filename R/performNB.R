@@ -1,5 +1,5 @@
 
-#' Perform Naive Bayes
+#' Performs naive bayes classification
 #'
 #' The function \code{performNB} Calculates the posterior probabilities of a dichotomous class
 #' variable given a set of covariates using Bayes rule.
@@ -20,7 +20,7 @@
 #' @param obsIDVar The variable name (in quotes) of the observation ID variable.
 #' @param goldStdVar The variable name (in quotes) of the outcome in the training dataset
 #' (needs to be a logical variable with value \code{TRUE} for observations with
-#'  the outcome of interest.
+#'  the outcome of interest.)
 #' @param covariates A character vector containing the covariate variable names.
 #' All covariates need to be categorical factor variables.
 #' @param l Laplace smoothing parameter that is added to each cell
@@ -70,9 +70,10 @@
 #' 
 #' ## Using NB to predict if the species is virginica
 #' ## (training and predicting on same dataset)
-#' pred <- performNB(irisNew, irisNew, obsIDVar = "id", goldStdVar = "spVirginica",
-#' covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
-#'                "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
+#' pred <- performNB(irisNew, irisNew, obsIDVar = "id",
+#'                     goldStdVar = "spVirginica",
+#'                     covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
+#'                                    "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
 #' irisResults <- merge(irisNew, pred$probabilities, by = "id")
 #' tapply(irisResults$p, irisResults$Species, summary)
 #' 

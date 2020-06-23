@@ -12,7 +12,7 @@
 #' \item{label}{The label for the run, here "SNPs".}
 #' \item{pAvg}{The mean transmission probability for the pair over all runs.}
 #' \item{pSD}{The standard deviation of the transmission probability for the pair over all runs.}
-#' \item{pScaled}{The mean relative transmission probability for the pair over.
+#' \item{pScaled}{The mean relative transmission probability for the pair over
 #'         all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.}
 #' \item{pRank}{The rank of the probability of the the pair out of all pairs for that
 #'        infectee (in case of ties all values have the minimum rank of the group).}
@@ -21,8 +21,8 @@
 #'        cross prediction repeated 50 times.}
 #' \item{individualID.1}{The ID of the potential "infector".}
 #' \item{individualID.2}{The ID of the potential "infectee".}
-#' \item{transmission}{Did individual.1 infect individual.2.}
-#' \item{snpDist}{What is the number of SNPs between the individuals.}
+#' \item{transmission}{Did individual.1 truly infect individual.2?}
+#' \item{snpDist}{The number of SNPs between the individuals.}
 #' \item{infectionDate.1}{The date and time of infection of individualID.1.}
 #' \item{infectionDate.2}{The date and time of infection of individualID.2.}
 #' \item{sampleDate.1}{The date and time of sampling of individualID.1.}

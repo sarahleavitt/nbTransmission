@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Perform Naive Bayes — performNB • nbTransmission</title>
+<title>Performs naive bayes classification — performNB • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Perform Naive Bayes — performNB" />
+<meta property="og:title" content="Performs naive bayes classification — performNB" />
 <meta property="og:description" content="The function performNB Calculates the posterior probabilities of a dichotomous class
 variable given a set of covariates using Bayes rule." />
 
@@ -121,7 +121,7 @@ variable given a set of covariates using Bayes rule." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Perform Naive Bayes</h1>
+    <h1>Performs naive bayes classification</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/performNB.R'><code>R/performNB.R</code></a></small>
     <div class="hidden name"><code>performNB.Rd</code></div>
     </div>
@@ -152,7 +152,7 @@ variable given a set of covariates using Bayes rule.</p>
       <th>goldStdVar</th>
       <td><p>The variable name (in quotes) of the outcome in the training dataset
 (needs to be a logical variable with value <code>TRUE</code> for observations with
- the outcome of interest.</p></td>
+ the outcome of interest.)</p></td>
     </tr>
     <tr>
       <th>covariates</th>
@@ -222,9 +222,10 @@ for those who do not. The probability of having the outcome
 
 <span class='co'>## Using NB to predict if the species is virginica</span>
 <span class='co'>## (training and predicting on same dataset)</span>
-<span class='no'>pred</span> <span class='kw'>&lt;-</span> <span class='fu'>performNB</span>(<span class='no'>irisNew</span>, <span class='no'>irisNew</span>, <span class='kw'>obsIDVar</span> <span class='kw'>=</span> <span class='st'>"id"</span>, <span class='kw'>goldStdVar</span> <span class='kw'>=</span> <span class='st'>"spVirginica"</span>,
-<span class='kw'>covariates</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Sepal.Length.Cat"</span>, <span class='st'>"Sepal.Width.Cat"</span>,
-               <span class='st'>"Petal.Length.Cat"</span>, <span class='st'>"Petal.Width.Cat"</span>), <span class='kw'>l</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='no'>pred</span> <span class='kw'>&lt;-</span> <span class='fu'>performNB</span>(<span class='no'>irisNew</span>, <span class='no'>irisNew</span>, <span class='kw'>obsIDVar</span> <span class='kw'>=</span> <span class='st'>"id"</span>,
+                    <span class='kw'>goldStdVar</span> <span class='kw'>=</span> <span class='st'>"spVirginica"</span>,
+                    <span class='kw'>covariates</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Sepal.Length.Cat"</span>, <span class='st'>"Sepal.Width.Cat"</span>,
+                                   <span class='st'>"Petal.Length.Cat"</span>, <span class='st'>"Petal.Width.Cat"</span>), <span class='kw'>l</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 <span class='no'>irisResults</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/merge.html'>merge</a></span>(<span class='no'>irisNew</span>, <span class='no'>pred</span>$<span class='no'>probabilities</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='st'>"id"</span>)
 <span class='fu'><a href='https://rdrr.io/r/base/tapply.html'>tapply</a></span>(<span class='no'>irisResults</span>$<span class='no'>p</span>, <span class='no'>irisResults</span>$<span class='no'>Species</span>, <span class='no'>summary</span>)</div><div class='output co'>#&gt; $setosa
 #&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 

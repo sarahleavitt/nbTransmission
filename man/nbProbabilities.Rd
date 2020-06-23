@@ -2,7 +2,7 @@
 % Please edit documentation in R/calcProbabilities.R
 \name{nbProbabilities}
 \alias{nbProbabilities}
-\title{Calculates Relative Transmission Probabilities}
+\title{Estimates relative transmission probabilities}
 \usage{
 nbProbabilities(
   orderedPair,
@@ -35,11 +35,11 @@ All covariates need to be categorical factor variables.}
 
 \item{l}{Laplace smoothing parameter that is added to each cell.}
 
-\item{n}{The number of folds for nxm cross validation}
+\item{n}{The number of folds for nxm cross validation (should be at least 10).}
 
 \item{m}{The number of times to create n folds in nxm cross validation.}
 
-\item{nReps}{The number of times to randomly select the "true" infector.}
+\item{nReps}{The number of times to randomly select the "true" infector (should be at least 10).}
 }
 \value{
 List containing two data frames:
@@ -48,18 +48,18 @@ List containing two data frames:
      \itemize{
        \item \code{label} - the optional label of the run.
        \item \code{<pairIDVar>} - the pair ID with the name specified.
-       \item \code{pAvg} - the mean transmission probability for the pair over all runs.
+       \item \code{pAvg} - the mean transmission probability for the pair over all iterations.
        \item \code{pSD} - the standard deviation of the transmission probability for the pair
-        over all runs.
+        over all iterations.
        \item \code{pScaled} - the mean relative transmission probability for the pair over.
-        all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
+        all iterations: pAvg scaled so that the probabilities for all infectors per infectee add to 1.
        \item \code{pRank} - the rank of the probability of the the pair out of all pairs for that
        infectee (in case of ties all values have the minimum rank of the group).
        \item \code{nEstimates} - the number of probability estimates that contributed to pAvg. This
        represents the number of prediction datasets this pair was included in over the \code{nxm}
        cross prediction repeated \code{nReps} times.
      }
-  \item \code{estimates} - a data frame with the effect estimates. Column names:
+  \item \code{estimates} - a data frame with the contribution of covariates. Column names:
      \itemize{
        \item \code{label} - the optional label of the run
        \item \code{level} - the covariate name and level
@@ -75,13 +75,12 @@ List containing two data frames:
 }
 \description{
 The function \code{nbProbabilities} uses naive Bayes and an interative estimation
-procedure to calculate relative transmission probabilities
+procedure to estimate relative transmission probabilities
 }
 \details{
 This algorithm takes a dataset of ordered possible infector-infectee pairs in an
 infectious disease outbreak or cluster and estimates the relative probability the cases are
 linked by direct transmission using a classification technique called naive Bayes (NB).
-
 NB is a simple machine learning algorithm that uses Bayes rule to estimate the
 probability of an outcome in a prediction dataset given a set of covariates from
 the observed frequencies in a training dataset.

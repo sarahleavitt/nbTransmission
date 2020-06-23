@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizeResults.R
 \name{nbHeatmap}
 \alias{nbHeatmap}
-\title{Creates a heatmap of the relative transmission probabilities}
+\title{Plots a heatmap of the relative transmission probabilities}
 \usage{
 nbHeatmap(
   df,
@@ -45,7 +45,7 @@ boundaries used to classify the probabilities and color the squares.
 The first element should be less than 0 and the last should be 1.}
 }
 \description{
-The function \code{nbHeatmap} creates a heatmap of the transmission probabilities.
+The function \code{nbHeatmap} plots a heatmap of the transmission probabilities.
 The rows are the possible infectors and the columns are the possible infectees both
 ordered by \code{<dateVar>}. The darker the square the higher the probability that
 the pair represented by that square is a transmission link. If a cluster method is specified 
@@ -71,6 +71,7 @@ The colors are defined with the code \code{brewer.pal(length(probBreaks) - 1, "B
 # par(mar = c(0, 0, 1, 0))
 # nbHeatmap(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 # pVar = "pScaled", clustMethod = "none")
+
 
 ## NOT RUN ##
 # ## Adding stars for the top cluster, in black and white, changing the probability breaks

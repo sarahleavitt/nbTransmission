@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Individual to Pair — indToPair • nbTransmission</title>
+<title>Transforms a dataset of individuals to a dataset of pairs — indToPair • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Individual to Pair — indToPair" />
-<meta property="og:description" content="Transforms a dataset of individuals to a dataset of pairs" />
+<meta property="og:title" content="Transforms a dataset of individuals to a dataset of pairs — indToPair" />
+<meta property="og:description" content="The function indToPair takes a dataset of observations (such as individuals in an infectious
+disease outbreak) and transforms it into a dataset of pairs." />
 
 
 
@@ -120,13 +121,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Individual to Pair</h1>
+    <h1>Transforms a dataset of individuals to a dataset of pairs</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/indToPair.R'><code>R/indToPair.R</code></a></small>
     <div class="hidden name"><code>indToPair.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Transforms a dataset of individuals to a dataset of pairs</p>
+    <p>The function <code>indToPair</code> takes a dataset of observations (such as individuals in an infectious
+disease outbreak) and transforms it into a dataset of pairs.</p>
     </div>
 
     <pre class="usage"><span class='fu'>indToPair</span>(
@@ -157,7 +159,7 @@ the pairID.</p></td>
     <tr>
       <th>dateVar</th>
       <td><p>The name (in quotes) of the column with the dates that the individuals are observed
-(optional unless ordered = TRUE). This column must be a date or date-time (POSIXt) object.
+(optional unless <code>ordered = TRUE</code>). This column must be a date or date-time (POSIXt) object.
 If supplied, the time difference between individuals will be calculated in the units specified.</p></td>
     </tr>
     <tr>
@@ -168,32 +170,32 @@ Must be one of <code>"mins", "hours", "days", "weeks"</code>.</p></td>
     <tr>
       <th>ordered</th>
       <td><p>A logical indicating if a set of ordered pairs should be returned
-(dateVar.1 before dateVar.2). If FALSE a dataframe of all pairs will be returned</p></td>
+(<code>&lt;dateVar&gt;.1</code> before <code>&lt;dateVar&gt;.2</code> or <code>&lt;dateVar&gt;.1</code> = <code>&lt;dateVar&gt;.2</code>).
+If FALSE a dataframe of all pairs will be returned</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A dataframe of either all possible pairs of individuals (ordered = FALSE) or ordered
-pairs of individuals (ordered = TRUE). The dataframe will have all of the original variables
+    <p>A dataframe of either all possible pairs of individuals (<code>ordered = FALSE</code>) or ordered
+pairs of individuals (<code>ordered = TRUE</code>). The dataframe will have all of the original variables
 with suffixes ".1" and ".2" corresponding to the original values of 
-<code>indIDVar.1</code> and <code>indIDVar.2</code>.</p>
-<p>Added to the dataframe will be a column called <code>pairID</code> which is <code>indIDVar.1</code>
-and <code>indIDVar.2</code> separated by <code>separator</code>.</p>
+<code>&lt;indIDVar&gt;.1</code> and <code>&lt;indIDVar&gt;.2</code>.</p>
+<p>Added to the dataframe will be a column called <code>pairID</code> which is <code>&lt;indIDVar&gt;.1</code>
+and <code>&lt;indIDVar&gt;.2</code> separated by <code>separator</code>.</p>
 <p>If dateVar is provided the dataframe will also include variables <code>&lt;dateVar&gt;.Diff</code> giving 
-the difference of time of <code>dateVar</code> in the units specified for <code>indIDVar.1</code> 
-and <code>indIDVar.2</code></p>
+the difference of time of <code>dateVar</code> for <code>&lt;indIDVar&gt;.1</code> and <code>&lt;indIDVar&gt;.2</code> 
+in the units specified</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The function <code>indToPair</code> takes a dataset of observations (such as individuals in an infectious
-disease outbreak) and transforms it into a dataset of pairs. The function requires an id column:
-<code>indIDVar</code> to identify the individual observations. The resulting pair-level dataframe will
-have a <code>pairID</code> column which combines the individual IDs for that pair.</p>
+    <p>The function requires an id column: <code>indIDVar</code> to identify the individual observations.
+The resulting pair-level dataframe will have a <code>pairID</code> column which combines the individual IDs
+for that pair.</p>
 <p>The function can either output all possible pairs (<code>ordered = FALSE</code>) or only ordered pairs 
 (<code>ordered = TRUE</code>) where the ordered is determined by a date variable (<code>dateVar</code>).
-If <code>ordered = FALSE</code>, then the <code>dateVar</code> argument is option and if provided,
-the output will include the time difference in days and years between the individuals in the pair.
-If <code>orded = TRUE</code>, then <code>dateVar</code> must be provide.</p>
+If <code>orded = TRUE</code>, then <code>dateVar</code> must be provided and if <code>ordered = FALSE</code>,
+it is optional. In both cases, if <code>dateVar</code> is provided, the output will include the time
+difference between the individuals in the pair in the <code>units</code> specified ("mins", "hours", "days", "weeks").</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Create a dataset of all pairs with no date variable</span>

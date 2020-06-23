@@ -2,7 +2,7 @@
 % Please edit documentation in R/performNB.R
 \name{performNB}
 \alias{performNB}
-\title{Perform Naive Bayes}
+\title{Performs naive bayes classification}
 \usage{
 performNB(training, prediction, obsIDVar, goldStdVar, covariates, l = 1)
 }
@@ -15,7 +15,7 @@ performNB(training, prediction, obsIDVar, goldStdVar, covariates, l = 1)
 
 \item{goldStdVar}{The variable name (in quotes) of the outcome in the training dataset
 (needs to be a logical variable with value \code{TRUE} for observations with
- the outcome of interest.}
+ the outcome of interest.)}
 
 \item{covariates}{A character vector containing the covariate variable names.
 All covariates need to be categorical factor variables.}
@@ -82,9 +82,10 @@ irisNew$Petal.Width.Cat <- factor(cut(irisNew$Petal.Width, c(0, 1, 2, Inf)),
 
 ## Using NB to predict if the species is virginica
 ## (training and predicting on same dataset)
-pred <- performNB(irisNew, irisNew, obsIDVar = "id", goldStdVar = "spVirginica",
-covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
-               "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
+pred <- performNB(irisNew, irisNew, obsIDVar = "id",
+                    goldStdVar = "spVirginica",
+                    covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
+                                   "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
 irisResults <- merge(irisNew, pred$probabilities, by = "id")
 tapply(irisResults$p, irisResults$Species, summary)
 

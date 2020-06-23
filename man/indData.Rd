@@ -3,7 +3,7 @@
 \docType{data}
 \name{indData}
 \alias{indData}
-\title{Individual-level Outbreak Dataset}
+\title{Individual-level simulated outbreak dataset}
 \format{
 A data frame with 100 rows and 8 variables:
 \describe{
@@ -22,13 +22,16 @@ indData
 }
 \description{
 A dataset of an outbreak of 100 individuals starting from one case.
-It was simulated with using TransPhylo with parameters resembling TB,
-starting from one case:
+It was simulated with using the package TransPhylo with parameters resembling TB:
 \itemize{
 \item average reproductive number = 1.2
-\item serial interval = gamma(1.2, 2) years
+\item generation interval = gamma(1.2, 2) years
 \item outbreak duration = 14 years
 \item mutation rate 0.5 snps/genome/year
 }
+}
+\references{
+Didelot X, Fraser C, Gardy J, Colijn C. Genomic Infectious Disease Epidemiology in Partially
+Sampled and Ongoing Outbreaks. Mol Biol Evol. 2017;34(4):997-1007.
 }
 \keyword{datasets}

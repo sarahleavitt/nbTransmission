@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Executes the PEM algorthim to estimate the serial interval distribution — performPEM • nbTransmission</title>
+<title>Executes the PEM algorthim to estimate the generation/serial interval distribution — performPEM • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Executes the PEM algorthim to estimate the serial interval distribution — performPEM" />
+<meta property="og:title" content="Executes the PEM algorthim to estimate the generation/serial interval distribution — performPEM" />
 <meta property="og:description" content="The function performPEM uses relative transmission probabilities to estimate
-the serial interval distribution" />
+the generation/serial interval distribution" />
 
 
 
@@ -121,14 +121,14 @@ the serial interval distribution" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Executes the PEM algorthim to estimate the serial interval distribution</h1>
+    <h1>Executes the PEM algorthim to estimate the generation/serial interval distribution</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/calcSI.R'><code>R/calcSI.R</code></a></small>
     <div class="hidden name"><code>performPEM.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>The function <code>performPEM</code> uses relative transmission probabilities to estimate
-the serial interval distribution</p>
+the generation/serial interval distribution</p>
     </div>
 
     <pre class="usage"><span class='fu'>performPEM</span>(
@@ -158,9 +158,9 @@ the serial interval distribution</p>
     <tr>
       <th>timeDiffVar</th>
       <td><p>The name (in quotes) of the column with the difference
-in time between symptom onset (or its proxy) for the pair of cases. The
-units of this variable (hours, days, years) defines the units of the resulting
-SI distribution.</p></td>
+in time between infection (generation interval) or symptom onset (serial interval) for the
+pair of cases. The units of this variable (hours, days, years) defines the units of the 
+resulting distribution.</p></td>
     </tr>
     <tr>
       <th>pVar</th>
@@ -174,8 +174,8 @@ to initialize the gamma distribution parameters.</p></td>
     <tr>
       <th>shift</th>
       <td><p>A value in the same units as <code>timeDiffVar</code> that the
-gamma distribution should be shifted. The Default value of 0 is a 
-standard gamma distribution.</p></td>
+gamma distribution should be shifted. The Default value of 0 is an 
+unmodifed gamma distribution.</p></td>
     </tr>
     <tr>
       <th>epsilon</th>
@@ -192,23 +192,23 @@ parameter estimates at each iteration.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A data frame with one row and the following columns:</p><ul>
-<li><p><code>nIndividuals</code> - the number of infectees who have SIs included
+<li><p><code>nIndividuals</code> - the number of infectees who have intervals included
    in the SI estimate.</p></li>
-<li><p><code>shape</code> - the shape of the estimated gamma distribution for the SI.</p></li>
-<li><p><code>scale</code> - the scale of the estimated gamma distribution for the SI.</p></li>
-<li><p><code>meanSI</code> - the mean of the estimated gamma distribution for the SI 
+<li><p><code>shape</code> - the shape of the estimated gamma distribution for the interval.</p></li>
+<li><p><code>scale</code> - the scale of the estimated gamma distribution for the interval.</p></li>
+<li><p><code>meanSI</code> - the mean of the estimated gamma distribution for the interval 
    (<code>shape * scale + shift</code>).</p></li>
-<li><p><code>medianSI</code> - the median of the estimated gamma distribution for the SI
+<li><p><code>medianSI</code> - the median of the estimated gamma distribution for the interval
    (<code>qgamma(0.5, shape, scale) + shift)</code>).</p></li>
 <li><p><code>sdSI</code> - the standard deviation of the estimated gamma distribution for
-   the SI (<code>shape * scale ^ 2</code>)</p></li>
+   the interval (<code>shape * scale ^ 2</code>)</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function is meant to be called by <code><a href='estimateSI.html'>estimateSI</a></code>
-which estimates the serial interval distribution as well as clustering the
-probabilities but can be called directly. The main reason to call <code>performPEM</code>
+which estimates the generation/serial interval distribution as well as clustering the
+probabilities, but can be called directly. The main reason to call <code>performPEM</code>
 directly is for the <code>plot</code> argument. Setting this argument to <code>TRUE</code>
 will produce a plot of the shape and scale parameters at each iteration.
 For more details on the PEM algorithm see <code><a href='estimateSI.html'>estimateSI</a></code>.</p>

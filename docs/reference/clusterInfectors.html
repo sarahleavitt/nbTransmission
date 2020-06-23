@@ -175,8 +175,8 @@ one of <code>"n", "kd", "hc_absolute", "hc_relative"</code> (see details).</p></
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The original data frame (<code>df</code>) with a new column called <code>cluster</code>
-which is a factor variable with value <code>1</code> if the infector is in the top cluster
-or <code>2</code> if the infector is in the bottom cluster.</p>
+which is a factor variable with value <code>1</code> if the infector is in the high probability cluster
+or <code>2</code> if the infector is in the low probability cluster.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function provides a way to find the most likely infectors for each infectee
@@ -188,18 +188,19 @@ infectors in the top cluster where n is defined by the value of <code>cutoff</co
 The density for the probabilities for all infectors is estimated using a binwidth defined
 by the value of <code>cutoff</code>. If the density is made up of at least two separate curves
 (separated by a region where the density drops to 0) then the infectors with probabilities
-greater than the lowest 0 region are assigned into the top cluster. If the density of the
-probabilities does not drop to 0 then all infectors are assigned into the bottom cluster.</p>
+greater than the lowest 0 region are assigned to the high probability cluster. If the density of the
+probabilities does not drop to 0 then all infectors are assigned to the low probability cluster 
+(indicating no real clustering).</p>
 <p>If <code>clustMethod == "hc_absolute"</code> or <code>clustMethod == "hc_relative"</code>, then
 hierarchical clustering with minimum distance is used to split the possible infectors
 into two clusters. This method functionally splits the infectors by the largest gap
 in their probabilities.</p>
 <p>Then if <code>clustMethod == "hc_absolute"</code>, those infectees
 where the gap between the two clusters is less than <code>cutoff</code> have all of their
-possible infectors reassigned to the bottom cluster (indicating no real clustering).
+possible infectors reassigned to the low probability cluster (indicating no real clustering).
 If <code>clustMethod == "hc_relative"</code>, then all infectees where the gap between the two
 clusters is less than <code>cutoff</code> times the second largest gap in probabilities
-are reassigned to the bottom cluster (indicating no real clustering).</p>
+are reassigned to the low probability cluster (indicating no real clustering).</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='nbProbabilities.html'>nbProbabilities</a></code></p></div>
@@ -210,7 +211,7 @@ are reassigned to the bottom cluster (indicating no real clustering).</p>
 <span class='co'>## of the nbProbabilities() function on a TB-like outbreak.</span>
 
 <span class='co'>## Clustering using top n</span>
-<span class='co'># Top cluster includes infectors with highest 3 probabilities</span>
+<span class='co'># High probability cluster includes infectors with highest 3 probabilities</span>
 <span class='no'>clust1</span> <span class='kw'>&lt;-</span> <span class='fu'>clusterInfectors</span>(<span class='no'>nbResults</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
                            <span class='kw'>clustMethod</span> <span class='kw'>=</span> <span class='st'>"n"</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>3</span>)
 <span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>clust1</span>$<span class='no'>cluster</span>)</div><div class='output co'>#&gt; 

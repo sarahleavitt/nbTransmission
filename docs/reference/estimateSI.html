@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Estimates the serial interval distribution — estimateSI • nbTransmission</title>
+<title>Estimates the generation/serial interval distribution — estimateSI • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Estimates the serial interval distribution — estimateSI" />
+<meta property="og:title" content="Estimates the generation/serial interval distribution — estimateSI" />
 <meta property="og:description" content="The function estimateSI uses the relative transmission probabilities to estimate
-the serial interval (SI) distribution assuming a gamma distribution.
+the generation/serial interval distribution assuming a gamma distribution.
 It uses the PEM algorithm developed by Hens et al. 2012 extending their method to include
 restricting analysis to the top cluster of possible infectors." />
 
@@ -123,14 +123,14 @@ restricting analysis to the top cluster of possible infectors." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Estimates the serial interval distribution</h1>
+    <h1>Estimates the generation/serial interval distribution</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/calcSI.R'><code>R/calcSI.R</code></a></small>
     <div class="hidden name"><code>estimateSI.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>The function <code>estimateSI</code> uses the relative transmission probabilities to estimate
-the serial interval (SI) distribution assuming a gamma distribution.
+the generation/serial interval distribution assuming a gamma distribution.
 It uses the PEM algorithm developed by Hens et al. 2012 extending their method to include
 restricting analysis to the top cluster of possible infectors.</p>
     </div>
@@ -167,9 +167,9 @@ in time between the pair of cases (column <code>timeDiffVar</code>)</p></td>
     <tr>
       <th>timeDiffVar</th>
       <td><p>The name (in quotes) of the column with the difference
-in time between symptom onset (or its proxy) for the pair of cases. The
-units of this variable (hours, days, years) defines the units of the resulting
-SI distribution.</p></td>
+in time between infection (generation interval) or symptom onset (serial interval) for the
+pair of cases. The units of this variable (hours, days, years) defines the units of the 
+resulting distribution.</p></td>
     </tr>
     <tr>
       <th>pVar</th>
@@ -195,8 +195,8 @@ to initialize the gamma distribution parameters.</p></td>
     <tr>
       <th>shift</th>
       <td><p>A value in the same units as <code>timeDiffVar</code> that the
-gamma distribution should be shifted. The default value of 0 is a 
-standard gamma distribution.</p></td>
+gamma distribution should be shifted. The default value of 0 is an 
+unmodifed gamma distribution.</p></td>
     </tr>
     <tr>
       <th>epsilon</th>
@@ -217,42 +217,44 @@ are calculated.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A data frame with one row and the following columns:</p><ul>
-<li><p><code>nIndividuals</code> - the number of infectees who have SIs included in the SI estimate.</p></li>
-<li><p><code>pCluster</code> - the proportion of cases who have SIs included in the SI estimate.</p></li>
+<li><p><code>nIndividuals</code> - the number of infectees who have intervals included in the estimate.</p></li>
+<li><p><code>pCluster</code> - the proportion of cases who have intervals included in the estimate.</p></li>
 <li><p><code>nInfectors</code> - the average number of infectors in the top cluster.</p></li>
-<li><p><code>shape</code> - the shape of the estimated gamma distribution for the SI.</p></li>
-<li><p><code>scale</code> - the scale of the estimated gamma distribution for the SI.</p></li>
-<li><p><code>meanSI</code> - the mean of the estimated gamma distribution for the SI 
+<li><p><code>shape</code> - the shape of the estimated gamma distribution for the interval</p></li>
+<li><p><code>scale</code> - the scale of the estimated gamma distribution for the interval</p></li>
+<li><p><code>meanSI</code> - the mean of the estimated gamma distribution for the interval 
    (<code>shape * scale + shift</code>)</p></li>
-<li><p><code>medianSI</code> - the median of the estimated gamma distribution for the SI
+<li><p><code>medianSI</code> - the median of the estimated gamma distribution for the interval
    (<code>qgamma(0.5, shape, scale) + shift)</code>)</p></li>
 <li><p><code>sdSI</code> - the standard deviation of the estimated gamma distribution for
-   the SI (<code>shape * scale ^ 2</code>)</p></li>
+   the interval (<code>shape * scale ^ 2</code>)</p></li>
 </ul><p>If bootSamples &gt; 0, then the data frame also includes the following columns:</p><ul>
 <li><p><code>shapeCILB</code> and <code>shapeCIUB</code> - lower bound and upper bounds
     of the bootstrap confidence interval for the shape parameter</p></li>
 <li><p><code>scaleCILB</code> and <code>scaleCIUB</code> - lower bound and upper bounds
     of the bootstrap confidence interval for the scale parameter</p></li>
 <li><p><code>meanCILB</code> and <code>meanCIUB</code> - lower bound and upper bounds
-    of the bootstrap confidence interval for the mean of the SI distribution</p></li>
+    of the bootstrap confidence interval for the mean of the interval distribution</p></li>
 <li><p><code>medianCILB</code> and <code>medianCIUB</code> - lower bound and upper bounds
-    of the bootstrap confidence interval for the median of the SI distribution</p></li>
+    of the bootstrap confidence interval for the median of the interval distribution</p></li>
 <li><p><code>sdCILB</code> and <code>sdCIUB</code> - lower bound and upper bounds
-    of the bootstrap confidence interval for the sd of the SI distribution</p></li>
+    of the bootstrap confidence interval for the sd of the interval distribution</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The PEM algorithm uses the prior probability that each pair is connected by direct
-transmission to estimate the serial interval using estimation maximization. The
-current serial interval distribution parameters are used to update the probabilities
-which are then used to update the serial interval distribution parameters. The process
+transmission to estimate the generation/serial interval using estimation maximization.
+This code will provide an estimate of the generation interval if <code>timeDiffVar</code> represents the
+difference in infection dates and the serial interval if it represents the difference in symptom onset dates.
+The current generation/serial interval distribution parameters are used to update the probabilities
+which are then used to update the generation/serial interval distribution parameters. The process
 continues until the parameters converge (indicated by a change of less than <code>epsilon</code>)
 between interations. <em>Note: time difference between pairs should not be used to 
 estimate the probabilities</em></p>
 <p>This function acts as a wrapper around <code><a href='performPEM.html'>performPEM</a></code> which integrates
-estimation of the SI distribution with clustering the infectors and calculates
-derived parameters (mean, median, sd) of the SI distribution. Generally, this function
+estimation of the generation/serial interval distribution with clustering the infectors and calculates
+derived parameters (mean, median, sd) of the distribution. Generally, this function
 should be called instead of <code><a href='performPEM.html'>performPEM</a></code> directly.</p>
 <p>All pairs of cases can be used in the estimation process by setting
 <code>clustMethod = "none"</code>. However, if the probabilities are from a algorithm such as
@@ -261,13 +263,13 @@ and only include the top cluster of infectors for infectees which have such a cl
 This can be specified by using the <code>clustMethod</code> and <code>cutoff</code> arguments which
 are passed into <code><a href='clusterInfectors.html'>clusterInfectors</a></code>. See the details of this function for
 a description of the different clustering methods.</p>
-<p>The method can be performed with any serial interval distribution,
-but this version of this function assumes that the serial interval has a gamma distribution.
+<p>The method can be performed with any generation/serial interval distribution,
+but this version of this function assumes that the generation/serial interval has a gamma distribution.
 The function does allow for a shifted gamma distribution. The <code>shift</code> argument
-defines how much the gamma distribution should be shifted. Any observed serial intervals
+defines how much the gamma distribution should be shifted. Any observed generation/serial intervals
 that are less than this shift will have probability 0. This parameter should be used if 
-there is a clinically lower bound for the possible serial interval. If this argument
-is not specified then a standard gamma function is used. The units of the
+there is a clinical lower bound for the possible generation/serial interval. If this argument
+is not specified then an unmodified gamma function is used. The units of the
 estimated gamma distribution will be defined by the units of the provided
 <code>&lt;timeDiffVar&gt;</code> column. The value of the <code>shift</code> should be in the same units.</p>
 <p>The algorithm requires initial parameters which should be specified as a vector: 

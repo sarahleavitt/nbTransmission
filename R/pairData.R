@@ -1,5 +1,5 @@
 
-#' Pair-level Outbreak Dataset
+#' Pair-level simulated outbreak dataset
 #' 
 #' A dataset of all pairs (unordered) of the outbreak of 100 individuals 
 #' described in \code{\link{indData}} with SNP distance between each pair. Genomes were
@@ -26,4 +26,8 @@
 #' \item{Z3}{Pair-level covariate derived from X3: 1 if a-a, 2 if b-b, 3 if a-b, 4 if b-a.}
 #' \item{Z4}{Pair-level covariate derived from X4: 1 if match, 2 if adjacent, 2 otherwise.}
 #' }
+#' 
+#' @references 
+#' Schliep KP. phangorn: Phylogenetic analysis in R. Bioinformatics. 2011;27(4):592-3.
+#' 
 "pairData"

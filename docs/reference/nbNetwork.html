@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creates a network of the relative transmission probabilities — nbNetwork • nbTransmission</title>
+<title>Plots a network of the relative transmission probabilities — nbNetwork • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,12 @@
 
 
 
-<meta property="og:title" content="Creates a network of the relative transmission probabilities — nbNetwork" />
-<meta property="og:description" content="The function nNetwork creates a network of the transmission probabilities.
+<meta property="og:title" content="Plots a network of the relative transmission probabilities — nbNetwork" />
+<meta property="og:description" content="The function nNetwork plots a network of the transmission probabilities.
 The nodes are the individuals and the edges represent possible transmission pairs.
 The darker the edge, the higher the probability that the pair is a transmission link.
 If a cluster method is specified using clustMethod and cutoff, only edges
-that are in the top cluster of infectors will be drawn." />
+that are in the high probability cluster of infectors will be drawn." />
 
 
 
@@ -124,17 +124,17 @@ that are in the top cluster of infectors will be drawn." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creates a network of the relative transmission probabilities</h1>
+    <h1>Plots a network of the relative transmission probabilities</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/visualizeResults.R'><code>R/visualizeResults.R</code></a></small>
     <div class="hidden name"><code>nbNetwork.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>The function <code>nNetwork</code> creates a network of the transmission probabilities.
+    <p>The function <code>nNetwork</code> plots a network of the transmission probabilities.
 The nodes are the individuals and the edges represent possible transmission pairs.
 The darker the edge, the higher the probability that the pair is a transmission link.
 If a cluster method is specified using <code>clustMethod</code> and <code>cutoff</code>, only edges
-that are in the top cluster of infectors will be drawn.</p>
+that are in the high probability cluster of infectors will be drawn.</p>
     </div>
 
     <pre class="usage"><span class='fu'>nbNetwork</span>(
@@ -217,6 +217,7 @@ The colors are defined with the code <code>brewer.pal(length(probBreaks) - 1, "B
 # par(mar = c(0, 0, 0.2, 0))
 # nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 # pVar = "pScaled", clustMethod = "none")
+
 
 ## NOT RUN ##
 # ## Network of just the top cluster of infectors, black and white, changing the probability breaks

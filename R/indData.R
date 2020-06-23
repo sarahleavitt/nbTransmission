@@ -1,12 +1,11 @@
 
-#' Individual-level Outbreak Dataset
+#' Individual-level simulated outbreak dataset
 #' 
 #' A dataset of an outbreak of 100 individuals starting from one case.
-#' It was simulated with using TransPhylo with parameters resembling TB,
-#' starting from one case:
+#' It was simulated with using the package TransPhylo with parameters resembling TB:
 #' \itemize{
 #' \item average reproductive number = 1.2
-#' \item serial interval = gamma(1.2, 2) years
+#' \item generation interval = gamma(1.2, 2) years
 #' \item outbreak duration = 14 years
 #' \item mutation rate 0.5 snps/genome/year
 #' }
@@ -22,5 +21,10 @@
 #' \item{X3}{Covariate with 2 values: a, b (e.g. homelessness).}
 #' \item{X4}{Covariate with 10 values: a-j (e.g. county of residence).}
 #' }
+#' 
+#' @references
+#' Didelot X, Fraser C, Gardy J, Colijn C. Genomic Infectious Disease Epidemiology in Partially
+#' Sampled and Ongoing Outbreaks. Mol Biol Evol. 2017;34(4):997-1007.  
+#' 
 "indData"
 

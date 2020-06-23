@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizeResults.R
 \name{nbNetwork}
 \alias{nbNetwork}
-\title{Creates a network of the relative transmission probabilities}
+\title{Plots a network of the relative transmission probabilities}
 \usage{
 nbNetwork(
   df,
@@ -45,11 +45,11 @@ boundaries used to classify the probabilities and color the edges.
 The first element should be less than 0 and the last should be 1.}
 }
 \description{
-The function \code{nNetwork} creates a network of the transmission probabilities.
+The function \code{nNetwork} plots a network of the transmission probabilities.
 The nodes are the individuals and the edges represent possible transmission pairs.
 The darker the edge, the higher the probability that the pair is a transmission link.
 If a cluster method is specified using \code{clustMethod} and \code{cutoff}, only edges
-that are in the top cluster of infectors will be drawn.
+that are in the high probability cluster of infectors will be drawn.
 }
 \details{
 Users have the option of specifying how the probabilities should be grouped into different
@@ -67,6 +67,7 @@ The colors are defined with the code \code{brewer.pal(length(probBreaks) - 1, "B
 # par(mar = c(0, 0, 0.2, 0))
 # nbNetwork(nbResults, indIDVar = "individualID", dateVar = "infectionDate",
 # pVar = "pScaled", clustMethod = "none")
+
 
 ## NOT RUN ##
 # ## Network of just the top cluster of infectors, black and white, changing the probability breaks

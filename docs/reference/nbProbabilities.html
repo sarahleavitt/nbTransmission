@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculates Relative Transmission Probabilities — nbProbabilities • nbTransmission</title>
+<title>Estimates relative transmission probabilities — nbProbabilities • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Calculates Relative Transmission Probabilities — nbProbabilities" />
+<meta property="og:title" content="Estimates relative transmission probabilities — nbProbabilities" />
 <meta property="og:description" content="The function nbProbabilities uses naive Bayes and an interative estimation
-procedure to calculate relative transmission probabilities" />
+procedure to estimate relative transmission probabilities" />
 
 
 
@@ -121,14 +121,14 @@ procedure to calculate relative transmission probabilities" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculates Relative Transmission Probabilities</h1>
+    <h1>Estimates relative transmission probabilities</h1>
     <small class="dont-index">Source: <a href='https://github.com/sv1205/nbTransmission/blob/master/R/calcProbabilities.R'><code>R/calcProbabilities.R</code></a></small>
     <div class="hidden name"><code>nbProbabilities.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>The function <code>nbProbabilities</code> uses naive Bayes and an interative estimation
-procedure to calculate relative transmission probabilities</p>
+procedure to estimate relative transmission probabilities</p>
     </div>
 
     <pre class="usage"><span class='fu'>nbProbabilities</span>(
@@ -180,7 +180,7 @@ All covariates need to be categorical factor variables.</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>The number of folds for nxm cross validation</p></td>
+      <td><p>The number of folds for nxm cross validation (should be at least 10).</p></td>
     </tr>
     <tr>
       <th>m</th>
@@ -188,7 +188,7 @@ All covariates need to be categorical factor variables.</p></td>
     </tr>
     <tr>
       <th>nReps</th>
-      <td><p>The number of times to randomly select the "true" infector.</p></td>
+      <td><p>The number of times to randomly select the "true" infector (should be at least 10).</p></td>
     </tr>
     </table>
 
@@ -198,18 +198,18 @@ All covariates need to be categorical factor variables.</p></td>
 <li><p><code>probabilities</code> - a data frame of transmission probabilities. Column names:</p><ul>
 <li><p><code>label</code> - the optional label of the run.</p></li>
 <li><p><code>&lt;pairIDVar&gt;</code> - the pair ID with the name specified.</p></li>
-<li><p><code>pAvg</code> - the mean transmission probability for the pair over all runs.</p></li>
+<li><p><code>pAvg</code> - the mean transmission probability for the pair over all iterations.</p></li>
 <li><p><code>pSD</code> - the standard deviation of the transmission probability for the pair
-        over all runs.</p></li>
+        over all iterations.</p></li>
 <li><p><code>pScaled</code> - the mean relative transmission probability for the pair over.
-        all runs: pAvg scaled so that the probabilities for all infectors per infectee add to 1.</p></li>
+        all iterations: pAvg scaled so that the probabilities for all infectors per infectee add to 1.</p></li>
 <li><p><code>pRank</code> - the rank of the probability of the the pair out of all pairs for that
        infectee (in case of ties all values have the minimum rank of the group).</p></li>
 <li><p><code>nEstimates</code> - the number of probability estimates that contributed to pAvg. This
        represents the number of prediction datasets this pair was included in over the <code>nxm</code>
        cross prediction repeated <code>nReps</code> times.</p></li>
 </ul></li>
-<li><p><code>estimates</code> - a data frame with the effect estimates. Column names:</p><ul>
+<li><p><code>estimates</code> - a data frame with the contribution of covariates. Column names:</p><ul>
 <li><p><code>label</code> - the optional label of the run</p></li>
 <li><p><code>level</code> - the covariate name and level</p></li>
 <li><p><code>nIter</code> - the number of iterations included in the estimates: <code>n*m*nReps</code></p></li>
@@ -226,8 +226,8 @@ All covariates need to be categorical factor variables.</p></td>
 
     <p>This algorithm takes a dataset of ordered possible infector-infectee pairs in an
 infectious disease outbreak or cluster and estimates the relative probability the cases are
-linked by direct transmission using a classification technique called naive Bayes (NB).</p>
-<p>NB is a simple machine learning algorithm that uses Bayes rule to estimate the
+linked by direct transmission using a classification technique called naive Bayes (NB).
+NB is a simple machine learning algorithm that uses Bayes rule to estimate the
 probability of an outcome in a prediction dataset given a set of covariates from
 the observed frequencies in a training dataset.</p>
 <p>The input dataset - <code>orderedPair</code> - should represent ordered pairs of cases
