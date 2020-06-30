@@ -14,7 +14,8 @@ nbProbabilities(
   l = 1,
   n = 10,
   m = 1,
-  nReps = 10
+  nReps = 10,
+  progressBar = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ All covariates need to be categorical factor variables.}
 \item{m}{The number of times to create n folds in nxm cross validation.}
 
 \item{nReps}{The number of times to randomly select the "true" infector (should be at least 10).}
+
+\item{progressBar}{A logical indicating if a progress bar should be printed (default is TRUE).}
 }
 \value{
 List containing two data frames:

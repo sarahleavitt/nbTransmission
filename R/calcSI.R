@@ -76,6 +76,7 @@
 #' @param bootSamples The number of bootstrap samples; if 0, then no confidence intervals
 #' are calculated.
 #' @param alpha The alpha level for the confidence intervals.
+#' @param progressBar A logical indicating if a progress bar should be printed (default is TRUE).
 #' 
 #'
 #' @return A data frame with one row and the following columns:
@@ -183,7 +184,7 @@
 estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
                        clustMethod = c("none", "n", "kd", "hc_absolute", "hc_relative"),
                        cutoffs = NULL, initialPars, shift = 0, epsilon = 0.00001,
-                       bootSamples = 0, alpha = 0.05){
+                       bootSamples = 0, alpha = 0.05, progressBar = TRUE){
   
   #Creating variables with the individual ID
   indIDVar1 <- paste0(indIDVar, ".1")
@@ -224,15 +225,20 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
   #Storing a list of clustering results for all cutoffs
   if(clustMethod != "none"){
     
-    print("Clustering Infectors")
     clustList <- NULL
-    pb <- utils::txtProgressBar(min = 0, max = length(cutoffs), style = 3)
+    
+    if(progressBar == TRUE){
+      pb <- utils::txtProgressBar(min = 0, max = length(cutoffs), style = 3) 
+    }
     
     for(i in 1:length(cutoffs)){
       cutoff <- cutoffs[i]
       clustList[[i]] <- clusterInfectors(df, indIDVar = indIDVar, pVar = pVar,
                                          clustMethod = clustMethod, cutoff = cutoff)
-      utils::setTxtProgressBar(pb, i)
+      
+      if(progressBar == TRUE){
+        utils::setTxtProgressBar(pb, i) 
+      }
     }
   }else{
     df$cluster <- 1
@@ -249,9 +255,11 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
   #If bootSamples > 0, estimate bootstrap confidence intervals on the parameters
   if(bootSamples > 0){
     
-    print("Estimating Bootstrap Confidence Intervals")
     bootSI <- NULL
-    pb2 <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
+    
+    if(progressBar == TRUE){
+      pb2 <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3) 
+    }
     
     for(i in 1:bootSamples){
       
@@ -281,11 +289,15 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
       probsBootList <- lapply(clustList, bootSample)
       
       siNew <- estimateSIPars(probsBootList, indIDVar = indIDVar, timeDiffVar = timeDiffVar,
-                                pVar = pVar, clustMethod = clustMethod, cutoffs = cutoffs,
-                                initialPars = initialPars, shift = shift, epsilon = epsilon) 
+                              pVar = pVar, clustMethod = clustMethod, cutoffs = cutoffs,
+                              initialPars = initialPars, shift = shift, epsilon = epsilon) 
       
       bootSI <- dplyr::bind_rows(bootSI, siNew)
-      utils::setTxtProgressBar(pb2, i)
+      
+      if(progressBar == TRUE){
+        utils::setTxtProgressBar(pb2, i)
+      }
+
     }
     
     #Finding the CI bounds
@@ -370,7 +382,7 @@ estimateSIPars <- function(clustL, indIDVar, timeDiffVar, pVar, clustMethod,
       
     }else{
       message(paste0("With ", clustMethod, " and ", cutoff,
-                   ", fewer than 10 individuals would be used for estimation"))
+                   ", fewer than 10 individuals would be used for estimation so this cuttof is excluded"))
       pars <- cbind.data.frame("shape" = NA, "scale" = NA)
     }
     

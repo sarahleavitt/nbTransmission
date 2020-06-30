@@ -52,6 +52,7 @@
 #' @param n The number of folds for nxm cross validation (should be at least 10).
 #' @param m The number of times to create n folds in nxm cross validation.
 #' @param nReps The number of times to randomly select the "true" infector (should be at least 10).
+#' @param progressBar A logical indicating if a progress bar should be printed (default is TRUE).
 #'
 #' @return List containing two data frames:
 #' \enumerate{
@@ -119,7 +120,8 @@
 
 nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                             goldStdVar, covariates, label = "",
-                            l = 1, n = 10, m = 1, nReps = 10){
+                            l = 1, n = 10, m = 1, nReps = 10,
+                            progressBar = TRUE){
   
   orderedPair <- as.data.frame(orderedPair)
   #Creating variables with the individual indID variable
@@ -184,7 +186,10 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
   cAll <- data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
 
   
-  pb <- utils::txtProgressBar(min = 0, max = nReps, style = 3)
+  if(progressBar == TRUE){
+    pb <- utils::txtProgressBar(min = 0, max = nReps, style = 3)
+  }
+
   for (k in 1:nReps){
     
     #Randomly choosing the "true" infector from all possible
@@ -193,7 +198,10 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                        goldStdVar, covariates, l, n, m)
     rAll <- dplyr::bind_rows(rAll, cvResults$rFolds)
     cAll <- dplyr::bind_rows(cAll, cvResults$cFolds)
-    utils::setTxtProgressBar(pb, k)
+    
+    if(progressBar == TRUE){
+      utils::setTxtProgressBar(pb, k)
+    }
   }
   
   
@@ -205,7 +213,8 @@ nbProbabilities <- function(orderedPair, indIDVar, pairIDVar,
                                pAvg = mean(!!rlang::sym("p"), na.rm = TRUE),
                                pSD = stats::sd(!!rlang::sym("p"), na.rm = TRUE),
                                nEstimates = sum(!is.na(!!rlang::sym("p"))),
-                               label = dplyr::first(label))
+                               label = dplyr::first(label),
+                               .groups = 'drop')
   sumData2 <- dplyr::ungroup(sumData2)
   
   probs <- as.data.frame(dplyr::full_join(sumData2, orderedPair, by = pairIDVar),

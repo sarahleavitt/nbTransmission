@@ -12,12 +12,13 @@ estimateSIWrapper <- function(nbResults,
                              initialPars = c(2,2),
                              bootSamples = 0,
                              alpha = 0.05,
-                             epsilon = 0.0001){
+                             epsilon = 0.0001,
+                             progressBar = FALSE){
   
   siData <- estimateSI(nbResults, indIDVar = indIDVar,
                        timeDiffVar = timeDiffVar, pVar = pVar, clustMethod = clustMethod,
                        cutoffs = cutoffs, initialPars = initialPars, epsilon = epsilon,
-                       bootSamples = bootSamples, alpha = alpha)
+                       bootSamples = bootSamples, alpha = alpha, progressBar = progressBar)
   
   return(siData)
 }
@@ -40,7 +41,7 @@ siN <- estimateSIWrapper(testData, clustMethod = "n", cutoffs = 1)
 siNoneCI <- estimateSIWrapper(testData, clustMethod = "none", bootSamples = 2)
 #Run with clustering and CI
 siHCCI <- estimateSIWrapper(testData, clustMethod = "hc_absolute", cutoff = 0.05,
-                            bootSamples = 2)
+                            bootSamples = 2, progressBar = TRUE)
 
 
 

@@ -15,7 +15,8 @@ estimateSI(
   shift = 0,
   epsilon = 1e-05,
   bootSamples = 0,
-  alpha = 0.05
+  alpha = 0.05,
+  progressBar = TRUE
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ scale parameters that indicates convergence.}
 are calculated.}
 
 \item{alpha}{The alpha level for the confidence intervals.}
+
+\item{progressBar}{A logical indicating if a progress bar should be printed (default is TRUE).}
 }
 \value{
 A data frame with one row and the following columns:

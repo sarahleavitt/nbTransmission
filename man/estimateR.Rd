@@ -12,7 +12,8 @@ estimateR(
   timeFrame = c("days", "months", "weeks", "years"),
   rangeForAvg = NULL,
   bootSamples = 0,
-  alpha = 0.05
+  alpha = 0.05,
+  progressBar = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ the average effective reproductive number.}
 are calculated.}
 
 \item{alpha}{The alpha level for the confidence intervals.}
+
+\item{progressBar}{A logical indicating if a progress bar should be printed (default is TRUE).}
 }
 \value{
 A list with five elements:

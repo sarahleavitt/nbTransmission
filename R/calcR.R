@@ -46,6 +46,7 @@
 #' @param bootSamples The number of bootstrap samples; if 0, then no confidence intervals
 #' are calculated.
 #' @param alpha The alpha level for the confidence intervals.
+#' @param progressBar A logical indicating if a progress bar should be printed (default is TRUE).
 #'
 #' @return A list with five elements:
 #'\enumerate{
@@ -126,7 +127,8 @@
 
 estimateR <- function(df, indIDVar, dateVar, pVar,
                    timeFrame = c("days", "months", "weeks", "years"),
-                   rangeForAvg = NULL, bootSamples = 0, alpha = 0.05){
+                   rangeForAvg = NULL, bootSamples = 0, alpha = 0.05,
+                   progressBar = TRUE){
   
   
   df <- as.data.frame(df)
@@ -189,7 +191,11 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
     ## Finding the CI for Rt ##
     
     #Use manual list instead if replicate for progress bar
-    pb <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
+    
+    if(progressBar == TRUE){
+      pb <- utils::txtProgressBar(min = 0, max = bootSamples, style = 3)
+    }
+
     bootRt <- data.frame(c("timeRank" = integer(), "Rt" = numeric(),
                            "time" = character()), "rep" = integer(),
                          stringsAsFactors = FALSE)
@@ -199,7 +205,10 @@ estimateR <- function(df, indIDVar, dateVar, pVar,
                        dateVar = dateVar, timeFrame = timeFrame)
       oneRep$rep <- i
       bootRt <- rbind(bootRt, oneRep)
-      utils::setTxtProgressBar(pb, i)
+      
+      if(progressBar == TRUE){
+        utils::setTxtProgressBar(pb, i)
+      }
     }
     
     #Finding the quantiles of the distribution of Rt
@@ -285,7 +294,7 @@ estimateRi <- function(df, indIDVar, dateVar, pVar){
   
   #### Calculating individual-level reproductive number ####
   
-  #Summing the scaled probabilties to get individual-level reproductive numer
+  #Summing the scaled probabilities to get individual-level reproductive numer
   sumP <- stats::aggregate(df[, pVar], by = list(df[, indIDVar1]), sum)
   names(sumP) <- c(indIDVar, "Ri")
   #Finding the number of possible infectors per infectee

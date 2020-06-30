@@ -141,7 +141,8 @@ procedure to estimate relative transmission probabilities</p>
   <span class='kw'>l</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>nReps</span> <span class='kw'>=</span> <span class='fl'>10</span>
+  <span class='kw'>nReps</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>progressBar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -189,6 +190,10 @@ All covariates need to be categorical factor variables.</p></td>
     <tr>
       <th>nReps</th>
       <td><p>The number of times to randomly select the "true" infector (should be at least 10).</p></td>
+    </tr>
+    <tr>
+      <th>progressBar</th>
+      <td><p>A logical indicating if a progress bar should be printed (default is TRUE).</p></td>
     </tr>
     </table>
 

@@ -16,18 +16,20 @@ orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
 
 #Creating a function with defaults equal to my simulated data
 nbProbWrapper <- function(orderedPair,
-                            indIDVar = "individualID",
-                            pairIDVar = "pairID",
-                            goldStdVar = "snpClose",
-                            covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
-                            nReps = 1){
+                          indIDVar = "individualID",
+                          pairIDVar = "pairID",
+                          goldStdVar = "snpClose",
+                          covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
+                          nReps = 1,
+                          progressBar = FALSE){
   
   resGen <- nbProbabilities(orderedPair = orderedPair,
-                              indIDVar = indIDVar,
-                              pairIDVar = pairIDVar,
-                              goldStdVar = goldStdVar,
-                              covariates = covariates,
-                              nReps = nReps)
+                            indIDVar = indIDVar,
+                            pairIDVar = pairIDVar,
+                            goldStdVar = goldStdVar,
+                            covariates = covariates,
+                            nReps = nReps,
+                            progressBar = progressBar)
   return(resGen)
 }
 
@@ -37,6 +39,10 @@ test_that("nbProbabilities returns a list of two data frames for valid input",{
   resGen <- nbProbWrapper(orderedPair)
   expect_true(is.data.frame(resGen[[1]]))
   expect_true(is.data.frame(resGen[[2]]))
+  
+  resGen2 <- nbProbWrapper(orderedPair, progressBar = TRUE)
+  expect_true(is.data.frame(resGen2[[1]]))
+  expect_true(is.data.frame(resGen2[[2]]))
 })
 
 

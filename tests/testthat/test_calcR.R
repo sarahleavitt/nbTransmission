@@ -10,11 +10,12 @@ estimateRWrapper <- function(nbResults,
                          timeFrame = "months",
                          rangeForAvg = c(10, 100),
                          bootSamples = 0,
-                         alpha = 0.05){
+                         alpha = 0.05,
+                         progressBar = FALSE){
   
   rList <- estimateR(nbResults, dateVar = dateVar, indIDVar = indIDVar,
               pVar = pVar, timeFrame = timeFrame, rangeForAvg = rangeForAvg,
-              bootSamples = bootSamples, alpha = alpha)
+              bootSamples = bootSamples, alpha = alpha, progressBar = progressBar)
   
   return(rList)
 }
@@ -122,7 +123,7 @@ test_that("Message printed in no range for average", {
   expect_message(estimateRWrapper(nbResults, rangeForAvg = NULL),
                  "Please choose the stable portion of the outbreak to calculate the average Rt")
 
-  expect_message(estimateRWrapper(nbResults, rangeForAvg = NULL, bootSamples = 2),
+  expect_message(estimateRWrapper(nbResults, rangeForAvg = NULL, bootSamples = 2, progressBar = TRUE),
                  "Please choose the stable portion of the outbreak to calculate the average Rt")
 })
 
