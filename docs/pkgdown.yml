@@ -1,7 +1,7 @@
-pandoc: 2.7.3
+pandoc: '2.10'
 pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
   nbTransmission-vignette: nbTransmission-vignette.html
-last_built: 2020-06-30T21:18Z
+last_built: 2020-07-02T18:26Z
 

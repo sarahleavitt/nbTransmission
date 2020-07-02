@@ -138,7 +138,7 @@ the generation/serial interval distribution</p>
   <span class='no'>pVar</span>,
   <span class='no'>initialPars</span>,
   <span class='kw'>shift</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>epsilon</span> <span class='kw'>=</span> <span class='fl'>1e-05</span>,
+  <span class='kw'>epsilon</span> <span class='kw'>=</span> <span class='fl'>0.00001</span>,
   <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
@@ -249,10 +249,11 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 
 <span class='co'>## Estimating the serial interval</span>
 
-<span class='co'>## NOT RUN ##</span>
-<span class='co'># # Using all pairs and plotting the parameters</span>
-<span class='co'># performPEM(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",</span>
-<span class='co'># pVar = "pScaled", initialPars = c(2, 2), shift = 0, plot = TRUE)</span>
+<span class='co'># \donttest{</span>
+<span class='co'># Using all pairs and plotting the parameters</span>
+  <span class='fu'>performPEM</span>(<span class='no'>nbResultsNoT</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>timeDiffVar</span> <span class='kw'>=</span> <span class='st'>"infectionDiffY"</span>,
+  <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>, <span class='kw'>initialPars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>shift</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='performPEM-1.png' alt='' width='700' height='433' /></div><div class='output co'>#&gt;       shape     scale
+#&gt; 33 1.348901 0.5878836</div><div class='input'><span class='co'># }</span>
 
 
 <span class='co'># Clustering the probabilities first</span>
@@ -261,14 +262,18 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 
 <span class='fu'>performPEM</span>(<span class='no'>allClust</span>[<span class='no'>allClust</span>$<span class='no'>cluster</span> <span class='kw'>==</span> <span class='fl'>1</span>, ], <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>,
            <span class='kw'>timeDiffVar</span> <span class='kw'>=</span> <span class='st'>"infectionDiffY"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-           <span class='kw'>initialPars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>shift</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='performPEM-1.png' alt='' width='700' height='433' /></div><div class='output co'>#&gt;      shape    scale
-#&gt; 3 1.062588 1.948183</div><div class='input'>
-## NOT RUN ##            
-# # The above is equivalent to the following code using the function estimateSI()
-# # though the plot will not be printed and more details will be added
-# estimateSI(nbResultsNoT, indIDVar = "individualID", timeDiffVar = "infectionDiffY",
-#           pVar = "pScaled", clustMethod = "hc_absolute", cutoff = 0.05,
-#           initialPars = c(2, 2))
+           <span class='kw'>initialPars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>shift</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='performPEM-2.png' alt='' width='700' height='433' /></div><div class='output co'>#&gt;       shape    scale
+#&gt; 3 0.9095075 2.081909</div><div class='input'>
+<span class='co'># \donttest{</span>
+<span class='co'># The above is equivalent to the following code using the function estimateSI()</span>
+<span class='co'># though the plot will not be printed and more details will be added</span>
+<span class='fu'><a href='estimateSI.html'>estimateSI</a></span>(<span class='no'>nbResultsNoT</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>timeDiffVar</span> <span class='kw'>=</span> <span class='st'>"infectionDiffY"</span>,
+           <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>, <span class='kw'>clustMethod</span> <span class='kw'>=</span> <span class='st'>"hc_absolute"</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
+           <span class='kw'>initialPars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>))</div><div class='output co'>#&gt; [1] "Clustering Infectors"
+#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</div><div class='output co'>#&gt;   clustMethod cutoff nIndividuals nInfectors  pCluster     shape    scale
+#&gt; 1 hc_absolute   0.05           76          1 0.7676768 0.9095075 2.081909
+#&gt;     meanSI medianSI     sdSI
+#&gt; 1 1.893511 1.261367 1.985477</div><div class='input'># }
 
 
 </div></pre>

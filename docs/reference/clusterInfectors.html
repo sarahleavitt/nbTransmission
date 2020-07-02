@@ -225,24 +225,26 @@ are reassigned to the low probability cluster (indicating no real clustering).</
 <span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>clust2</span>$<span class='no'>cluster</span>)</div><div class='output co'>#&gt; 
 #&gt;    1    2 
 #&gt;  298 4651 </div><div class='input'>
-## NOT RUN ##
-# # Absolute difference: gap between top and bottom clusters is more than 0.05
-# clust3 &lt;- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
-#                            clustMethod = "hc_absolute", cutoff = 0.05)
-# table(clust3$cluster)
-
-## NOT RUN ##
-# # Relative difference: gap between top and bottom clusters is more than double any other gap
-# clust4 &lt;- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
-#                            clustMethod = "hc_relative", cutoff = 2)
-# table(clust4$cluster)
-
-## NOT RUN ##
-# ## Clustering using kernel density estimation
-# # Using a small binwidth of 0.01
-# clust5 &lt;- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
-#                            clustMethod = "kd", cutoff = 0.01)
-# table(clust5$cluster)
+<span class='co'># \donttest{</span>
+<span class='co'># Absolute difference: gap between top and bottom clusters is more than 0.05</span>
+<span class='no'>clust3</span> <span class='kw'>&lt;-</span> <span class='fu'>clusterInfectors</span>(<span class='no'>nbResults</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
+                           <span class='kw'>clustMethod</span> <span class='kw'>=</span> <span class='st'>"hc_absolute"</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>0.05</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>clust3</span>$<span class='no'>cluster</span>)</div><div class='output co'>#&gt; 
+#&gt;    1    2 
+#&gt;  240 4709 </div><div class='input'>
+<span class='co'># Relative difference: gap between top and bottom clusters is more than double any other gap</span>
+<span class='no'>clust4</span> <span class='kw'>&lt;-</span> <span class='fu'>clusterInfectors</span>(<span class='no'>nbResults</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
+                           <span class='kw'>clustMethod</span> <span class='kw'>=</span> <span class='st'>"hc_relative"</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>clust4</span>$<span class='no'>cluster</span>)</div><div class='output co'>#&gt; 
+#&gt;    1    2 
+#&gt;  232 4717 </div><div class='input'>
+<span class='co'>## Clustering using kernel density estimation</span>
+<span class='co'># Using a small binwidth of 0.01</span>
+<span class='no'>clust5</span> <span class='kw'>&lt;-</span> <span class='fu'>clusterInfectors</span>(<span class='no'>nbResults</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
+                           <span class='kw'>clustMethod</span> <span class='kw'>=</span> <span class='st'>"kd"</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>0.01</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>clust5</span>$<span class='no'>cluster</span>)</div><div class='output co'>#&gt; 
+#&gt;    1    2 
+#&gt;  261 4688 </div><div class='input'># }
 
 </div></pre>
   </div>

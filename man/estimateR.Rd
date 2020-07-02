@@ -122,13 +122,13 @@ rInitial <- estimateR(nbResults, dateVar = "infectionDate",
 cut1 <- 25
 cut2 <- 125
 
-## NOT RUN ##
+# Optional plot to determine the cutpoints above
 # ggplot(data = rInitial$RtDf, aes(x = timeRank, y = Rt)) +
-#   geom_point() +
-#   geom_line() +
-#   geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +
-#   geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7) +
-#   geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)
+#    geom_point() +
+#    geom_line() +
+#    geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +
+#    geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7) +
+#    geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)
   
 ## Finding the final reproductive number estimates with confidence intervals
 # NOTE should run with bootSamples > 2.

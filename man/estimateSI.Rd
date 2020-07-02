@@ -13,7 +13,7 @@ estimateSI(
   cutoffs = NULL,
   initialPars,
   shift = 0,
-  epsilon = 1e-05,
+  epsilon = 0.00001,
   bootSamples = 0,
   alpha = 0.05,
   progressBar = TRUE
@@ -103,7 +103,7 @@ difference in infection dates and the serial interval if it represents the diffe
 The current generation/serial interval distribution parameters are used to update the probabilities
 which are then used to update the generation/serial interval distribution parameters. The process
 continues until the parameters converge (indicated by a change of less than \code{epsilon})
-between interations. \emph{Note: time difference between pairs should not be used to 
+between iterations. \emph{Note: time difference between pairs should not be used to 
 estimate the probabilities}
 
 This function acts as a wrapper around \code{\link{performPEM}} which integrates
@@ -169,27 +169,26 @@ estimateSI(nbResultsNoT, indIDVar = "individualID",
              timeDiffVar = "infectionDiffY", pVar = "pScaled",
              clustMethod = "hc_absolute", cutoff = 0.05, initialPars = c(2, 2))
              
-## NOT RUN ##
-# # Using all pairs
-# estimateSI(nbResultsNoT, indIDVar = "individualID",
-#              timeDiffVar = "infectionDiffY", pVar = "pScaled",
-#              clustMethod = "none", initialPars = c(2, 2))
+\donttest{
+# Using all pairs
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+              clustMethod = "none", initialPars = c(2, 2))
 
 
-## NOT RUN ##
 # # Using a shifted gamma distribution:
 # # not allowing serial intervals of less than 3 months (0.25 years)
-# estimateSI(nbResultsNoT, indIDVar = "individualID",
-#              timeDiffVar = "infectionDiffY", pVar = "pScaled",
-#              clustMethod = "hc_absolute", cutoff = 0.05,
-#              initialPars = c(2, 2), shift = 0.25)
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+              clustMethod = "hc_absolute", cutoff = 0.05,
+              initialPars = c(2, 2), shift = 0.25)
 
 
-## NOT RUN ##
 # # Using multiple cutoffs
-# estimateSI(nbResultsNoT, indIDVar = "individualID",
-#              timeDiffVar = "infectionDiffY", pVar = "pScaled",
-#              clustMethod = "hc_absolute", cutoff = c(0.025, 0.05), initialPars = c(2, 2))
+estimateSI(nbResultsNoT, indIDVar = "individualID",
+              timeDiffVar = "infectionDiffY", pVar = "pScaled",
+              clustMethod = "hc_absolute", cutoff = c(0.025, 0.05), initialPars = c(2, 2))
+}
 
 
 ## Adding confidence intervals

@@ -84,24 +84,23 @@ clust2 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled
                             clustMethod = "hc_absolute", cutoff = 0)
 table(clust2$cluster)
 
-## NOT RUN ##
-# # Absolute difference: gap between top and bottom clusters is more than 0.05
-# clust3 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
-#                            clustMethod = "hc_absolute", cutoff = 0.05)
-# table(clust3$cluster)
+\donttest{
+# Absolute difference: gap between top and bottom clusters is more than 0.05
+clust3 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "hc_absolute", cutoff = 0.05)
+table(clust3$cluster)
 
-## NOT RUN ##
-# # Relative difference: gap between top and bottom clusters is more than double any other gap
-# clust4 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
-#                            clustMethod = "hc_relative", cutoff = 2)
-# table(clust4$cluster)
+# Relative difference: gap between top and bottom clusters is more than double any other gap
+clust4 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "hc_relative", cutoff = 2)
+table(clust4$cluster)
 
-## NOT RUN ##
-# ## Clustering using kernel density estimation
-# # Using a small binwidth of 0.01
-# clust5 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
-#                            clustMethod = "kd", cutoff = 0.01)
-# table(clust5$cluster)
+## Clustering using kernel density estimation
+# Using a small binwidth of 0.01
+clust5 <- clusterInfectors(nbResults, indIDVar = "individualID", pVar = "pScaled",
+                           clustMethod = "kd", cutoff = 0.01)
+table(clust5$cluster)
+}
 
 }
 \seealso{

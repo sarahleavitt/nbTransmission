@@ -269,13 +269,13 @@ syndrome reveal similar impacts of control measures.
 <span class='no'>cut1</span> <span class='kw'>&lt;-</span> <span class='fl'>25</span>
 <span class='no'>cut2</span> <span class='kw'>&lt;-</span> <span class='fl'>125</span>
 
-<span class='co'>## NOT RUN ##</span>
+<span class='co'># Optional plot to determine the cutpoints above</span>
 <span class='co'># ggplot(data = rInitial$RtDf, aes(x = timeRank, y = Rt)) +</span>
-<span class='co'>#   geom_point() +</span>
-<span class='co'>#   geom_line() +</span>
-<span class='co'>#   geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +</span>
-<span class='co'>#   geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7) +</span>
-<span class='co'>#   geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)</span>
+<span class='co'>#    geom_point() +</span>
+<span class='co'>#    geom_line() +</span>
+<span class='co'>#    geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +</span>
+<span class='co'>#    geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7) +</span>
+<span class='co'>#    geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)</span>
 
 <span class='co'>## Finding the final reproductive number estimates with confidence intervals</span>
 <span class='co'># NOTE should run with bootSamples &gt; 2.</span>
