@@ -257,7 +257,7 @@ With this clustering method, the `r nrow(clustKD)` possible pairs are reduced to
 The nbTransmission package comes with two functions to visualize the results of the algorithm. The first one, nbNetwork, draws a network of all of the cases connected by either all possible edges (if clustMethod = "none") or only the top cluster of infectors as defined by the clustering method and cutoff. The darker the edge, the higher the probability that the pair is a transmission link.
 
 ```{r savepar, include=FALSE}
-oldpar <- par()
+oldpar <- par(no.readonly=TRUE)
 ```
 
 
