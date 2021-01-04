@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nbTransmission</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -62,7 +62,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/sv1205/nbTransmission/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -76,13 +76,13 @@
 
       
 
-      </header><script src="nbTransmission-vignette_files/header-attrs-2.3/header-attrs.js"></script><div class="row">
+      </header><script src="nbTransmission-vignette_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introductory tutorial for R Package nbTransmission</h1>
                         <h4 class="author">Sarah V. Leavitt</h4>
             
-            <h4 class="date">2020-07-02</h4>
+            <h4 class="date">2021-01-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/sv1205/nbTransmission/blob/master/vignettes/nbTransmission-vignette.Rmd"><code>vignettes/nbTransmission-vignette.Rmd</code></a></small>
       <div class="hidden name"><code>nbTransmission-vignette.Rmd</code></div>
@@ -95,11 +95,14 @@
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
 <p>This will walk you through how to use the package nbTransmission to analyze an infectious disease outbreak. You want to start by installing nbTransmission if you have not already done so using:</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">'sarahleavitt/nbTransmission'</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">'sarahleavitt/nbTransmission'</span><span class="op">)</span></code></pre></div>
 <p>Then you can load the package by running:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">'nbTransmission'</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://sarahleavitt.github.io/nbTransmission">'nbTransmission'</a></span><span class="op">)</span></code></pre></div>
 <p>If you want the results to match this tutorial, set your seed to match:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">0</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></code></pre></div>
 <p>This package implements an algorithm that takes a dataset of ordered possible infector-infectee pairs from an infectious disease outbreak or outbreak cluster and estimates the relative probability the cases are linked by direct transmission using a classification technique called naive Bayes (NB).</p>
 <p><strong>Naive Bayes</strong> is a simple and popular machine learning algorithm that uses Bayes rule to estimate the probability of an outcome in a prediction dataset given a set of covariates from the observed frequencies in a training dataset. It is a two step process:</p>
 <ol style="list-style-type: decimal">
@@ -113,8 +116,9 @@
 <h2 class="hasAnchor">
 <a href="#creating-a-dataset-of-pairs" class="anchor"></a>Creating a Dataset of Pairs</h2>
 <p>Lets say you have a dataset of individuals from an outbreak. We are going to use a simulated dataset called indData included in the package. This dataset has 100 individuals and contains an ID column, a column with the true infector (because this is simulated data so we know the truth), the infection date and time, the sampling date and time, and four covariates (X1-X4). The covariates are artificial but were designed to resemble some possible covariates in real applications.</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">indData</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">indData</span>)
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">indData</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">indData</span><span class="op">)</span>
 <span class="co">#&gt; 'data.frame':    100 obs. of  8 variables:</span>
 <span class="co">#&gt;  $ individualID : num  1 2 3 4 5 6 7 8 9 10 ...</span>
 <span class="co">#&gt;  $ infector     : num  0 1 2 2 2 3 5 5 6 7 ...</span>
@@ -123,15 +127,16 @@
 <span class="co">#&gt;  $ X1           : chr  "a" "a" "a" "b" ...</span>
 <span class="co">#&gt;  $ X2           : chr  "a" "a" "a" "b" ...</span>
 <span class="co">#&gt;  $ X3           : chr  "a" "b" "b" "a" ...</span>
-<span class="co">#&gt;  $ X4           : chr  "e" "e" "e" "d" ...</span></pre></body></html></div>
+<span class="co">#&gt;  $ X4           : chr  "e" "e" "e" "d" ...</span></code></pre></div>
 <p>Now we need to create a dataset of all ordered pairs of cases to analyze. The nbTranmssion package includes a function called indToPair which will do exactly this. The function takes an individual-level dataset and creates a pair-level dataset. You tell the function the name of the ID column and the resulting dataset will have an pair ID column that combines the two individual IDs. It will also include all other columns with the suffixes “.1” and “.2” corresponding to the two individuals in the pair. If you specify a date column it will also find the time difference between the pairs and if you set ordered to TRUE, it will only include pairs where the date for individual 1 is before individual 2. Here is how you would use this function and what the resulting data frame looks like:</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">pairDataRaw</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/indToPair.html">indToPair</a></span>(<span class="no">indData</span>,
-                         <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>,
-                         <span class="kw">separator</span> <span class="kw">=</span> <span class="st">"_"</span>,
-                         <span class="kw">dateVar</span> <span class="kw">=</span> <span class="st">"infectionDate"</span>,
-                         <span class="kw">units</span> <span class="kw">=</span> <span class="st">"days"</span>,
-                         <span class="kw">ordered</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">pairDataRaw</span>)
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pairDataRaw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/indToPair.html">indToPair</a></span><span class="op">(</span><span class="va">indData</span>,
+                         indIDVar <span class="op">=</span> <span class="st">"individualID"</span>,
+                         separator <span class="op">=</span> <span class="st">"_"</span>,
+                         dateVar <span class="op">=</span> <span class="st">"infectionDate"</span>,
+                         units <span class="op">=</span> <span class="st">"days"</span>,
+                         ordered <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">pairDataRaw</span><span class="op">)</span>
 <span class="co">#&gt; 'data.frame':    9900 obs. of  18 variables:</span>
 <span class="co">#&gt;  $ individualID.2    : num  1 1 1 1 1 1 1 1 1 1 ...</span>
 <span class="co">#&gt;  $ individualID.1    : num  47 75 84 28 65 57 49 83 62 31 ...</span>
@@ -150,7 +155,7 @@
 <span class="co">#&gt;  $ X2.2              : chr  "a" "a" "a" "a" ...</span>
 <span class="co">#&gt;  $ X3.2              : chr  "a" "a" "a" "a" ...</span>
 <span class="co">#&gt;  $ X4.2              : chr  "e" "e" "e" "e" ...</span>
-<span class="co">#&gt;  $ infectionDate.Diff: num  -3116 -4700 -4379 -3199 -3489 ...</span></pre></body></html></div>
+<span class="co">#&gt;  $ infectionDate.Diff: num  -3116 -4700 -4379 -3199 -3489 ...</span></code></pre></div>
 <p>The next step is to create pair-level equivalents of the covariates. This can be done in any way that is clinically meaningful. For example if the individual-level covariate was nationality, the pair-level covariate could be do the individuals have the same nationality or not. If the individual-level covariate was town of residence, the pair-level covariate could be do the individuals live in the same town, neighboring towns, or further away. Currently the method only supports pair-level covariates that are categorical and they need to also be factor variables.</p>
 <p>Pair-level covariates for this simulated outbreak are already stored in the data frame pairData which is also included in this package and this is the dataset we are going to analyze.</p>
 <p>The pairData dataset also has a column called snpDist with the number of single nucleotide polymorphisms (SNPs) separating the pathogen of the two individuals, a categorical representation of the difference between infection times, as well as a column called transmission indicating if the pair is a true transmission pair (because again this is simulated data so we know this!).</p>
@@ -202,69 +207,75 @@
 </tbody>
 </table>
 <p>Here are the distributions of the individual-level covariates:</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">indData</span>$<span class="no">X1</span>))
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">indData</span><span class="op">$</span><span class="va">X1</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;    a    b </span>
 <span class="co">#&gt; 0.48 0.52</span>
-<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">indData</span>$<span class="no">X2</span>))
+<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">indData</span><span class="op">$</span><span class="va">X2</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;    a    b    c    d </span>
 <span class="co">#&gt; 0.48 0.24 0.24 0.04</span>
-<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">indData</span>$<span class="no">X3</span>))
+<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">indData</span><span class="op">$</span><span class="va">X3</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;    a    b </span>
 <span class="co">#&gt; 0.67 0.33</span>
-<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">indData</span>$<span class="no">X4</span>))
+<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">indData</span><span class="op">$</span><span class="va">X4</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;    a    c    d    e    f    g    h    j </span>
-<span class="co">#&gt; 0.01 0.12 0.42 0.32 0.09 0.02 0.01 0.01</span></pre></body></html></div>
+<span class="co">#&gt; 0.01 0.12 0.42 0.32 0.09 0.02 0.01 0.01</span></code></pre></div>
 <p>And the pair-level covariates by whether or not the pair is a true transmission pair (TRUE) or not (FALSE)</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">pairData</span>$<span class="no">transmission</span>, <span class="no">pairData</span>$<span class="no">Z1</span>), <span class="fl">1</span>)
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">pairData</span><span class="op">$</span><span class="va">transmission</span>, <span class="va">pairData</span><span class="op">$</span><span class="va">Z1</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>
 <span class="co">#&gt;        </span>
 <span class="co">#&gt;                 0         1</span>
 <span class="co">#&gt;   FALSE 0.5050443 0.4949557</span>
 <span class="co">#&gt;   TRUE  0.4137931 0.5862069</span>
-<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">pairData</span>$<span class="no">transmission</span>, <span class="no">pairData</span>$<span class="no">Z2</span>), <span class="fl">1</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">pairData</span><span class="op">$</span><span class="va">transmission</span>, <span class="va">pairData</span><span class="op">$</span><span class="va">Z2</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>
 <span class="co">#&gt;        </span>
 <span class="co">#&gt;                 0         1</span>
 <span class="co">#&gt;   FALSE 0.6626923 0.3373077</span>
 <span class="co">#&gt;   TRUE  0.2873563 0.7126437</span>
-<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">pairData</span>$<span class="no">transmission</span>, <span class="no">pairData</span>$<span class="no">Z3</span>), <span class="fl">1</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">pairData</span><span class="op">$</span><span class="va">transmission</span>, <span class="va">pairData</span><span class="op">$</span><span class="va">Z3</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>
 <span class="co">#&gt;        </span>
 <span class="co">#&gt;                 1         2         3         4</span>
 <span class="co">#&gt;   FALSE 0.4469581 0.1060838 0.2236829 0.2232752</span>
 <span class="co">#&gt;   TRUE  0.4137931 0.1724138 0.1839080 0.2298851</span>
-<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">pairData</span>$<span class="no">transmission</span>, <span class="no">pairData</span>$<span class="no">Z4</span>), <span class="fl">1</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">pairData</span><span class="op">$</span><span class="va">transmission</span>, <span class="va">pairData</span><span class="op">$</span><span class="va">Z4</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>
 <span class="co">#&gt;        </span>
 <span class="co">#&gt;                  1          2          3</span>
 <span class="co">#&gt;   FALSE 0.29175583 0.43646184 0.27178233</span>
-<span class="co">#&gt;   TRUE  0.65517241 0.33333333 0.01149425</span></pre></body></html></div>
+<span class="co">#&gt;   TRUE  0.65517241 0.33333333 0.01149425</span></code></pre></div>
 </div>
 <div id="estimating-relative-transmission-probabilties" class="section level2">
 <h2 class="hasAnchor">
 <a href="#estimating-relative-transmission-probabilties" class="anchor"></a>Estimating Relative Transmission Probabilties</h2>
 <p>There are two more data preparation steps that we need to do before we are ready to find the relative transmission probabilities. First we need subset the pair dataset to only ordered pairs (if you are using the indToPair function, you can use the ordered = TRUE option and skip this step!)</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">pairDataOrdered</span> <span class="kw">&lt;-</span> <span class="no">pairData</span>[<span class="no">pairData</span>$<span class="no">infectionDate.2</span> <span class="kw">&gt;=</span> <span class="no">pairData</span>$<span class="no">infectionDate.1</span>, ]</pre></body></html></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pairDataOrdered</span> <span class="op">&lt;-</span> <span class="va">pairData</span><span class="op">[</span><span class="va">pairData</span><span class="op">$</span><span class="va">infectionDate.2</span> <span class="op">&gt;=</span> <span class="va">pairData</span><span class="op">$</span><span class="va">infectionDate.1</span>, <span class="op">]</span></code></pre></div>
 <p>Next we need to create the variable that defines probable links for our training dataset. We will use the SNP distance to define probable links. We are going to say that pairs with fewer than 3 SNPs will be considered probable links and pairs with more than 10 SNPs are considered non-linked. Any pairs with 3-10 SNPs will be considered indeterminate and not included in the training set. Those pairs as well as any pairs without WGS info will only be use in the prediction dataset. The variable that defines the probable links should be a logical with TRUE indicating a link and FALSE inidicating a non-link.</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">pairDataOrdered</span>$<span class="no">snpClose</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="no">pairDataOrdered</span>$<span class="no">snpDist</span> <span class="kw">&lt;</span> <span class="fl">3</span>, <span class="fl">TRUE</span>,
-                                   <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="no">pairDataOrdered</span>$<span class="no">snpDist</span> <span class="kw">&gt;</span> <span class="fl">10</span>, <span class="fl">FALSE</span>, <span class="fl">NA</span>))
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">pairDataOrdered</span>$<span class="no">snpClose</span>, <span class="kw">useNA</span> <span class="kw">=</span> <span class="st">"ifany"</span>)
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pairDataOrdered</span><span class="op">$</span><span class="va">snpClose</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">pairDataOrdered</span><span class="op">$</span><span class="va">snpDist</span> <span class="op">&lt;</span> <span class="fl">3</span>, <span class="cn">TRUE</span>,
+                                   <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">pairDataOrdered</span><span class="op">$</span><span class="va">snpDist</span> <span class="op">&gt;</span> <span class="fl">10</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">pairDataOrdered</span><span class="op">$</span><span class="va">snpClose</span>, useNA <span class="op">=</span> <span class="st">"ifany"</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; FALSE  TRUE  &lt;NA&gt; </span>
 <span class="co">#&gt;  1467   247  3236</span>
-<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">pairDataOrdered</span>$<span class="no">snpClose</span>, <span class="kw">useNA</span> <span class="kw">=</span> <span class="st">"ifany"</span>))
+<span class="fu"><a href="https://rdrr.io/r/base/proportions.html">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">pairDataOrdered</span><span class="op">$</span><span class="va">snpClose</span>, useNA <span class="op">=</span> <span class="st">"ifany"</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;      FALSE       TRUE       &lt;NA&gt; </span>
-<span class="co">#&gt; 0.29636364 0.04989899 0.65373737</span></pre></body></html></div>
+<span class="co">#&gt; 0.29636364 0.04989899 0.65373737</span></code></pre></div>
 <p>Now we can use the function nbTransmission to calculate the relative transmission probabilities for all pairs, training the model using the WGS data. For the argument, indIDVar, the function looks for that value with the suffix “.1” and “.2” in the pair data frame (which would have been automatically created if you used indToPair to create the pair-level data frame). The options n, m, and nReps indicate how many times the iterative procedure. This procedure randomly chooses one link of all of the possible links to include in the training dataset nReps times, and then uses mxn cross prediction for each training dataset to give all pairs a turn in the prediction dataset. Therefore in total you run naive Bayes nReps * n * m times. <strong>In this tutorial, nReps = 1 for computation speed but nReps should be at least 10.</strong></p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">resGen</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/nbProbabilities.html">nbProbabilities</a></span>(<span class="kw">orderedPair</span> <span class="kw">=</span> <span class="no">pairDataOrdered</span>,
-                            <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>,
-                            <span class="kw">pairIDVar</span> <span class="kw">=</span> <span class="st">"pairID"</span>,
-                            <span class="kw">goldStdVar</span> <span class="kw">=</span> <span class="st">"snpClose"</span>,
-                            <span class="kw">covariates</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"Z3"</span>, <span class="st">"Z4"</span>, <span class="st">"timeCat"</span>),
-                            <span class="kw">label</span> <span class="kw">=</span> <span class="st">"SNPs"</span>, <span class="kw">l</span> <span class="kw">=</span> <span class="fl">1</span>,
-                            <span class="kw">n</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">m</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">nReps</span> <span class="kw">=</span> <span class="fl">1</span>)</pre></body></html></div>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">resGen</span>)
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">resGen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nbProbabilities.html">nbProbabilities</a></span><span class="op">(</span>orderedPair <span class="op">=</span> <span class="va">pairDataOrdered</span>,
+                            indIDVar <span class="op">=</span> <span class="st">"individualID"</span>,
+                            pairIDVar <span class="op">=</span> <span class="st">"pairID"</span>,
+                            goldStdVar <span class="op">=</span> <span class="st">"snpClose"</span>,
+                            covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"Z3"</span>, <span class="st">"Z4"</span>, <span class="st">"timeCat"</span><span class="op">)</span>,
+                            label <span class="op">=</span> <span class="st">"SNPs"</span>, l <span class="op">=</span> <span class="fl">1</span>,
+                            n <span class="op">=</span> <span class="fl">10</span>, m <span class="op">=</span> <span class="fl">1</span>, nReps <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">resGen</span><span class="op">)</span>
 <span class="co">#&gt; List of 2</span>
 <span class="co">#&gt;  $ probabilities:'data.frame':   4950 obs. of  7 variables:</span>
 <span class="co">#&gt;   ..$ label     : chr [1:4950] "SNPs" "SNPs" "SNPs" "SNPs" ...</span>
@@ -281,21 +292,23 @@
 <span class="co">#&gt;   ..$ logorMean: num [1:17] 0 -0.0585 0 0.818 0 ...</span>
 <span class="co">#&gt;   ..$ logorSE  : num [1:17] NaN 0.259 NaN 0.254 NaN ...</span>
 <span class="co">#&gt;   ..$ logorCILB: num [1:17] NaN -0.566 NaN 0.321 NaN ...</span>
-<span class="co">#&gt;   ..$ logorCIUB: num [1:17] NaN 0.449 NaN 1.316 NaN ...</span></pre></body></html></div>
+<span class="co">#&gt;   ..$ logorCIUB: num [1:17] NaN 0.449 NaN 1.316 NaN ...</span></code></pre></div>
 <p>The results are a list with two data frames, the first of which containing the average and scaled relative transmission probabilities. We can extract that data frame and merge it back with our pair-level dataset for further analysis. We can see that the algorithm assigned much higher probabilities to the true transmission pairs than the rest of the pairs.</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">nbResults</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span>(<span class="no">resGen</span>$<span class="no">probabilities</span>, <span class="no">pairDataOrdered</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="st">"pairID"</span>, <span class="kw">all</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/tapply.html">tapply</a></span>(<span class="no">nbResults</span>$<span class="no">pScaled</span>, <span class="no">nbResults</span>$<span class="no">transmission</span>, <span class="no">summary</span>)
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">nbResults</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">resGen</span><span class="op">$</span><span class="va">probabilities</span>, <span class="va">pairDataOrdered</span>, by <span class="op">=</span> <span class="st">"pairID"</span>, all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/tapply.html">tapply</a></span><span class="op">(</span><span class="va">nbResults</span><span class="op">$</span><span class="va">pScaled</span>, <span class="va">nbResults</span><span class="op">$</span><span class="va">transmission</span>, <span class="va">summary</span><span class="op">)</span>
 <span class="co">#&gt; $`FALSE`</span>
 <span class="co">#&gt;      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. </span>
 <span class="co">#&gt; 0.0000394 0.0014305 0.0041901 0.0166358 0.0118997 0.8714328 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $`TRUE`</span>
 <span class="co">#&gt;     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. </span>
-<span class="co">#&gt; 0.004128 0.029727 0.054669 0.208047 0.411729 1.000000</span></pre></body></html></div>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>)
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">nbResults</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">pScaled</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">geom_histogram</a></span>(<span class="kw">bins</span> <span class="kw">=</span> <span class="fl">20</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(~<span class="no">transmission</span>, <span class="kw">scales</span> <span class="kw">=</span> <span class="st">"free_y"</span>)</pre></body></html></div>
+<span class="co">#&gt; 0.004128 0.029727 0.054669 0.208047 0.411729 1.000000</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">nbResults</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pScaled</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">transmission</span>, scales <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/results-1.png" width="672"></p>
 </div>
 <div id="covariates-associated-with-probable-transmission" class="section level2">
@@ -304,15 +317,16 @@
 <p>The second data frame contains log odds ratios with 95% confidence intervals describing the contribution of each covariate value to the probabilities. These log odds ratios represent the association between the covariates and how training links were defined but modified by the iterative estimation procedure which corrects the training dataset to more resemble the dataset of true links and nonlinks (for example by only selecting one possible infector for each case).</p>
 <p>The log odds ratios calculated for each covariate value at each iteration of the naive Bayes transmission algorithm and the estimates in the data frame are averaged across the iterations. The confidence intervals are estimated using Rubin’s rules, a method developed for multiple imputation, to summarize the error across the iterations.</p>
 <p>Log odds ratios that are greater than 0 mean that having that value of that covariate would result in an increase in the estimated transmission probability for that pair compared to having the reference value. Conversely log odds ratios that are less than 0 mean that having that value of that covariate would result in a decrease in the estimated transmission probability for that paire compared to having the reference value.</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">knitr</span>)
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/">knitr</a></span><span class="op">)</span>
 <span class="co">#Exponentiating the log odds ratios and creating a table of odds ratios</span>
-<span class="no">orTab</span> <span class="kw">&lt;-</span> <span class="no">resGen</span>$<span class="no">estimates</span>
-<span class="no">orTab</span>$<span class="no">orMean</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="no">orTab</span>$<span class="no">logorMean</span>), <span class="fl">2</span>)
-<span class="no">orTab</span>$<span class="no">orCILB</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="no">orTab</span>$<span class="no">logorCILB</span>), <span class="fl">2</span>)
-<span class="no">orTab</span>$<span class="no">orCIUB</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(<span class="no">orTab</span>$<span class="no">logorCIUB</span>), <span class="fl">2</span>)
-<span class="no">orTab</span>$<span class="no">Value</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span>(<span class="st">"[A-z0-9]+\\:"</span>, <span class="st">""</span>, <span class="no">orTab</span>$<span class="no">level</span>)
-<span class="no">orTab</span>$<span class="no">Variable</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span>(<span class="st">"\\:[A-z0-9+-&lt;=&gt;]+"</span>, <span class="st">""</span>, <span class="no">orTab</span>$<span class="no">level</span>)
-<span class="no">orTab</span> <span class="kw">&lt;-</span> <span class="no">orTab</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Variable"</span>, <span class="st">"Value"</span>, <span class="st">"orMean"</span>, <span class="st">"orCILB"</span>, <span class="st">"orCIUB"</span>)]</pre></body></html></div>
+<span class="va">orTab</span> <span class="op">&lt;-</span> <span class="va">resGen</span><span class="op">$</span><span class="va">estimates</span>
+<span class="va">orTab</span><span class="op">$</span><span class="va">orMean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">orTab</span><span class="op">$</span><span class="va">logorMean</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>
+<span class="va">orTab</span><span class="op">$</span><span class="va">orCILB</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">orTab</span><span class="op">$</span><span class="va">logorCILB</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>
+<span class="va">orTab</span><span class="op">$</span><span class="va">orCIUB</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">orTab</span><span class="op">$</span><span class="va">logorCIUB</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>
+<span class="va">orTab</span><span class="op">$</span><span class="va">Value</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"[A-z0-9]+\\:"</span>, <span class="st">""</span>, <span class="va">orTab</span><span class="op">$</span><span class="va">level</span><span class="op">)</span>
+<span class="va">orTab</span><span class="op">$</span><span class="va">Variable</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"\\:[A-z0-9+-&lt;=&gt;]+"</span>, <span class="st">""</span>, <span class="va">orTab</span><span class="op">$</span><span class="va">level</span><span class="op">)</span>
+<span class="va">orTab</span> <span class="op">&lt;-</span> <span class="va">orTab</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Variable"</span>, <span class="st">"Value"</span>, <span class="st">"orMean"</span>, <span class="st">"orCILB"</span>, <span class="st">"orCIUB"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
 <div id="table-of-contribution-of-covariates" class="section level4">
 <h4 class="hasAnchor">
 <a href="#table-of-contribution-of-covariates" class="anchor"></a>Table of contribution of covariates</h4>
@@ -468,22 +482,23 @@
 <div id="forest-plot-of-contribution-of-covariates" class="section level4">
 <h4 class="hasAnchor">
 <a href="#forest-plot-of-contribution-of-covariates" class="anchor"></a>Forest plot of contribution of covariates</h4>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">orTab</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">Value</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">orMean</span>, <span class="kw">ymin</span> <span class="kw">=</span> <span class="no">orCILB</span>,
-                           <span class="kw">ymax</span> <span class="kw">=</span> <span class="no">orCIUB</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw">size</span> <span class="kw">=</span> <span class="fl">2</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html">geom_errorbar</a></span>(<span class="kw">width</span> <span class="kw">=</span> <span class="fl">0.3</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_hline</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">yintercept</span> <span class="kw">=</span> <span class="fl">1</span>), <span class="kw">linetype</span> <span class="kw">=</span> <span class="fl">2</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(~<span class="no">Variable</span>, <span class="kw">scales</span> <span class="kw">=</span> <span class="st">"free_y"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span>(<span class="st">"Odds ratio with 95% confidence interval"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span>() +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">axis.ticks.y</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span>(),
-        <span class="kw">axis.title.y</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span>(),
-        <span class="kw">strip.text.y</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(<span class="kw">hjust</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">vjust</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">angle</span> <span class="kw">=</span> <span class="fl">360</span>),
-        <span class="kw">axis.text.x</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(<span class="kw">angle</span> <span class="kw">=</span> <span class="fl">45</span>, <span class="kw">hjust</span> <span class="kw">=</span> <span class="fl">1</span>),
-        <span class="kw">axis.title.x</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span>(<span class="kw">margin</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span>(<span class="kw">t</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">r</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">b</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">l</span> <span class="kw">=</span> <span class="fl">0</span>)),
-        <span class="kw">legend.position</span> <span class="kw">=</span> <span class="st">"bottom"</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span>(<span class="kw">breaks</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="fl">1</span>, <span class="fl">10</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">coord_flip</a></span>()</pre></body></html></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">orTab</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Value</span>, y <span class="op">=</span> <span class="va">orMean</span>, ymin <span class="op">=</span> <span class="va">orCILB</span>,
+                           ymax <span class="op">=</span> <span class="va">orCIUB</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html">geom_errorbar</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_hline</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">Variable</span>, scales <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Odds ratio with 95% confidence interval"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.ticks.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,
+        axis.title.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,
+        strip.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0</span>, vjust <span class="op">=</span> <span class="fl">1</span>, angle <span class="op">=</span> <span class="fl">360</span><span class="op">)</span>,
+        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
+        axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>t <span class="op">=</span> <span class="fl">10</span>, r <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">0</span>, l <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>,
+        legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">coord_flip</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/covarFig-1.png" width="672"></p>
 </div>
 </div>
@@ -493,35 +508,38 @@
 <p>In order to find the most likely infectors, you want to find which cases have a cluster of infectors with probabilities that are higher than the rest of the possible infectors. To find these cases and the top cluster of probable infectors, you can use the function clusterInfectors which implements various clustering methods.</p>
 <p>The methods you can choose from include: 1) simply taking the top n infectors, 2) hierarchical clustering to split the infectors and the size of the gap between clusters to choose which cases have high probability infectors, or 3) kernel density estimation to determine if the probabilities of all possible infectors represents one or two distinct densities. The function also requires a cutoff value whose meaning depends on the clustering method.</p>
 <p>First let’s use hierarchical clustering to split the infectors into two clusters and require the gap between the probabilities in each group to be greater than 0.05.</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="co">#Clustering the probabilities</span>
-<span class="no">clustHC</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/clusterInfectors.html">clusterInfectors</a></span>(<span class="no">nbResults</span>, <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>, <span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>,
-                           <span class="kw">clustMethod</span> <span class="kw">=</span> <span class="st">"hc_absolute"</span>, <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">0.05</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">clustHC</span>$<span class="no">cluster</span>)
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#Clustering the probabilities</span>
+<span class="va">clustHC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clusterInfectors.html">clusterInfectors</a></span><span class="op">(</span><span class="va">nbResults</span>, indIDVar <span class="op">=</span> <span class="st">"individualID"</span>, pVar <span class="op">=</span> <span class="st">"pScaled"</span>,
+                           clustMethod <span class="op">=</span> <span class="st">"hc_absolute"</span>, cutoff <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">clustHC</span><span class="op">$</span><span class="va">cluster</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;    1    2 </span>
 <span class="co">#&gt;   89 4861</span>
 <span class="co">#Subsetting to just the top cluster</span>
-<span class="no">topClustHC</span> <span class="kw">&lt;-</span> <span class="no">clustHC</span>[<span class="no">clustHC</span>$<span class="no">cluster</span> <span class="kw">==</span> <span class="fl">1</span>, ]</pre></body></html></div>
+<span class="va">topClustHC</span> <span class="op">&lt;-</span> <span class="va">clustHC</span><span class="op">[</span><span class="va">clustHC</span><span class="op">$</span><span class="va">cluster</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span></code></pre></div>
 <p>With this clustering method, the 4950 possible pairs are reduced to 89 most likely infectors. These pairs represent 83 of the 99 cases. The remaining cases do not have any clear top cluster of infectors. The plot bellow shows an example of a case that has a clear top cluster of infectors with this clustering method (case 32 on the left) and one that does not (case 40 on the right).</p>
 <div id="clustering-illustration" class="section level4">
 <h4 class="hasAnchor">
 <a href="#clustering-illustration" class="anchor"></a>Clustering Illustration</h4>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">clustHC</span>[<span class="no">clustHC</span>$<span class="no">individualID.2</span> <span class="kw">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">32</span>, <span class="fl">40</span>), ],
-        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">pRank</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">pScaled</span>, <span class="kw">color</span> <span class="kw">=</span> <span class="no">cluster</span>, <span class="kw">shape</span> <span class="kw">=</span> <span class="no">transmission</span>)) +
-   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() +
-   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(~<span class="no">individualID.2</span>, <span class="kw">scales</span> <span class="kw">=</span> <span class="st">"free"</span>) +
-   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="kw">legend.position</span> <span class="kw">=</span> <span class="st">"none"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">clustHC</span><span class="op">[</span><span class="va">clustHC</span><span class="op">$</span><span class="va">individualID.2</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">40</span><span class="op">)</span>, <span class="op">]</span>,
+        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pRank</span>, y <span class="op">=</span> <span class="va">pScaled</span>, color <span class="op">=</span> <span class="va">cluster</span>, shape <span class="op">=</span> <span class="va">transmission</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">individualID.2</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span>
+   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/clustExample-1.png" width="672"></p>
 <p>An alternative method would be using kernel density estimation. With this method, the cutoff specified is the binwidth, which we will set to 0.01 for this example.</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="co">#Clustering the probabilities</span>
-<span class="no">clustKD</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/clusterInfectors.html">clusterInfectors</a></span>(<span class="no">nbResults</span>, <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>, <span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>,
-                           <span class="kw">clustMethod</span> <span class="kw">=</span> <span class="st">"kd"</span>, <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">0.01</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">clustKD</span>$<span class="no">cluster</span>)
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#Clustering the probabilities</span>
+<span class="va">clustKD</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/clusterInfectors.html">clusterInfectors</a></span><span class="op">(</span><span class="va">nbResults</span>, indIDVar <span class="op">=</span> <span class="st">"individualID"</span>, pVar <span class="op">=</span> <span class="st">"pScaled"</span>,
+                           clustMethod <span class="op">=</span> <span class="st">"kd"</span>, cutoff <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">clustKD</span><span class="op">$</span><span class="va">cluster</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;    1    2 </span>
 <span class="co">#&gt;  103 4847</span>
 <span class="co">#Subsetting to just the top cluster</span>
-<span class="no">topClustKD</span> <span class="kw">&lt;-</span> <span class="no">clustKD</span>[<span class="no">clustKD</span>$<span class="no">cluster</span> <span class="kw">==</span> <span class="fl">1</span>, ]</pre></body></html></div>
+<span class="va">topClustKD</span> <span class="op">&lt;-</span> <span class="va">clustKD</span><span class="op">[</span><span class="va">clustKD</span><span class="op">$</span><span class="va">cluster</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span></code></pre></div>
 <p>With this clustering method, the 4950 possible pairs are reduced to 103 most likely infectors. These pairs represent 87 of the 99 cases. The remaining cases do not have any clear top cluster of infectors.</p>
 </div>
 </div>
@@ -532,26 +550,29 @@
 <div id="network-with-all-pairs" class="section level4">
 <h4 class="hasAnchor">
 <a href="#network-with-all-pairs" class="anchor"></a>Network with all pairs</h4>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="kw">mar</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0</span>))
-<span class="fu"><a href="../reference/nbNetwork.html">nbNetwork</a></span>(<span class="no">nbResults</span>, <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>, <span class="kw">dateVar</span> <span class="kw">=</span> <span class="st">"infectionDate"</span>,
-<span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>, <span class="kw">clustMethod</span> <span class="kw">=</span> <span class="st">"none"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="../reference/nbNetwork.html">nbNetwork</a></span><span class="op">(</span><span class="va">nbResults</span>, indIDVar <span class="op">=</span> <span class="st">"individualID"</span>, dateVar <span class="op">=</span> <span class="st">"infectionDate"</span>,
+pVar <span class="op">=</span> <span class="st">"pScaled"</span>, clustMethod <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/networkFull-1.png" width="480"></p>
 </div>
 <div id="network-with-only-top-probability-pairs" class="section level4">
 <h4 class="hasAnchor">
 <a href="#network-with-only-top-probability-pairs" class="anchor"></a>Network with only top probability pairs</h4>
-<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="kw">mar</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0</span>))
-<span class="fu"><a href="../reference/nbNetwork.html">nbNetwork</a></span>(<span class="no">nbResults</span>, <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>, <span class="kw">dateVar</span> <span class="kw">=</span> <span class="st">"infectionDate"</span>,
-<span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>, <span class="kw">clustMethod</span> <span class="kw">=</span> <span class="st">"hc_absolute"</span>, <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">0.05</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="../reference/nbNetwork.html">nbNetwork</a></span><span class="op">(</span><span class="va">nbResults</span>, indIDVar <span class="op">=</span> <span class="st">"individualID"</span>, dateVar <span class="op">=</span> <span class="st">"infectionDate"</span>,
+pVar <span class="op">=</span> <span class="st">"pScaled"</span>, clustMethod <span class="op">=</span> <span class="st">"hc_absolute"</span>, cutoff <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/networkTop-1.png" width="480"></p>
 </div>
 <div id="heatmap-with-stars-on-top-cluster" class="section level4">
 <h4 class="hasAnchor">
 <a href="#heatmap-with-stars-on-top-cluster" class="anchor"></a>Heatmap with stars on top cluster</h4>
 <p>The second function, nbHeatmap, creates a heatmap of the transmission probabilities. The rows are the possible infectors and the columns are the possible infectees both ordered by date of observation. The darker the square the higher the probability that the pair represented by that square is a transmission link. If a cluster method and cutoff are specified, then stars will be drawn in the squares of the infectors in the top cluster. <em>Note that this plot is better for small outbreaks and takes a long time to draw and may not look good if the number of cases in the outbreak is more than 200.</em></p>
-<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="kw">mar</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>))
-<span class="fu"><a href="../reference/nbHeatmap.html">nbHeatmap</a></span>(<span class="no">nbResults</span>, <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>, <span class="kw">dateVar</span> <span class="kw">=</span> <span class="st">"infectionDate"</span>,
-          <span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>, <span class="kw">clustMethod</span> <span class="kw">=</span> <span class="st">"hc_absolute"</span>, <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">0.05</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="../reference/nbHeatmap.html">nbHeatmap</a></span><span class="op">(</span><span class="va">nbResults</span>, indIDVar <span class="op">=</span> <span class="st">"individualID"</span>, dateVar <span class="op">=</span> <span class="st">"infectionDate"</span>,
+          pVar <span class="op">=</span> <span class="st">"pScaled"</span>, clustMethod <span class="op">=</span> <span class="st">"hc_absolute"</span>, cutoff <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/heatmap-1.png" width="480"></p>
 </div>
 </div>
@@ -559,13 +580,14 @@
 <h2 class="hasAnchor">
 <a href="#estimating-the-reproductive-number" class="anchor"></a>Estimating the Reproductive Number</h2>
 <p>One way to use the relative transmission probabilities is to estimate the reproductive number. This package includes a function estimateR which estimates the individual-level (<span class="math inline">\(R_i\)</span>), time-level (<span class="math inline">\(R_t\)</span>), and overall average effective reproductive (<span class="math inline">\(\hat{R}_t\)</span>) numbers. The function requires various variable name inputs as well as the time frame for the <span class="math inline">\(R_t\)</span>. Currently supported time frames are “days”, “weeks”, “months”, and “years”.</p>
-<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="no">rInitial</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/estimateR.html">estimateR</a></span>(<span class="no">nbResults</span>,
-                      <span class="kw">dateVar</span> <span class="kw">=</span> <span class="st">"infectionDate"</span>,
-                      <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>,
-                      <span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>,
-                      <span class="kw">timeFrame</span> <span class="kw">=</span> <span class="st">"months"</span>)
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rInitial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimateR.html">estimateR</a></span><span class="op">(</span><span class="va">nbResults</span>,
+                      dateVar <span class="op">=</span> <span class="st">"infectionDate"</span>,
+                      indIDVar <span class="op">=</span> <span class="st">"individualID"</span>,
+                      pVar <span class="op">=</span> <span class="st">"pScaled"</span>,
+                      timeFrame <span class="op">=</span> <span class="st">"months"</span><span class="op">)</span>
 <span class="co">#&gt; Please choose the stable portion of the outbreak to calculate the average Rt</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="no">rInitial</span>)
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">rInitial</span><span class="op">)</span>
 <span class="co">#&gt; List of 5</span>
 <span class="co">#&gt;  $ RiDf       :'data.frame': 99 obs. of  4 variables:</span>
 <span class="co">#&gt;   ..$ individualID : num [1:99] 1 2 3 4 5 6 7 8 9 10 ...</span>
@@ -579,20 +601,24 @@
 <span class="co">#&gt;  $ RtAvgDf    :'data.frame': 1 obs. of  1 variable:</span>
 <span class="co">#&gt;   ..$ RtAvg: num 1.01</span>
 <span class="co">#&gt;  $ timeFrame  : chr "months"</span>
-<span class="co">#&gt;  $ rangeForAvg: NULL</span></pre></body></html></div>
+<span class="co">#&gt;  $ rangeForAvg: NULL</span></code></pre></div>
 <p>Note the message that is printed when running this funciton without specifying rangeForAvg. In order to get a more accurate estimate of the average effective reproductive number, you only want to use the stable portion of the outbreak. You plot the <span class="math inline">\(R_t\)</span> values over time using the plotRt function to find this portion of the outbreak. In this case I want average the values between month 25 and month 125 which is excluding about the first 10% and last 20% of the outbreak.</p>
-<div class="sourceCode" id="cb23"><html><body><pre class="r"><span class="fu"><a href="../reference/plotRt.html">plotRt</a></span>(<span class="no">rInitial</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotRt.html">plotRt</a></span><span class="op">(</span><span class="va">rInitial</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/cutting-1.png" width="576"></p>
 <p>Then I can rerun the estimateR function specifying the range for the average and also asking for bootstrap confidence intervals. <strong>In this tutorial, bootSamples = 10 for computation speed but bootSamples should be at least 100.</strong></p>
-<div class="sourceCode" id="cb24"><html><body><pre class="r"><span class="no">rFinal</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/estimateR.html">estimateR</a></span>(<span class="no">nbResults</span>, <span class="kw">dateVar</span> <span class="kw">=</span> <span class="st">"infectionDate"</span>,
-             <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>, <span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>,
-             <span class="kw">timeFrame</span> <span class="kw">=</span> <span class="st">"months"</span>, <span class="kw">rangeForAvg</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">25</span>, <span class="fl">125</span>),
-             <span class="kw">bootSamples</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">0.05</span>)</pre></body></html></div>
-<div class="sourceCode" id="cb25"><html><body><pre class="r"><span class="no">rFinal</span>$<span class="no">RtAvgDf</span>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rFinal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimateR.html">estimateR</a></span><span class="op">(</span><span class="va">nbResults</span>, dateVar <span class="op">=</span> <span class="st">"infectionDate"</span>,
+             indIDVar <span class="op">=</span> <span class="st">"individualID"</span>, pVar <span class="op">=</span> <span class="st">"pScaled"</span>,
+             timeFrame <span class="op">=</span> <span class="st">"months"</span>, rangeForAvg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">125</span><span class="op">)</span>,
+             bootSamples <span class="op">=</span> <span class="fl">10</span>, alpha <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rFinal</span><span class="op">$</span><span class="va">RtAvgDf</span>
 <span class="co">#&gt;      RtAvg  ciLower  ciUpper</span>
-<span class="co">#&gt; 1 1.103004 0.898509 1.439759</span></pre></body></html></div>
+<span class="co">#&gt; 1 1.103004 0.898509 1.439759</span></code></pre></div>
 <p>Finally, you can plot the final results adding the confidence intervals and average <span class="math inline">\(R_t\)</span> estimates using the plotRt function.</p>
-<div class="sourceCode" id="cb26"><html><body><pre class="r"><span class="fu"><a href="../reference/plotRt.html">plotRt</a></span>(<span class="no">rFinal</span>, <span class="kw">includeRtAvg</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">includeRtCI</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">includeRtAvgCI</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotRt.html">plotRt</a></span><span class="op">(</span><span class="va">rFinal</span>, includeRtAvg <span class="op">=</span> <span class="cn">TRUE</span>, includeRtCI <span class="op">=</span> <span class="cn">TRUE</span>, includeRtAvgCI <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/unnamed-chunk-2-1.png" width="576"></p>
 </div>
 <div id="estimating-the-serial-interval" class="section level2">
@@ -602,49 +628,55 @@
 <p>The function requires the user to indicate the column that specifies the difference in time between the two cases in each pair. To be a true estimate of the serial interval this variable should represent the time between symptom onset. The units of the estimated gamma distribution will be defined by the units of the provided. The value of the shift should be in the same units.</p>
 <p>All pairs of cases can be used in the estimation process by setting clustMethod = “none”. However, if the probabilities are from a algorithm such as nbProbabilities (as illustrated in this tutorial), then it is recommeneded to use a clustering method and only include the top cluster of infectors for infectees which have such a cluster. Another important consideration is the time difference between cases should not be included in the probability estimation as this will skew the results.</p>
 <p>First we will re-estimate the probabilites, excluding the timeCat variable which was derived from the time difference between cases. <strong>Again, nReps should be at least 10.</strong></p>
-<div class="sourceCode" id="cb27"><html><body><pre class="r"><span class="no">resGenNoT</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/nbProbabilities.html">nbProbabilities</a></span>(<span class="kw">orderedPair</span> <span class="kw">=</span> <span class="no">pairDataOrdered</span>,
-                            <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>,
-                            <span class="kw">pairIDVar</span> <span class="kw">=</span> <span class="st">"pairID"</span>,
-                            <span class="kw">goldStdVar</span> <span class="kw">=</span> <span class="st">"snpClose"</span>,
-                            <span class="kw">covariates</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"Z3"</span>, <span class="st">"Z4"</span>),
-                            <span class="kw">label</span> <span class="kw">=</span> <span class="st">"SNPs"</span>, <span class="kw">l</span> <span class="kw">=</span> <span class="fl">1</span>,
-                            <span class="kw">n</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">m</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">nReps</span> <span class="kw">=</span> <span class="fl">1</span>)
-<span class="no">nbResultsNoT</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span>(<span class="no">resGenNoT</span><span class="kw">[[</span><span class="fl">1</span>]], <span class="no">pairDataOrdered</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="st">"pairID"</span>, <span class="kw">all</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">resGenNoT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nbProbabilities.html">nbProbabilities</a></span><span class="op">(</span>orderedPair <span class="op">=</span> <span class="va">pairDataOrdered</span>,
+                            indIDVar <span class="op">=</span> <span class="st">"individualID"</span>,
+                            pairIDVar <span class="op">=</span> <span class="st">"pairID"</span>,
+                            goldStdVar <span class="op">=</span> <span class="st">"snpClose"</span>,
+                            covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"Z3"</span>, <span class="st">"Z4"</span><span class="op">)</span>,
+                            label <span class="op">=</span> <span class="st">"SNPs"</span>, l <span class="op">=</span> <span class="fl">1</span>,
+                            n <span class="op">=</span> <span class="fl">10</span>, m <span class="op">=</span> <span class="fl">1</span>, nReps <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+<span class="va">nbResultsNoT</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">resGenNoT</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">pairDataOrdered</span>, by <span class="op">=</span> <span class="st">"pairID"</span>, all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>Now we can estimate the serial interval distribution using the top cluster of infectors from our hierarchical clustering method. The units for this serial interval will be in years since that is the units of the time difference variable and will be for a standard gamma distribution because no shift is specified.</p>
-<div class="sourceCode" id="cb28"><html><body><pre class="r"><span class="no">siPars</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/estimateSI.html">estimateSI</a></span>(<span class="no">nbResultsNoT</span>,
-                     <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>,
-                     <span class="kw">timeDiffVar</span> <span class="kw">=</span> <span class="st">"infectionDiffY"</span>,
-                     <span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>,
-                     <span class="kw">clustMethod</span> <span class="kw">=</span> <span class="st">"hc_absolute"</span>,
-                     <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">0.05</span>,
-                     <span class="kw">initialPars</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>, <span class="fl">2</span>))</pre></body></html></div>
-<div class="sourceCode" id="cb29"><html><body><pre class="r"><span class="no">siPars</span>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">siPars</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimateSI.html">estimateSI</a></span><span class="op">(</span><span class="va">nbResultsNoT</span>,
+                     indIDVar <span class="op">=</span> <span class="st">"individualID"</span>,
+                     timeDiffVar <span class="op">=</span> <span class="st">"infectionDiffY"</span>,
+                     pVar <span class="op">=</span> <span class="st">"pScaled"</span>,
+                     clustMethod <span class="op">=</span> <span class="st">"hc_absolute"</span>,
+                     cutoff <span class="op">=</span> <span class="fl">0.05</span>,
+                     initialPars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">siPars</span>
 <span class="co">#&gt;   clustMethod cutoff nIndividuals nInfectors  pCluster    shape    scale</span>
 <span class="co">#&gt; 1 hc_absolute   0.05           77   1.012987 0.7777778 1.079997 1.907707</span>
 <span class="co">#&gt;     meanSI medianSI     sdSI</span>
-<span class="co">#&gt; 1 2.060318 1.470459 1.982545</span></pre></body></html></div>
+<span class="co">#&gt; 1 2.060318 1.470459 1.982545</span></code></pre></div>
 <p>I can also run the estimateSI function asking for bootstrap confidence intervals. The confidence interval calculation can take a while. <strong>In this tutorial, bootSamples = 5 for computation speed but bootSamples should be at least 100.</strong></p>
-<div class="sourceCode" id="cb30"><html><body><pre class="r"><span class="no">siParsCI</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/estimateSI.html">estimateSI</a></span>(<span class="no">nbResultsNoT</span>,
-                       <span class="kw">indIDVar</span> <span class="kw">=</span> <span class="st">"individualID"</span>,
-                       <span class="kw">timeDiffVar</span> <span class="kw">=</span> <span class="st">"infectionDiffY"</span>,
-                       <span class="kw">pVar</span> <span class="kw">=</span> <span class="st">"pScaled"</span>,
-                       <span class="kw">clustMethod</span> <span class="kw">=</span> <span class="st">"hc_absolute"</span>,
-                       <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">0.05</span>,
-                       <span class="kw">initialPars</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>, <span class="fl">2</span>),
-                       <span class="kw">bootSamples</span> <span class="kw">=</span> <span class="fl">5</span>)</pre></body></html></div>
-<div class="sourceCode" id="cb31"><html><body><pre class="r"><span class="no">siParsCI</span>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">siParsCI</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimateSI.html">estimateSI</a></span><span class="op">(</span><span class="va">nbResultsNoT</span>,
+                       indIDVar <span class="op">=</span> <span class="st">"individualID"</span>,
+                       timeDiffVar <span class="op">=</span> <span class="st">"infectionDiffY"</span>,
+                       pVar <span class="op">=</span> <span class="st">"pScaled"</span>,
+                       clustMethod <span class="op">=</span> <span class="st">"hc_absolute"</span>,
+                       cutoff <span class="op">=</span> <span class="fl">0.05</span>,
+                       initialPars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,
+                       bootSamples <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">siParsCI</span>
 <span class="co">#&gt;   clustMethod cutoff nIndividuals nInfectors  pCluster    shape    scale</span>
 <span class="co">#&gt; 1 hc_absolute   0.05           77   1.012987 0.7777778 1.079997 1.907707</span>
 <span class="co">#&gt;     meanSI medianSI     sdSI shapeCILB shapeCIUB scaleCILB scaleCIUB meanCILB</span>
 <span class="co">#&gt; 1 2.060318 1.470459 1.982545 0.8086973  1.080874  1.932677  2.516003 2.015324</span>
 <span class="co">#&gt;   meanCIUB medianCILB medianCIUB   sdCILB   sdCIUB</span>
-<span class="co">#&gt; 1 2.395427   1.386426   1.689443 1.977227 2.464418</span></pre></body></html></div>
+<span class="co">#&gt; 1 2.395427   1.386426   1.689443 1.977227 2.464418</span></code></pre></div>
 <p>The serial interval can be plotted over the histogram of the true pairs (because we are using simulated data)</p>
-<div class="sourceCode" id="cb32"><html><body><pre class="r"><span class="no">truePairs</span> <span class="kw">&lt;-</span> <span class="no">nbResultsNoT</span>[<span class="no">nbResultsNoT</span>$<span class="no">transmission</span> <span class="kw">==</span> <span class="fl">TRUE</span>, ]
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">nbResultsNoT</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">infectionDiffY</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">geom_histogram</a></span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">truePairs</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">..density..</span>), <span class="kw">bins</span> <span class="kw">=</span> <span class="fl">40</span>) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span>(<span class="kw">name</span> <span class="kw">=</span> <span class="st">"Serial Interval (years)"</span>, <span class="kw">limits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">20</span>)) +
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html">dgamma</a></span>(<span class="no">infectionDiffY</span>, <span class="kw">shape</span> <span class="kw">=</span> <span class="no">siPars</span>$<span class="no">shape</span>, <span class="kw">scale</span> <span class="kw">=</span> <span class="no">siPars</span>$<span class="no">scale</span>)))</pre></body></html></div>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">truePairs</span> <span class="op">&lt;-</span> <span class="va">nbResultsNoT</span><span class="op">[</span><span class="va">nbResultsNoT</span><span class="op">$</span><span class="va">transmission</span> <span class="op">==</span> <span class="cn">TRUE</span>, <span class="op">]</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">nbResultsNoT</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">infectionDiffY</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">geom_histogram</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">truePairs</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">..density..</span><span class="op">)</span>, bins <span class="op">=</span> <span class="fl">40</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Serial Interval (years)"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html">dgamma</a></span><span class="op">(</span><span class="va">infectionDiffY</span>, shape <span class="op">=</span> <span class="va">siPars</span><span class="op">$</span><span class="va">shape</span>, scale <span class="op">=</span> <span class="va">siPars</span><span class="op">$</span><span class="va">scale</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="nbTransmission-vignette_files/figure-html/siPlot-1.png" width="576"></p>
 </div>
 <div id="conclusion" class="section level2">
@@ -677,7 +709,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

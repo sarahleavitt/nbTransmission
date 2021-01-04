@@ -74,7 +74,7 @@ Rt value for the outbreak and the confidence intervals." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nbTransmission</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@ Rt value for the outbreak and the confidence intervals." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,7 +105,7 @@ Rt value for the outbreak and the confidence intervals." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sv1205/nbTransmission/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -133,12 +133,12 @@ the course of the outbreak. Using various options, the plot can include the over
 Rt value for the outbreak and the confidence intervals.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotRt</span>(
-  <span class='no'>rData</span>,
-  <span class='kw'>includeRtAvg</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>includeRtCI</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>includeRtAvgCI</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>plotRt</span><span class='op'>(</span>
+  <span class='va'>rData</span>,
+  includeRtAvg <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  includeRtCI <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  includeRtAvgCI <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -187,21 +187,25 @@ Rt value will be drawn even if <code>includeRtAvg</code> is set to <code>FALSE</
 
 <span class='co'>## Getting initial estimates of the reproductive number</span>
 <span class='co'># (ithout specifying nbResults and without confidence intervals)</span>
-<span class='no'>rInitial</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='estimateR.html'>estimateR</a></span>(<span class='no'>nbResults</span>, <span class='kw'>dateVar</span> <span class='kw'>=</span> <span class='st'>"infectionDate"</span>,
-               <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-               <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='st'>"months"</span>)</div><div class='output co'>#&gt; <span class='message'>Please choose the stable portion of the outbreak to calculate the average Rt</span></div><div class='input'>
+<span class='va'>rInitial</span> <span class='op'>&lt;-</span> <span class='fu'><a href='estimateR.html'>estimateR</a></span><span class='op'>(</span><span class='va'>nbResults</span>, dateVar <span class='op'>=</span> <span class='st'>"infectionDate"</span>,
+               indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>, pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>,
+               timeFrame <span class='op'>=</span> <span class='st'>"months"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Please choose the stable portion of the outbreak to calculate the average Rt</span></div><div class='input'>               
 <span class='co'>## Finding the stable portion of the outbreak for rangeForAvg using the plot</span>
-<span class='fu'>plotRt</span>(<span class='no'>rInitial</span>)</div><div class='img'><img src='plotRt-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='no'>cut1</span> <span class='kw'>&lt;-</span> <span class='fl'>25</span>
-<span class='no'>cut2</span> <span class='kw'>&lt;-</span> <span class='fl'>125</span>
+<span class='fu'>plotRt</span><span class='op'>(</span><span class='va'>rInitial</span><span class='op'>)</span>
+</div><div class='img'><img src='plotRt-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='va'>cut1</span> <span class='op'>&lt;-</span> <span class='fl'>25</span>
+<span class='va'>cut2</span> <span class='op'>&lt;-</span> <span class='fl'>125</span>
 
 <span class='co'>## Finding the final reproductive number estimates with confidence intervals</span>
 <span class='co'># NOTE should run with bootSamples &gt; 10.</span>
-<span class='no'>rFinal</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='estimateR.html'>estimateR</a></span>(<span class='no'>nbResults</span>, <span class='kw'>dateVar</span> <span class='kw'>=</span> <span class='st'>"infectionDate"</span>,
-             <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-             <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>rangeForAvg</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>cut1</span>, <span class='no'>cut2</span>),
-             <span class='kw'>bootSamples</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>)</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%  |                                                                              |===============================================================       |  90%  |                                                                              |======================================================================| 100%</div><div class='input'>
+<span class='va'>rFinal</span> <span class='op'>&lt;-</span> <span class='fu'><a href='estimateR.html'>estimateR</a></span><span class='op'>(</span><span class='va'>nbResults</span>, dateVar <span class='op'>=</span> <span class='st'>"infectionDate"</span>,
+             indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>, pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>,
+             timeFrame <span class='op'>=</span> <span class='st'>"months"</span>, rangeForAvg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>cut1</span>, <span class='va'>cut2</span><span class='op'>)</span>,
+             bootSamples <span class='op'>=</span> <span class='fl'>10</span>, alpha <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%  |                                                                              |===============================================================       |  90%  |                                                                              |======================================================================| 100%</div><div class='input'>
 <span class='co'>## Ploting the final result              </span>
-<span class='fu'>plotRt</span>(<span class='no'>rFinal</span>, <span class='kw'>includeRtAvg</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>includeRtCI</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>includeRtAvgCI</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='plotRt-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>plotRt</span><span class='op'>(</span><span class='va'>rFinal</span>, includeRtAvg <span class='op'>=</span> <span class='cn'>TRUE</span>, includeRtCI <span class='op'>=</span> <span class='cn'>TRUE</span>, includeRtAvgCI <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='img'><img src='plotRt-2.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -218,7 +222,7 @@ Rt value will be drawn even if <code>includeRtAvg</code> is set to <code>FALSE</
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

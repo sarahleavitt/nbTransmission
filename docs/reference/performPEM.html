@@ -73,7 +73,7 @@ the generation/serial interval distribution" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nbTransmission</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ the generation/serial interval distribution" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -104,7 +104,7 @@ the generation/serial interval distribution" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sv1205/nbTransmission/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -131,16 +131,16 @@ the generation/serial interval distribution" />
 the generation/serial interval distribution</p>
     </div>
 
-    <pre class="usage"><span class='fu'>performPEM</span>(
-  <span class='no'>df</span>,
-  <span class='no'>indIDVar</span>,
-  <span class='no'>timeDiffVar</span>,
-  <span class='no'>pVar</span>,
-  <span class='no'>initialPars</span>,
-  <span class='kw'>shift</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>epsilon</span> <span class='kw'>=</span> <span class='fl'>0.00001</span>,
-  <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>performPEM</span><span class='op'>(</span>
+  <span class='va'>df</span>,
+  <span class='va'>indIDVar</span>,
+  <span class='va'>timeDiffVar</span>,
+  <span class='va'>pVar</span>,
+  <span class='va'>initialPars</span>,
+  shift <span class='op'>=</span> <span class='fl'>0</span>,
+  epsilon <span class='op'>=</span> <span class='fl'>1e-05</span>,
+  plot <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -225,55 +225,60 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'>## First, run the algorithm without including time as a covariate.</span>
-<span class='no'>orderedPair</span> <span class='kw'>&lt;-</span> <span class='no'>pairData</span>[<span class='no'>pairData</span>$<span class='no'>infectionDiffY</span> <span class='kw'>&gt;</span> <span class='fl'>0</span>, ]
+<span class='va'>orderedPair</span> <span class='op'>&lt;-</span> <span class='va'>pairData</span><span class='op'>[</span><span class='va'>pairData</span><span class='op'>$</span><span class='va'>infectionDiffY</span> <span class='op'>&gt;</span> <span class='fl'>0</span>, <span class='op'>]</span>
 
 <span class='co'>## Create a variable called snpClose that will define probable links</span>
 <span class='co'># (&lt;3 SNPs) and nonlinks (&gt;12 SNPs) all pairs with between 2-12 SNPs</span>
 <span class='co'># will not be used to train.</span>
-<span class='no'>orderedPair</span>$<span class='no'>snpClose</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='no'>orderedPair</span>$<span class='no'>snpDist</span> <span class='kw'>&lt;</span> <span class='fl'>3</span>, <span class='fl'>TRUE</span>,
-                        <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='no'>orderedPair</span>$<span class='no'>snpDist</span> <span class='kw'>&gt;</span> <span class='fl'>12</span>, <span class='fl'>FALSE</span>, <span class='fl'>NA</span>))
-<span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span>(<span class='no'>orderedPair</span>$<span class='no'>snpClose</span>)</div><div class='output co'>#&gt; 
+<span class='va'>orderedPair</span><span class='op'>$</span><span class='va'>snpClose</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>orderedPair</span><span class='op'>$</span><span class='va'>snpDist</span> <span class='op'>&lt;</span> <span class='fl'>3</span>, <span class='cn'>TRUE</span>,
+                        <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>orderedPair</span><span class='op'>$</span><span class='va'>snpDist</span> <span class='op'>&gt;</span> <span class='fl'>12</span>, <span class='cn'>FALSE</span>, <span class='cn'>NA</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/table.html'>table</a></span><span class='op'>(</span><span class='va'>orderedPair</span><span class='op'>$</span><span class='va'>snpClose</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; 
 #&gt; FALSE  TRUE 
 #&gt;   881   246 </div><div class='input'>
 <span class='co'>## Running the algorithm</span>
 <span class='co'>#NOTE should run with nReps &gt; 1.</span>
-<span class='no'>resGen</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='nbProbabilities.html'>nbProbabilities</a></span>(<span class='kw'>orderedPair</span> <span class='kw'>=</span> <span class='no'>orderedPair</span>,
-                            <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>,
-                            <span class='kw'>pairIDVar</span> <span class='kw'>=</span> <span class='st'>"pairID"</span>,
-                            <span class='kw'>goldStdVar</span> <span class='kw'>=</span> <span class='st'>"snpClose"</span>,
-                            <span class='kw'>covariates</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Z1"</span>, <span class='st'>"Z2"</span>, <span class='st'>"Z3"</span>, <span class='st'>"Z4"</span>),
-                            <span class='kw'>label</span> <span class='kw'>=</span> <span class='st'>"SNPs"</span>, <span class='kw'>l</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-                            <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>nReps</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</div><div class='input'>
+<span class='va'>resGen</span> <span class='op'>&lt;-</span> <span class='fu'><a href='nbProbabilities.html'>nbProbabilities</a></span><span class='op'>(</span>orderedPair <span class='op'>=</span> <span class='va'>orderedPair</span>,
+                            indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>,
+                            pairIDVar <span class='op'>=</span> <span class='st'>"pairID"</span>,
+                            goldStdVar <span class='op'>=</span> <span class='st'>"snpClose"</span>,
+                            covariates <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Z1"</span>, <span class='st'>"Z2"</span>, <span class='st'>"Z3"</span>, <span class='st'>"Z4"</span><span class='op'>)</span>,
+                            label <span class='op'>=</span> <span class='st'>"SNPs"</span>, l <span class='op'>=</span> <span class='fl'>1</span>,
+                            n <span class='op'>=</span> <span class='fl'>10</span>, m <span class='op'>=</span> <span class='fl'>1</span>, nReps <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</div><div class='input'>                            
 <span class='co'>## Merging the probabilities back with the pair-level data</span>
-<span class='no'>nbResultsNoT</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/merge.html'>merge</a></span>(<span class='no'>resGen</span><span class='kw'>[[</span><span class='fl'>1</span>]], <span class='no'>orderedPair</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='st'>"pairID"</span>, <span class='kw'>all</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='va'>nbResultsNoT</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/merge.html'>merge</a></span><span class='op'>(</span><span class='va'>resGen</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, <span class='va'>orderedPair</span>, by <span class='op'>=</span> <span class='st'>"pairID"</span>, all <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'>## Estimating the serial interval</span>
 
 <span class='co'># \donttest{</span>
 <span class='co'># Using all pairs and plotting the parameters</span>
-  <span class='fu'>performPEM</span>(<span class='no'>nbResultsNoT</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>timeDiffVar</span> <span class='kw'>=</span> <span class='st'>"infectionDiffY"</span>,
-  <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>, <span class='kw'>initialPars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>shift</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='performPEM-1.png' alt='' width='700' height='433' /></div><div class='output co'>#&gt;       shape     scale
+  <span class='fu'>performPEM</span><span class='op'>(</span><span class='va'>nbResultsNoT</span>, indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>, timeDiffVar <span class='op'>=</span> <span class='st'>"infectionDiffY"</span>,
+  pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>, initialPars <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>, <span class='fl'>2</span><span class='op'>)</span>, shift <span class='op'>=</span> <span class='fl'>0</span>, plot <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='img'><img src='performPEM-1.png' alt='' width='700' height='433' /></div><div class='output co'>#&gt;       shape     scale
 #&gt; 33 1.348901 0.5878836</div><div class='input'><span class='co'># }</span>
 
 
 <span class='co'># Clustering the probabilities first</span>
-<span class='no'>allClust</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='clusterInfectors.html'>clusterInfectors</a></span>(<span class='no'>nbResultsNoT</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-                            <span class='kw'>clustMethod</span> <span class='kw'>=</span> <span class='st'>"hc_absolute"</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>0.05</span>)
+<span class='va'>allClust</span> <span class='op'>&lt;-</span> <span class='fu'><a href='clusterInfectors.html'>clusterInfectors</a></span><span class='op'>(</span><span class='va'>nbResultsNoT</span>, indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>, pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>,
+                            clustMethod <span class='op'>=</span> <span class='st'>"hc_absolute"</span>, cutoff <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span>
 
-<span class='fu'>performPEM</span>(<span class='no'>allClust</span>[<span class='no'>allClust</span>$<span class='no'>cluster</span> <span class='kw'>==</span> <span class='fl'>1</span>, ], <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>,
-           <span class='kw'>timeDiffVar</span> <span class='kw'>=</span> <span class='st'>"infectionDiffY"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-           <span class='kw'>initialPars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>), <span class='kw'>shift</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>plot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='img'><img src='performPEM-2.png' alt='' width='700' height='433' /></div><div class='output co'>#&gt;       shape    scale
+<span class='fu'>performPEM</span><span class='op'>(</span><span class='va'>allClust</span><span class='op'>[</span><span class='va'>allClust</span><span class='op'>$</span><span class='va'>cluster</span> <span class='op'>==</span> <span class='fl'>1</span>, <span class='op'>]</span>, indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>,
+           timeDiffVar <span class='op'>=</span> <span class='st'>"infectionDiffY"</span>, pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>,
+           initialPars <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>, <span class='fl'>2</span><span class='op'>)</span>, shift <span class='op'>=</span> <span class='fl'>0</span>, plot <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='img'><img src='performPEM-2.png' alt='' width='700' height='433' /></div><div class='output co'>#&gt;       shape    scale
 #&gt; 3 0.9095075 2.081909</div><div class='input'>
 <span class='co'># \donttest{</span>
 <span class='co'># The above is equivalent to the following code using the function estimateSI()</span>
 <span class='co'># though the plot will not be printed and more details will be added</span>
-<span class='fu'><a href='estimateSI.html'>estimateSI</a></span>(<span class='no'>nbResultsNoT</span>, <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>timeDiffVar</span> <span class='kw'>=</span> <span class='st'>"infectionDiffY"</span>,
-           <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>, <span class='kw'>clustMethod</span> <span class='kw'>=</span> <span class='st'>"hc_absolute"</span>, <span class='kw'>cutoff</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-           <span class='kw'>initialPars</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>))</div><div class='output co'>#&gt; [1] "Clustering Infectors"
+<span class='fu'><a href='estimateSI.html'>estimateSI</a></span><span class='op'>(</span><span class='va'>nbResultsNoT</span>, indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>, timeDiffVar <span class='op'>=</span> <span class='st'>"infectionDiffY"</span>,
+           pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>, clustMethod <span class='op'>=</span> <span class='st'>"hc_absolute"</span>, cutoff <span class='op'>=</span> <span class='fl'>0.05</span>,
+           initialPars <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>, <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "Clustering Infectors"
 #&gt;   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</div><div class='output co'>#&gt;   clustMethod cutoff nIndividuals nInfectors  pCluster     shape    scale
 #&gt; 1 hc_absolute   0.05           76          1 0.7676768 0.9095075 2.081909
 #&gt;     meanSI medianSI     sdSI
-#&gt; 1 1.893511 1.261367 1.985477</div><div class='input'># }
+#&gt; 1 1.893511 1.261367 1.985477</div><div class='input'><span class='co'># }</span>
 
 
 </div></pre>
@@ -292,7 +297,7 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

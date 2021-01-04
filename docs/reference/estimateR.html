@@ -74,7 +74,7 @@ for an outbreak." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nbTransmission</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@ for an outbreak." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,7 +105,7 @@ for an outbreak." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sv1205/nbTransmission/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -133,17 +133,17 @@ the individual-level, time-level, and average effective reproductive numbers
 for an outbreak.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>estimateR</span>(
-  <span class='no'>df</span>,
-  <span class='no'>indIDVar</span>,
-  <span class='no'>dateVar</span>,
-  <span class='no'>pVar</span>,
-  <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"days"</span>, <span class='st'>"months"</span>, <span class='st'>"weeks"</span>, <span class='st'>"years"</span>),
-  <span class='kw'>rangeForAvg</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>bootSamples</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>progressBar</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>estimateR</span><span class='op'>(</span>
+  <span class='va'>df</span>,
+  <span class='va'>indIDVar</span>,
+  <span class='va'>dateVar</span>,
+  <span class='va'>pVar</span>,
+  timeFrame <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"days"</span>, <span class='st'>"months"</span>, <span class='st'>"weeks"</span>, <span class='st'>"years"</span><span class='op'>)</span>,
+  rangeForAvg <span class='op'>=</span> <span class='cn'>NULL</span>,
+  bootSamples <span class='op'>=</span> <span class='fl'>0</span>,
+  alpha <span class='op'>=</span> <span class='fl'>0.05</span>,
+  progressBar <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -262,12 +262,13 @@ syndrome reveal similar impacts of control measures.
 
 <span class='co'>## Getting initial estimates of the reproductive number</span>
 <span class='co'># (without specifying rangeForAvg and without confidence intervals)</span>
-<span class='no'>rInitial</span> <span class='kw'>&lt;-</span> <span class='fu'>estimateR</span>(<span class='no'>nbResults</span>, <span class='kw'>dateVar</span> <span class='kw'>=</span> <span class='st'>"infectionDate"</span>,
-               <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-               <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='st'>"months"</span>)</div><div class='output co'>#&gt; <span class='message'>Please choose the stable portion of the outbreak to calculate the average Rt</span></div><div class='input'>
+<span class='va'>rInitial</span> <span class='op'>&lt;-</span> <span class='fu'>estimateR</span><span class='op'>(</span><span class='va'>nbResults</span>, dateVar <span class='op'>=</span> <span class='st'>"infectionDate"</span>,
+               indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>, pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>,
+               timeFrame <span class='op'>=</span> <span class='st'>"months"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Please choose the stable portion of the outbreak to calculate the average Rt</span></div><div class='input'>               
 <span class='co'>## Finding the stable portion of the outbreak for rangeForAvg using plot of Rt</span>
-<span class='no'>cut1</span> <span class='kw'>&lt;-</span> <span class='fl'>25</span>
-<span class='no'>cut2</span> <span class='kw'>&lt;-</span> <span class='fl'>125</span>
+<span class='va'>cut1</span> <span class='op'>&lt;-</span> <span class='fl'>25</span>
+<span class='va'>cut2</span> <span class='op'>&lt;-</span> <span class='fl'>125</span>
 
 <span class='co'># Optional plot to determine the cutpoints above</span>
 <span class='co'># ggplot(data = rInitial$RtDf, aes(x = timeRank, y = Rt)) +</span>
@@ -276,14 +277,16 @@ syndrome reveal similar impacts of control measures.
 <span class='co'>#    geom_hline(data = rInitial$RtAvgDf, aes(yintercept = RtAvg), size = 0.7) +</span>
 <span class='co'>#    geom_vline(aes(xintercept = cut1), linetype = 2, size = 0.7) +</span>
 <span class='co'>#    geom_vline(aes(xintercept = cut2), linetype = 2, size = 0.7)</span>
-
+  
 <span class='co'>## Finding the final reproductive number estimates with confidence intervals</span>
 <span class='co'># NOTE should run with bootSamples &gt; 2.</span>
-<span class='no'>rFinal</span> <span class='kw'>&lt;-</span> <span class='fu'>estimateR</span>(<span class='no'>nbResults</span>, <span class='kw'>dateVar</span> <span class='kw'>=</span> <span class='st'>"infectionDate"</span>,
-             <span class='kw'>indIDVar</span> <span class='kw'>=</span> <span class='st'>"individualID"</span>, <span class='kw'>pVar</span> <span class='kw'>=</span> <span class='st'>"pScaled"</span>,
-             <span class='kw'>timeFrame</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>rangeForAvg</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>cut1</span>, <span class='no'>cut2</span>),
-             <span class='kw'>bootSamples</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>)</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</div><div class='input'>
-<span class='no'>rFinal</span>$<span class='no'>RtAvgDf</span></div><div class='output co'>#&gt;      RtAvg   ciLower  ciUpper
+<span class='va'>rFinal</span> <span class='op'>&lt;-</span> <span class='fu'>estimateR</span><span class='op'>(</span><span class='va'>nbResults</span>, dateVar <span class='op'>=</span> <span class='st'>"infectionDate"</span>,
+             indIDVar <span class='op'>=</span> <span class='st'>"individualID"</span>, pVar <span class='op'>=</span> <span class='st'>"pScaled"</span>,
+             timeFrame <span class='op'>=</span> <span class='st'>"months"</span>, rangeForAvg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>cut1</span>, <span class='va'>cut2</span><span class='op'>)</span>,
+             bootSamples <span class='op'>=</span> <span class='fl'>2</span>, alpha <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</div><div class='input'>
+<span class='va'>rFinal</span><span class='op'>$</span><span class='va'>RtAvgDf</span>
+</div><div class='output co'>#&gt;      RtAvg   ciLower  ciUpper
 #&gt; 1 1.125558 0.9528876 1.178513</div><div class='input'>
 </div></pre>
   </div>
@@ -301,7 +304,7 @@ syndrome reveal similar impacts of control measures.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dataset with results of <code><a href='nbProbabilities.html'>nbProbabilities</a></code> — nbResults • nbTransmission</title>
+<title>Dataset with results of nbProbabilities — nbResults • nbTransmission</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Dataset with results of <code><a href='nbProbabilities.html'>nbProbabilities</a></code> — nbResults" />
+<meta property="og:title" content="Dataset with results of nbProbabilities — nbResults" />
 <meta property="og:description" content="A ordered dataset created from pairData of the outbreak of 100 individuals 
 including the relative transmission probabilities for each pair estimated using the function
 nbProbabilities. The code to recreate this dataset from pairData 
@@ -75,7 +75,7 @@ is shown below." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nbTransmission</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.2</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ is shown below." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -106,7 +106,7 @@ is shown below." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/sv1205/nbTransmission/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -135,12 +135,12 @@ including the relative transmission probabilities for each pair estimated using 
 is shown below.</p>
     </div>
 
-    <pre class="usage"><span class='no'>nbResults</span></pre>
+    <pre class="usage"><span class='va'>nbResults</span></pre>
 
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>A data frame with 9900 rows and 24 variables:</p><dl'>
+    <p>A data frame with 9900 rows and 24 variables:</p><dl>
 <dt>pairID</dt><dd><p>A pair-level ID variable (the individual IDs separated by an '_').</p></dd>
 <dt>label</dt><dd><p>The label for the run, here "SNPs".</p></dd>
 <dt>pAvg</dt><dd><p>The mean transmission probability for the pair over all runs.</p></dd>
@@ -176,21 +176,21 @@ is shown below.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-# ## NOT RUN ##
-# ## This is the code used to create this dataset ##
-# orderedPair &lt;- pairData[pairData$infectionDiff &gt; 0, ]
-# orderedPair$snpClose &lt;- ifelse(orderedPair$snpDist &lt; 3, TRUE,
-#                         ifelse(orderedPair$snpDist &gt; 12, FALSE, NA))
-# set.seed(0)
-# covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")
-# resGen &lt;- nbProbabilities(orderedPair = orderedPair,
-#                             indIDVar = "individualID",
-#                             pairIDVar = "pairID",
-#                             goldStdVar = "snpClose",
-#                             covariates = covariates,
-#                             label = "SNPs", l = 1,
-#                             n = 10, m = 1, nReps = 50)
-# nbResults &lt;- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+<span class='co'># ## NOT RUN ##</span>
+<span class='co'># ## This is the code used to create this dataset ##</span>
+<span class='co'># orderedPair &lt;- pairData[pairData$infectionDiff &gt; 0, ]</span>
+<span class='co'># orderedPair$snpClose &lt;- ifelse(orderedPair$snpDist &lt; 3, TRUE,</span>
+<span class='co'>#                         ifelse(orderedPair$snpDist &gt; 12, FALSE, NA))</span>
+<span class='co'># set.seed(0)</span>
+<span class='co'># covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat")</span>
+<span class='co'># resGen &lt;- nbProbabilities(orderedPair = orderedPair,</span>
+<span class='co'>#                             indIDVar = "individualID",</span>
+<span class='co'>#                             pairIDVar = "pairID",</span>
+<span class='co'>#                             goldStdVar = "snpClose",</span>
+<span class='co'>#                             covariates = covariates,</span>
+<span class='co'>#                             label = "SNPs", l = 1,</span>
+<span class='co'>#                             n = 10, m = 1, nReps = 50)</span>
+<span class='co'># nbResults &lt;- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -207,7 +207,7 @@ is shown below.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
