@@ -11,7 +11,7 @@ performPEM(
   pVar,
   initialPars,
   shift = 0,
-  epsilon = 0.00001,
+  epsilon = 1e-05,
   plot = FALSE
 )
 }

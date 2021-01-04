@@ -299,8 +299,9 @@ findClustersKD <- function(df, pVar, cutoff = 0.05, minGap = 0, plot = FALSE,
 
 findClustersHC <- function(df, pVar, cutoff = 0.05,
                            clustMethod = c("hc_absolute", "hc_relative")){
+  df <- as.data.frame(df)
   
-  df <- as.data.frame(df[order(-df[, pVar]), ])
+  df <- df[order(-df[, pVar]), ]
   
   #Clustering the infectors using hierarchical cluster with minimum distance
   hclustS <- stats::hclust(stats::dist(df[, pVar]), method = "single")

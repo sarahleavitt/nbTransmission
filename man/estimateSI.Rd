@@ -13,7 +13,7 @@ estimateSI(
   cutoffs = NULL,
   initialPars,
   shift = 0,
-  epsilon = 0.00001,
+  epsilon = 1e-05,
   bootSamples = 0,
   alpha = 0.05,
   progressBar = TRUE
