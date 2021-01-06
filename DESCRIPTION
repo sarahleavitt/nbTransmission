@@ -9,8 +9,8 @@ Depends: R (>= 3.4.0)
 RoxygenNote: 7.1.1
 Encoding: UTF-8
 License: MIT + file LICENSE
-URL: https://sarahleavitt.github.io/nbTransmission
-BugReports: https://github.com/sv1205/nbTransmission/issues
+URL: https://sarahleavitt.github.io/nbTransmission/
+BugReports: https://github.com/sarahleavitt/nbTransmission/issues
 LazyData: true
 Imports:
     dplyr,
