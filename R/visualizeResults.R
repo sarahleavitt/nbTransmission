@@ -303,21 +303,10 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
   nodes <- rbind(indIDs1, indIDs2)
   nodes <- nodes[!duplicated(nodes[, indIDVar]), ]
   nodes <- nodes[order(nodes[, dateVar]), ]
-  nodes[, dateVar] <- as.character(dateVar)
   
-  #Creating a data frame of edges
-  #Reording the columns so individualIDs are first
-  #Also removing label column because it causes issues
-  notIDNames <- names(clustRes)[!names(clustRes) %in% c(indIDVar1, indIDVar2, "label")]
-  namesReordered <- c(indIDVar1, indIDVar2, notIDNames)
-  edges <- clustRes[order(clustRes[, pVar]), namesReordered]
-  
-  #Setting the date variables to be characters to avoid warning
-  for(i in 1:ncol(edges)){
-    if("POSIXct" %in% class(edges[, i])){
-      edges[, i] <- as.character(edges[, i])
-    }
-  }
+  #Creating the edge list - only retaining relevant columns
+  edgeCols <- c(indIDVar1, indIDVar2, pVar, "cluster")
+  edges <- clustRes[order(clustRes[, pVar]), edgeCols]
   
   #Creating the network
   net <- igraph::graph_from_data_frame(d = edges, vertices = nodes, directed = T)
@@ -365,7 +354,7 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
 #' # of the nbProbabilities() function on a TB-like outbreak.
 #' 
 #' ## Getting initial estimates of the reproductive number
-#' # (ithout specifying nbResults and without confidence intervals)
+#' # (without specifying nbResults and without confidence intervals)
 #' rInitial <- estimateR(nbResults, dateVar = "infectionDate",
 #'                indIDVar = "individualID", pVar = "pScaled",
 #'                timeFrame = "months")

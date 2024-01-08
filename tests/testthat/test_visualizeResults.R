@@ -136,7 +136,7 @@ test_that("Descriptive error messages returned from internal createNetwork funct
                "infectionDate.2 is not in the data frame.")
   
   
-  #Testing that misclustng clustMethod gets set to none and gives warning
+  #Testing that clustMethod gets set to none and gives warning
   expect_warning(createNetwork(testData, dateVar = "infectionDate", indIDVar = "individualID",
                            pVar = "pScaled"),
                  "No clustMethod was provided so it was set to 'none'")
