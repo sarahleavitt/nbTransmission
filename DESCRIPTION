@@ -6,7 +6,7 @@ Authors@R: person("Sarah V", "Leavitt", email = "sv1205@bu.edu", role = c("aut",
 Maintainer: Sarah V Leavitt <sv1205@bu.edu>
 Description: Estimates the relative transmission probabilities between cases in an infectious disease outbreak or cluster using naive Bayes. Included are various functions to use these probabilities to estimate transmission parameters such as the generation/serial interval and reproductive number as well as finding the contribution of covariates to the probabilities and visualizing results. The ideal use is for an infectious disease dataset with metadata on the majority of cases but more informative data such as contact tracing or pathogen whole genome sequencing on only a subset of cases. For a detailed description of the methods see Leavitt et al. (2020) <doi:10.1093/ije/dyaa031>.
 Depends: R (>= 3.4.0)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Encoding: UTF-8
 License: MIT + file LICENSE
 URL: https://sarahleavitt.github.io/nbTransmission/
@@ -26,6 +26,7 @@ Suggests:
     Hmisc,
     igraph,
     knitr,
+    methods,
     pheatmap,
     RColorBrewer,
     rmarkdown,

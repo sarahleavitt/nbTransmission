@@ -383,7 +383,7 @@ plotRt <- function(rData, includeRtAvg = FALSE,
                    includeRtCI = FALSE, includeRtAvgCI = FALSE){
   
   #Checking to make sure rData has the right form
-  if(class(rData) != "list"){
+  if(methods::is(rData, "list") == FALSE){
     stop("The rData argument should be the list output from the function estimateR")
   }
   if(identical(names(rData), c("RiDf", "RtDf", "RtAvgDf", "timeFrame", "rangeForAvg")) == FALSE){
