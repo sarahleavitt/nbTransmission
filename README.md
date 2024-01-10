@@ -1,6 +1,6 @@
 # nbTransmission
 
-[![codecov](https://app.codecov.io/gh/sarahleavitt/nbTransmission/branch/master/graph/badge.svg)](https://app.codecov.io/gh/sarahleavitt/nbTransmission)
+[![codecov](https://codecov.io/gh/sarahleavitt/nbTransmission/branch/master/graph/badge.svg)](https://app.codecov.io/gh/sarahleavitt/nbTransmission)
 
 For documentation and a tutorial see: https://sarahleavitt.github.io/nbTransmission/
 
