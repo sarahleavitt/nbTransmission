@@ -276,7 +276,8 @@ estimateSI <- function(df, indIDVar, timeDiffVar, pVar,
         
         #Using the fact that joining with duplicates, duplicates the column to
         #replicate and add new ID in one step.
-        probsBoot <- dplyr::right_join(clustdf, idDf, by = indIDVar2)
+        probsBoot <- dplyr::right_join(clustdf, idDf, by = indIDVar2,
+                                       relationship = "many-to-many")
         
         #Renaming the new ID variable to the old ID name so that the function works
         names(probsBoot)[names(probsBoot) == indIDVar2] <- "oldID2" 

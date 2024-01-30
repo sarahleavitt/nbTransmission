@@ -307,6 +307,7 @@ createNetwork <- function(df, indIDVar, dateVar, pVar,
   #Creating the edge list - only retaining relevant columns
   edgeCols <- c(indIDVar1, indIDVar2, pVar, "cluster")
   edges <- clustRes[order(clustRes[, pVar]), edgeCols]
+  edges$cluster <- as.numeric(edges$cluster)
   
   #Creating the network
   net <- igraph::graph_from_data_frame(d = edges, vertices = nodes, directed = T)
