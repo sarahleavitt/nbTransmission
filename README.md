@@ -9,8 +9,8 @@ For documentation and a tutorial see: https://sarahleavitt.github.io/nbTransmiss
 This package is a group of functions used in infectious diseases analysis.
 It implements an algorithm to calculate relative transmission probabilities between
 cases in an infectious disease outbreak or cluster using naive Bayes. It also
-contians various functions to use these probabilities to estimate
-transmission paramaters such as the serial interval and reproductive number as well as
+contains various functions to use these probabilities to estimate
+transmission parameters such as the serial interval and reproductive number as well as
 estimate the contribution of covariates to the probabilities and visualize the results.  
 
 The ideal use of this package is for infectious disease dataset with metadata on the
@@ -30,7 +30,13 @@ of a transmission link is estimated for all pairs.
 
 For a more formal discussion of the theory behind and usage of this method, see the following paper:
 
-Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, Volume 49, Issue 3, June 2020, Pages 764–775, https://doi.org/10.1093/ije/dyaa031.
+Leavitt, S. V., Lee, R. S., Sebastiani P., Horsburgh C. R> , Jenkins, H. E., White, L. F. (2022). Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, 49(3), 764–775, https://doi.org/10.1093/ije/dyaa031.
+
+For a description of the method implemented to estimate the serial interval distribution see the following paper:
+
+Leavitt, S. V., Jenkins, H. E., Sebastiani, P., Lee, R. S., Horsburgh, C. R., Tibbs, A. M., & White, L. F. (2021). Estimation of the generation interval using pairwise relative transmission probabilities. Biostatistics, 23(3), 807–824. https://doi.org/10.1093/biostatistics/kxaa059.
+
+
  
 ## Installation
 
