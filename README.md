@@ -30,7 +30,7 @@ of a transmission link is estimated for all pairs.
 
 For a more formal discussion of the theory behind and usage of this method, see the following paper:
 
-Leavitt, S. V., Lee, R. S., Sebastiani P., Horsburgh C. R> , Jenkins, H. E., White, L. F. (2022). Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, 49(3), 764–775, https://doi.org/10.1093/ije/dyaa031.
+Leavitt, S. V., Lee, R. S., Sebastiani P., Horsburgh C. R> , Jenkins, H. E., White, L. F. (2020). Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, 49(3), 764–775, https://doi.org/10.1093/ije/dyaa031.
 
 For a description of the method implemented to estimate the serial interval distribution see the following paper:
 
