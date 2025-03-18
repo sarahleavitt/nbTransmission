@@ -8,3 +8,5 @@
 ^\_config\.yml$
 ^docs$
 ^CRAN-SUBMISSION$
+^nbTransmission\.Rproj$
+^\.Rproj\.user$

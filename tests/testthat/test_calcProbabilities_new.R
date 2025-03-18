@@ -1,12 +1,12 @@
 library(testthat)
 
-context("nbProbabilities Function")
+context("new nbProbabilities Function")
 library(nbTransmission)
 
 ## Use the pairData dataset which represents a TB-like outbreak
 # First create a dataset of ordered pairs
-orderedPair <- readRDS("covarOrderedPair.rds")
-# orderedPair <- pairData[pairData$infectionDiffY >= 0, ]
+# orderedPair <- readRDS("covarOrderedPair.rds")
+orderedPair <- pairData[pairData$infectionDiffY >= 0, ]
 
 ## Create a variable called snpClose that will define probable links
 # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
@@ -19,20 +19,23 @@ orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
 #Creating a function with defaults equal to my simulated data
 nbProbWrapper <- function(orderedPair,
                           indIDVar = "individualID",
-                          pairIDVar = "edgeID",
+                          pairIDVar = "pairID",
                           goldStdVar = "snpClose",
-                          covariates = c("Y1", "Y2", "Y3", "Y4", "timeCat"),
+                          covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
                           nReps = 1,
-                          nBS = 10, pSampled = 1,
+                          orType = "adjusted",
+                          nBS = 5,
+                          pSampled = 1,
                           progressBar = FALSE){
-
-  resGen <- nbProbabilities_BS(orderedPair = orderedPair,
+  resGen <- nbProbabilities_new(orderedPair = orderedPair,
                                indIDVar = indIDVar,
                                pairIDVar = pairIDVar,
                                goldStdVar = goldStdVar,
                                covariates = covariates,
                                nReps = nReps,
-                               nBS = nBS, pSampled = pSampled,
+                               orType = orType,
+                               nBS = nBS,
+                               pSampled = pSampled,
                                progressBar = progressBar)
   return(resGen)
 }
@@ -61,6 +64,9 @@ test_that("Descriptive error messages returned",{
   expect_error(nbProbWrapper(orderedPair, goldStdVar = "garbage"),
                "garbage is not in the data frame.")
 
+  expect_error(nbProbWrapper(orderedPair, orType = "garbage"),
+               "orType must be either 'adjusted' or 'univariate'.")
+
   #Removing individualID.1 column
   orderedPair2 <- orderedPair[!names(orderedPair) %in% c("individualID.1")]
   expect_error(nbProbWrapper(orderedPair2, indIDVar = "individualID"),
@@ -77,12 +83,14 @@ test_that("Descriptive error messages returned",{
 
   #Making some covariates factors
   orderedPair4 <- orderedPair
-  orderedPair4$Y1 <- as.character(orderedPair4$Y1)
+  orderedPair4$Z1 <- as.character(orderedPair4$Z1)
   expect_error(nbProbWrapper(orderedPair4),
-               paste0("Y1 is not a factor"))
+               paste0("Z1 is not a factor"))
 
-  orderedPair4$Y2 <- as.character(orderedPair4$Y2)
+  orderedPair4$Z2 <- as.character(orderedPair4$Z2)
   expect_error(nbProbWrapper(orderedPair4),
-               paste0("Y1, Y2 are not factors"))
+               paste0("Z1, Z2 are not factors"))
 
 })
+
+

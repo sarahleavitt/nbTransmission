@@ -1,15 +1,21 @@
-#' Estimates adjusted odds ratios and relative transmission probabilities
+
+#' Estimates relative transmission probabilities
 #'
-#' The function \code{nbProbabilities_BS} uses bootstrapped logistic regression within an iterative estimation
-#' procedure to estimate adjusted odds ratios of factors associated with transmission. It also uses Naive Bayes to
-#' estimate relative transmission probabilities (see \code{nbProbabilities for further details}).
+#' The function \code{nbProbabilities} uses naive Bayes and an interative estimation
+#' procedure to estimate relative transmission probabilities
+#'
+#' This algorithm takes a dataset of ordered possible infector-infectee pairs in an
+#' infectious disease outbreak or cluster and estimates the relative probability the cases are
+#' linked by direct transmission using a classification technique called naive Bayes (NB).
+#' NB is a simple machine learning algorithm that uses Bayes rule to estimate the
+#' probability of an outcome in a prediction dataset given a set of covariates from
+#' the observed frequencies in a training dataset.
 #'
 #' The input dataset - \code{orderedPair} - should represent ordered pairs of cases
 #' (where the potential infector was observed before the infectee) and have
 #' a unique identifier for each pair (\code{pairIDVar}) as well as the individual ids that are
 #' included in the pair (\code{<indIDVar>.1} and \code{<indIDVar>.2}). If cases are concurrent
-#' (meaning the order cannot determined) both orders can be included and one will be selected at
-#' random within each iteration.
+#' (meaning the order cannot determined) both orders can be included.
 #'
 #' A subset of pairs should also have pathogen WGS, contact investigation,  or some other
 #' 'gold standard' defined by \code{goldStdVar} which should be a logical vector with
@@ -20,25 +26,25 @@
 #' spatial, clinical, demographic, and temporal characteristics of the case pair.
 #'
 #' Because the outcomes in the training set represent probable and not certain
-#' transmission events and a given case could have multiple probable infectors,
+#' transmission events and a given case could have mulitple probable infectors,
 #' the algorithm uses an iterative estimation procedure. This procedure randomly chooses one
 #' link of all of the possible links to include in the training dataset \code{nReps}
 #' times, and then uses \code{mxn} cross prediction to give all pairs a turn
 #' in the prediction dataset.
 #'
-#' We implement a bootstrapped logisitic regression within each cross-validation fold and
-#' iteration to calculate non-parametric errors that are robust to correlation induced by having multiple
-#' infectees present across observations.Choosing one link removes the correlation induced from
-#' having an infector present across multiple observations. If the ordered pair dataset is too large to
-#' efficiently bootstrap within the iterative algorithm, we include a bootstrap scheme to sample all linked
-#' pairs and a proportion of unlinked pairs (\code{pSampled < 1}). We encourage uses to determine the best value
-#' for \code{pSampled} via sensitivity analyses.
-#'
 #' The output of this function is a list of two dataframes: one with the estimates of the
-#' transmission probabilities (\code{probabilities}) and the other with adjusted odds ratios (\code{estimates}). The
-#' 95% confidence intervals reported for these odds ratios use Rubin's Rules, a technique developed
+#' transmission probabilities (\code{probabilities}) and the other with the contribution of
+#' the covariates to the probabilities in the form of odds ratios (\code{estimates}). The
+#' 95\% confidence intervals reported for these odds ratios use Rubin's Rules, a technique developed
 #' for multiple imputation, to pool the error across all iterations.
 #'
+#' This function generates odds ratios describing the associations between covariates in the training data
+#' and outcome defined in the gold standard variable (\code{goldStdVar}) argument. Unadjusted odds ratios are the default.
+#' These odds ratios are produced using contingency table methods. Adjusted odds ratios are calculated via bootstrapped
+#' logistic regression to produce non-parametric standard errors. The bootstrap is controlled by parameters \code{nBS},
+#' the number of bootstrap samples to run, and \code{pSampled}, the proportion of unlinked cases to include in the bootstrap
+#' sample. \code{pSampled} is recommended only for large datasets in which it is computationally unfeasible to run a full
+#' bootstrap. Sensitivity analyses should be run to determine an adequate value for \code{pSampled}.
 #'
 #' @param orderedPair The name of the ordered pair-level dataset with the covariates.
 #' @param indIDVar The name (in quotes) of the column with the individual ID.
@@ -54,9 +60,13 @@
 #' @param m The number of times to create n folds in nxm cross validation.
 #' @param nReps The number of times to randomly select the "true" infector (should be at least 10).
 #' @param progressBar A logical indicating if a progress bar should be printed (default is TRUE).
-#' @param nBS Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100)
-#' @param pSampled Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true bootstrap)
-#'
+#' @param orType Takes value \code{"univariate"} or \code{"adjusted"}. \code{"univariate"} produces contingency table
+#' odds ratios and \code{"adjusted"} produces adjusted odds ratios from a bootstrapped multivariable logistic regression.
+#' @param nBS Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100). Only
+#' relevant when \code{orType} = "univariate".
+#' @param pSampled Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true
+#' bootstrap). Only relevant when \code{orType} = "univariate".
+
 #' @return List containing two data frames:
 #' \enumerate{
 #'   \item \code{probabilities} - a data frame of transmission probabilities. Column names:
@@ -76,7 +86,9 @@
 #'      }
 #'   \item \code{estimates} - a data frame with the contribution of covariates. Column names:
 #'      \itemize{
+#'        \item \code{label} - the optional label of the run
 #'        \item \code{level} - the covariate name and level
+#'        \item \code{nIter} - the number of iterations included in the estimates: \code{n*m*nReps}
 #'        \item \code{logorMean} - the mean value of the log odds ratio across iterations
 #'        \item \code{logorSE} - the standard error of the log odds ratio across iterations
 #'        \item \code{logorCILB} - the lower bound of the 95% confidence interval of the log odds ratio
@@ -86,6 +98,31 @@
 #'      }
 #' }
 #'
+#' @examples
+#' ## Use the pairData dataset which represents a TB-like outbreak
+#' # First create a dataset of ordered pairs
+#' orderedPair <- pairData[pairData$infectionDiffY >= 0, ]
+#'
+#' ## Create a variable called snpClose that will define probable links
+#' # (<3 SNPs) and nonlinks (>12 SNPs) all pairs with between 2-12 SNPs
+#' # will not be used to train.
+#' orderedPair$snpClose <- ifelse(orderedPair$snpDist < 3, TRUE,
+#'                         ifelse(orderedPair$snpDist > 12, FALSE, NA))
+#' table(orderedPair$snpClose)
+#'
+#' ## Running the algorithm
+#' #NOTE should run with nReps > 1.
+#' resGen <- nbProbabilities(orderedPair = orderedPair,
+#'                             indIDVar = "individualID",
+#'                             pairIDVar = "pairID",
+#'                             goldStdVar = "snpClose",
+#'                             covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
+#'                             label = "SNPs", l = 1,
+#'                             n = 10, m = 1, nReps = 1)
+#'
+#' ## Merging the probabilities back with the pair-level data
+#' nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
+#'
 #' @references
 #' Barnard J. and Rubin D. Small-Sample Degrees of Freedom with Multiple Imputation
 #' \emph{Biometrika}. 1999 Dec;86(4):948-55.
@@ -94,18 +131,14 @@
 
 
 
-
-nbProbabilities_BS <- function(orderedPair, indIDVar, pairIDVar,
-                               goldStdVar, covariates, label = "",
-                               l = 1, n = 10, m = 1, nReps = 4,
-                               nBS = 100, pSampled = 1,
-                               progressBar = TRUE){
+nbProbabilities_new <- function(orderedPair, indIDVar, pairIDVar,
+                            goldStdVar, covariates, label = "",
+                            l = 1, n = 10, m = 1, nReps = 10,
+                            orType = "univariate",
+                            nBS = 100, pSampled = 1,
+                            progressBar = TRUE){
 
   orderedPair <- as.data.frame(orderedPair)
-
-
-  #### checking dataset is OK for function  ####
-
   #Creating variables with the individual indID variable
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
@@ -140,14 +173,18 @@ nbProbabilities_BS <- function(orderedPair, indIDVar, pairIDVar,
     stop(paste0(notFactorC, " are not factors"))
   }
 
-
+  #Checking that orType is either adjusted or univariate
+  typeTest <- c("adjusted", "univariate")
+  if(!orType %in% typeTest){
+    stop("orType must be either 'adjusted' or 'univariate'.")
+  }
   #### Setting up data frames ####
 
   #Subsetting to only relevant columns to be more efficient
   orderedPair <- orderedPair[, c(indIDVar1, indIDVar2, pairIDVar,
                                  goldStdVar, covariates)]
 
-  #Creating an pairID that where order doesn't matter (smaller ID always first)
+  #Creating an pairID that where order doesn't matter
   orderedPair$pairID_uo <- ifelse(orderedPair[, indIDVar1] < orderedPair[, indIDVar2],
                                   paste(orderedPair[, indIDVar1],
                                         orderedPair[, indIDVar2], sep = "_"),
@@ -162,11 +199,10 @@ nbProbabilities_BS <- function(orderedPair, indIDVar, pairIDVar,
 
   #### Iterative Estimation Procedure ####
 
-  #Initializing data frames to hold results (rAll) and coefficients (cAll)
+  #Initializing data frames to hold results and coefficients
   rAll <- data.frame("p" = numeric(), pairIDVar = character(), stringsAsFactors = FALSE)
-  # names(rAll) <- c("p", pairIDVar)
-  cAll <-list() #data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
-  pAll <- NULL
+  names(rAll) <- c("p", pairIDVar)
+  cAll <- data.frame("level" = character(), "odds" = numeric(), stringsAsFactors = FALSE)
 
 
   if(progressBar == TRUE){
@@ -177,12 +213,12 @@ nbProbabilities_BS <- function(orderedPair, indIDVar, pairIDVar,
 
     #Randomly choosing the "true" infector from all possible
     #Calculating probabilities using mxn cross prediction
-    cvResults <- runCV_BS(posTrain, orderedPair, indIDVar, pairIDVar, # see function below
-                          goldStdVar, covariates, l, n, m, nBS, pSampled) #,
+    cvResults <- runCV_new(posTrain, orderedPair, indIDVar, pairIDVar,
+                       goldStdVar, covariates, l, n, m,
+                       orType, nBS, pSampled)
     rAll <- dplyr::bind_rows(rAll, cvResults$rFolds)
-    # cAll <- dplyr::bind_rows(cAll, cvResults$cFolds)
-    cAll[[k]] <- cvResults$cFolds
-    # pAll <- dplyr::bind_rows(pAll, cvResults$pFolds)
+    cAll <- dplyr::bind_rows(cAll, cvResults$cFolds)
+
     if(progressBar == TRUE){
       utils::setTxtProgressBar(pb, k)
     }
@@ -215,46 +251,59 @@ nbProbabilities_BS <- function(orderedPair, indIDVar, pairIDVar,
   #Ties are set to the minimum rank of that group
   probs2 <- probs2[order(probs2[, indIDVar2], -probs2$pScaled), ]
   probs2$pRank <- stats::ave(-probs2$pScaled, probs2[, indIDVar2],
-                             FUN = function(x){
-                               rank(x, ties.method = "min")
-                             })
+                            FUN = function(x){
+                              rank(x, ties.method = "min")
+                            })
 
   #Only keeping columns of interest
   probs2 <- probs2[, c("label", pairIDVar, "pAvg", "pSD", "pScaled", "pRank", "nEstimates")]
 
 
   #### Summarizing Measures of Effect Over iterations ####
-  cAll_flat <- bind_rows(cAll) %>%
-    group_by(level) %>%
-    summarise(logorMean = mean(bs_est, na.rm = TRUE),
-              VW = mean(bs_sd ^ 2, na.rm = TRUE),
-              VB = stats::var(bs_est, na.rm = TRUE)) %>%
-    mutate(VT = VW + VB + VB/(n*nReps),
-           logorSE = sqrt(VT),
-           logorCILB = logorMean - 1.96*logorSE,
-           logorCIUB = logorMean + 1.96*logorSE) %>%
-    select(-c(VB, VW, VT))
 
+  #Averaging over the measures of effect
+  coeffL <- by(cAll,
+                 INDICES = list(cAll$level),
+                 FUN = function(x){
+                   data.frame("level" = unique(x$level),
+                              "rowOrder" = unique(x$rowOrder),
+                              "logorMean" = mean(x$est, na.rm = TRUE),
+                              "VW" = mean(x$se ^ 2, na.rm = TRUE),
+                              "VB" = stats::var(x$est, na.rm = TRUE),
+                              "nIter" = sum(!is.na(x$est)),
+                              "label" = label, stringsAsFactors = FALSE)
+                 })
+  coeff <- do.call(dplyr::bind_rows, coeffL)
+  #Reordering the rows
+  coeff <- coeff[order(coeff$rowOrder), ]
 
+  #Calculating the total variance using Rubin's rules
+  coeff$VT <- coeff$VW + coeff$VB + coeff$VB / coeff$nIter
+  coeff$logorSE <-  sqrt(coeff$VT)
+  #coeff$df <- (coeff$nIter - 1) * (1 - coeff$VW / ((1 + 1/coeff$nIter) * coeff$VB)) ^ 2
+  coeff$logorCILB <- coeff$logorMean - 1.96 * coeff$logorSE
+  coeff$logorCIUB <- coeff$logorMean + 1.96 * coeff$logorSE
 
+  #Only keeping columns of interest
+  coeff2 <- coeff[, c("label", "level", "nIter", "logorMean", "logorSE",
+                      "logorCILB", "logorCIUB")]
 
-
-  return(list("probabilities" = probs2, "estimates" = cAll_flat)) #, "var_probs" = pAll
+  return(list("probabilities" = probs2, "estimates" = coeff2))
 }
 
 
 
 
-runCV_BS <- function(posTrain, orderedPair, indIDVar, pairIDVar,
-                     goldStdVar, covariates, l, n, m,
-                     nBS = 100, pSampled = 1
-){
+
+runCV_new <- function(posTrain, orderedPair, indIDVar, pairIDVar,
+                  goldStdVar, covariates, l, n, m,
+                  orType, nBS, pSampled){
 
   #Creating variables with the individual indID variable
   indIDVar1 <- paste0(indIDVar, ".1")
   indIDVar2 <- paste0(indIDVar, ".2")
 
-  if(length(unique(posTrain$pairID_uo)) != nrow(posTrain)){ # this is for people we are unsure of infector
+  if(length(unique(posTrain$pairID_uo)) != nrow(posTrain)){
 
     #Finding the pairs that are concurrent (both orders included)
     concurrentID <- posTrain[duplicated(posTrain$pairID_uo), "pairID_uo"]
@@ -262,10 +311,10 @@ runCV_BS <- function(posTrain, orderedPair, indIDVar, pairIDVar,
 
     #Randomly selecting order for concurrent pairs
     concurrent2L <- linksL <- by(concurrent,
-                                 INDICES = list(concurrent$pairID_uo),
-                                 FUN = function(x){
-                                   x[sample(nrow(x), 1), ]
-                                 })
+                               INDICES = list(concurrent$pairID_uo),
+                               FUN = function(x){
+                                 x[sample(nrow(x), 1), ]
+                               })
     concurrent2 <- do.call(dplyr::bind_rows, concurrent2L)
 
     #Combining choose for concurrent pairs with the rest of the pairs
@@ -277,10 +326,8 @@ runCV_BS <- function(posTrain, orderedPair, indIDVar, pairIDVar,
 
   #Subsetting to just the possible links
   posLinks <- posTrain2[posTrain2[, goldStdVar] == TRUE, ]
-  # rm(posLinks2)
 
-  #Choosing the true infector from all possibles (if multiple) (I don't think we have this in simulated data from example)
-  # set.seed(k)
+  #Choosing the true infector from all possibles (if multiple)
   linksL <- by(posLinks,
                INDICES = list(posLinks[, indIDVar2]),
                FUN = function(x){
@@ -296,20 +343,16 @@ runCV_BS <- function(posTrain, orderedPair, indIDVar, pairIDVar,
                                   (trainingFull[, pairIDVar] %in% posTrain2[, pairIDVar] &
                                      !trainingFull[, indIDVar2] %in% links[, indIDVar2]), ]
   trainingFull2[is.na(trainingFull2$linked), "linked"] <- FALSE
-  # rm(trainingFull)
+
 
 
   #Creating the cross-valindIDation folds for that part of the training dataset
-  # set.seed(k)
   cv_splits <- caret::createMultiFolds(trainingFull2$linked, k = n, times = m)
 
   #Initializing data frames to hold results and coefficients
-  # rFolds <- data.frame("p" = numeric(), pairIDVar = character(), stringsAsFactors = FALSE)
-  # names(rFolds) <- c("p", pairIDVar)
-  # cFolds <- data.frame("level" = character(), "est" = numeric(), stringsAsFactors = FALSE)
-
-  rFolds <- list()
-  cFolds <- list()
+  rFolds <- data.frame("p" = numeric(), pairIDVar = character(), stringsAsFactors = FALSE)
+  names(rFolds) <- c("p", pairIDVar)
+  cFolds <- data.frame("level" = character(), "est" = numeric(), stringsAsFactors = FALSE)
 
   #Running the methods for all of the CV Folds
   for (i in 1:length(cv_splits)){
@@ -330,7 +373,7 @@ runCV_BS <- function(posTrain, orderedPair, indIDVar, pairIDVar,
     #defined as such by the gold standard (not just by sharing an infectee in the above df)
     training <- dplyr::bind_rows(trainingRaw, shareInfectee)
     training$p <- ifelse(training[, goldStdVar] == FALSE, 0,
-                         ifelse(training[, "linked"] == TRUE, 1, NA))
+                  ifelse(training[, "linked"] == TRUE, 1, NA))
 
     #Creating the prediction dataset
     prediction <- dplyr::full_join(orderedPair, links, by = c(pairIDVar, indIDVar2))
@@ -338,22 +381,15 @@ runCV_BS <- function(posTrain, orderedPair, indIDVar, pairIDVar,
     prediction[is.na(prediction$linked), "linked"] <- FALSE
 
     #Calculating probabilities for one split
-    sim <- performNB_BS(training, prediction, obsIDVar = pairIDVar,
-                        goldStdVar = "linked", covariates, l,
-                        nBS, pSampled) #
+    sim <- performNB_new(training, prediction, obsIDVar = pairIDVar,
+                     goldStdVar = "linked", covariates, l,
+                     orType, nBS, pSampled)
 
     #Combining the results from fold iteration with the previous folds
-    # rFolds <- dplyr::bind_rows(rFolds, sim[[1]])
-    # sim[[2]]$rowOrder <- 1:nrow(sim[[2]])
-    # cFolds <- dplyr::bind_rows(cFolds, sim[[2]])
-
-    rFolds[[i]] <- sim[[1]]
-    # sim[[2]]$rowOrder <- 1:nrow(sim[[2]])
-    cFolds[[i]] <- sim[[2]]
-    cFolds[[i]]$fold <- i
+    rFolds <- dplyr::bind_rows(rFolds, sim[[1]])
+    sim[[2]]$rowOrder <- 1:nrow(sim[[2]])
+    cFolds <- dplyr::bind_rows(cFolds, sim[[2]])
   }
-  rFolds <- rFolds %>% bind_rows()
-  cFolds <- cFolds %>% bind_rows()
-  return(list("rFolds" = rFolds, "cFolds" = cFolds)) #, "pFolds" = pFolds
-}
 
+  return(list("rFolds" = rFolds, "cFolds" = cFolds))
+}
