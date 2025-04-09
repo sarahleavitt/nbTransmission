@@ -49,10 +49,10 @@ All covariates need to be categorical factor variables.}
 odds ratios and \code{"adjusted"} produces adjusted odds ratios from a bootstrapped multivariable logistic regression.}
 
 \item{nBS}{Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100). Only
-relevant when \code{orType} = "univariate".}
+relevant when \code{orType = "adjusted"}.}
 
 \item{pSampled}{Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true
-bootstrap). Only relevant when \code{orType} = "univariate".}
+bootstrap). Only relevant when \code{orType = "adjusted"}.}
 
 \item{progressBar}{A logical indicating if a progress bar should be printed (default is TRUE).}
 }

@@ -60,7 +60,7 @@
 #' }
 #' @seealso \code{\link{nbProbabilities}}
 #' 
-#' #' @examples
+#' @examples
 #' ## Use iris dataset and predict if a flower is of the specices "virginica".
 #' 
 #' data(iris)
