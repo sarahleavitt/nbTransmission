@@ -63,9 +63,9 @@
 #' @param orType Takes value \code{"univariate"} or \code{"adjusted"}. \code{"univariate"} produces contingency table
 #' odds ratios and \code{"adjusted"} produces adjusted odds ratios from a bootstrapped multivariable logistic regression.
 #' @param nBS Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100). Only
-#' relevant when \code{orType} = "univariate".
+#' relevant when \code{orType = "adjusted"}.
 #' @param pSampled Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true
-#' bootstrap). Only relevant when \code{orType} = "univariate".
+#' bootstrap). Only relevant when \code{orType = "adjusted"}.
 
 #' @return List containing two data frames:
 #' \enumerate{
