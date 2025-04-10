@@ -23,7 +23,6 @@
 #' for those who do not. The probability of having the outcome
 #' (\code{<goldStdVar> = TRUE}) is predicted in the prediction dataset.
 #'
-#' @import stats
 #' @param training The training dataset name.
 #' @param prediction The prediction dataset name.
 #' @param obsIDVar The variable name (in quotes) of the observation ID variable.
