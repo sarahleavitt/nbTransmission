@@ -1,10 +1,10 @@
 ---
-title: "odds-ratios-nbTransmission-vignette"
+title: "Adjusted Odds Ratio Example"
 author: "Anne N. Shapiro"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{odds-ratios-nbTransmission-vignette}
+  %\VignetteIndexEntry{adjusted-odds-ratio-example}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -184,7 +184,7 @@ adjRes <- nbProbabilities(orderedPair = pairDataOrdered,
                             n = 5, m = 1, nReps = 5, 
                             orType = "adjusted", nBS = 10)
 ```
-We again can look at the output in table and graph form. 
+We again can look at the output in table form. 
 
 ```{r adj_covarTab}
 #Exponentiating the log odds ratios and creating a table of odds ratios
@@ -201,12 +201,40 @@ orTabAdjPrint <- orTabAdj[, c("Variable", "Value", "orMean", "orCILB", "orCIUB")
 #### Table of contribution of covariates
 `r kable(orTabAdjPrint, row.names = F)`
 
-The odds ratio describing the association between being a link and having a timeCat value of 5 time between cases of 4-5 years) has a very large confidence interval upper bound. This is due to their being very few instances of transmission in this category, which leads to instability in the standard error calculation in the logistic regression. If this occurs, one may consider other categorizations such that these small sample sizes do not occur. 
-
+The odds ratio describing the association between being a link and having a timeCat value of 5 (time between cases of 4-5 years) has a very large confidence interval upper bound. This is due to their being very few instances of transmission in this category, which leads to instability in the standard error calculation in the logistic regression. 
 ```{r timeCatTab}
 table(pairDataOrdered$timeCat, pairDataOrdered$snpClose)
 
 ```
+
+If this occurs, one may consider other categorizations such that these small sample sizes do not occur. Here, we can combine categories 5 and 6 of timeCat:
+
+```{r timeCatfix}
+pairDataOrdered$timeCat2 <- as.factor(ifelse(pairDataOrdered$timeCat == 6, 5, pairDataOrdered$timeCat ))
+```
+
+We can then rerun the model to see this issue has been fixed. 
+```{r adj_probabilities_rerun, results="hide"}
+adjRes2 <- nbProbabilities(orderedPair = pairDataOrdered,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = c("Z2", "Z4", "timeCat2"),
+                            label = "SNPs", l = 1,
+                            n = 5, m = 1, nReps = 5, 
+                            orType = "adjusted", nBS = 10)
+
+orTabAdj2 <- adjRes2$estimates
+orTabAdj2 <- orTabAdj2[-c(orTabAdj2$level == "(Intercept)"), ]
+orTabAdj2$orMean <- round(exp(orTabAdj2$logorMean), 2)
+orTabAdj2$orCILB <- round(exp(orTabAdj2$logorCILB), 2)
+orTabAdj2$orCIUB <- round(exp(orTabAdj2$logorCIUB), 2)
+orTabAdj2$Variable <- substr(orTabAdj2$level, 1, nchar(orTabAdj2$level)-1)
+orTabAdj2$Value <- substr(orTabAdj2$level, nchar(orTabAdj2$level), nchar(orTabAdj2$level))
+orTabAdjPrint2 <- orTabAdj2[, c("Variable", "Value", "orMean", "orCILB", "orCIUB")]
+```
+
+`r kable(orTabAdjPrint2, row.names = F)`
 
 ## Conclusion
 

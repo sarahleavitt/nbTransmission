@@ -88,4 +88,35 @@ for those who do not. The probability of having the outcome
 }
 \seealso{
 \code{\link{nbProbabilities}}
+#' @examples
+## Use iris dataset and predict if a flower is of the specices "virginica".
+
+data(iris)
+irisNew <- iris
+## Creating an id variable
+irisNew$id <- seq(1:nrow(irisNew))
+## Creating logical variable indicating if the flower is of the species virginica
+irisNew$spVirginica <- irisNew$Species == "virginica"
+
+## Creating categorical/factor versions of the covariates
+irisNew$Sepal.Length.Cat <- factor(cut(irisNew$Sepal.Length, c(0, 5, 6, 7, Inf)),
+                                 labels = c("<=5.0", "5.1-6.0", "6.1-7.0", "7.1+"))
+
+irisNew$Sepal.Width.Cat <- factor(cut(irisNew$Sepal.Width, c(0, 2.5, 3, 3.5, Inf)),
+                                 labels = c("<=2.5", "2.6-3.0", "3.1-3.5", "3.6+"))
+
+irisNew$Petal.Length.Cat <- factor(cut(irisNew$Petal.Length, c(0, 2, 4, 6, Inf)),
+                                 labels = c("<=2.0", "2.1-4.0", "4.1-6.0", "6.0+"))
+
+irisNew$Petal.Width.Cat <- factor(cut(irisNew$Petal.Width, c(0, 1, 2, Inf)),
+                               labels = c("<=1.0", "1.1-2.0", "2.1+"))
+
+## Using NB to predict if the species is virginica
+## (training and predicting on same dataset)
+pred <- performNB(irisNew, irisNew, obsIDVar = "id",
+                    goldStdVar = "spVirginica",
+                    covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
+                                   "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
+irisResults <- merge(irisNew, pred$probabilities, by = "id")
+tapply(irisResults$p, irisResults$Species, summary)
 }
