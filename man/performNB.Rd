@@ -37,10 +37,10 @@ All covariates need to be categorical factor variables.}
 odds ratios and \code{"adjusted"} produces adjusted odds ratios from a bootstrapped multivariable logistic regression.}
 
 \item{nBS}{Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100). Only
-relevant when \code{orType = "univariate"}.}
+relevant when \code{orType = "adjusted"}.}
 
 \item{pSampled}{Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true
-bootstrap). Only relevant when \code{orType = "univariate"}.}
+bootstrap). Only relevant when \code{orType = "adjusted"}.}
 }
 \value{
 List containing two dataframes:
@@ -85,6 +85,39 @@ The function needs a training dataset with the outcome variable (\code{goldStdVa
 which is \code{TRUE} for those who have the value of interest and \code{FALSE}
 for those who do not. The probability of having the outcome
 (\code{<goldStdVar> = TRUE}) is predicted in the prediction dataset.
+}
+\examples{
+## Use iris dataset and predict if a flower is of the specices "virginica".
+
+data(iris)
+irisNew <- iris
+## Creating an id variable
+irisNew$id <- seq(1:nrow(irisNew))
+## Creating logical variable indicating if the flower is of the species virginica
+irisNew$spVirginica <- irisNew$Species == "virginica"
+
+## Creating categorical/factor versions of the covariates
+irisNew$Sepal.Length.Cat <- factor(cut(irisNew$Sepal.Length, c(0, 5, 6, 7, Inf)),
+                                 labels = c("<=5.0", "5.1-6.0", "6.1-7.0", "7.1+"))
+
+irisNew$Sepal.Width.Cat <- factor(cut(irisNew$Sepal.Width, c(0, 2.5, 3, 3.5, Inf)),
+                                 labels = c("<=2.5", "2.6-3.0", "3.1-3.5", "3.6+"))
+
+irisNew$Petal.Length.Cat <- factor(cut(irisNew$Petal.Length, c(0, 2, 4, 6, Inf)),
+                                 labels = c("<=2.0", "2.1-4.0", "4.1-6.0", "6.0+"))
+
+irisNew$Petal.Width.Cat <- factor(cut(irisNew$Petal.Width, c(0, 1, 2, Inf)),
+                               labels = c("<=1.0", "1.1-2.0", "2.1+"))
+
+## Using NB to predict if the species is virginica
+## (training and predicting on same dataset)
+pred <- performNB(irisNew, irisNew, obsIDVar = "id",
+                    goldStdVar = "spVirginica",
+                    covariates = c("Sepal.Length.Cat", "Sepal.Width.Cat",
+                                   "Petal.Length.Cat", "Petal.Width.Cat"), l = 1)
+irisResults <- merge(irisNew, pred$probabilities, by = "id")
+tapply(irisResults$p, irisResults$Species, summary)
+
 }
 \seealso{
 \code{\link{nbProbabilities}}

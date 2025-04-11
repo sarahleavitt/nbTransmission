@@ -1,0 +1,1 @@
+"0","pairDataOrdered <- pairData[pairData$infectionDate.2 >= pairData$infectionDate.1, ]"

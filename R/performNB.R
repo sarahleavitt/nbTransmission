@@ -23,7 +23,6 @@
 #' for those who do not. The probability of having the outcome
 #' (\code{<goldStdVar> = TRUE}) is predicted in the prediction dataset.
 #'
-#' @import stats
 #' @param training The training dataset name.
 #' @param prediction The prediction dataset name.
 #' @param obsIDVar The variable name (in quotes) of the observation ID variable.
@@ -37,9 +36,9 @@
 #' @param orType Takes value \code{"univariate"} or \code{"adjusted"}. \code{"univariate"} produces contingency table
 #' odds ratios and \code{"adjusted"} produces adjusted odds ratios from a bootstrapped multivariable logistic regression.
 #' @param nBS Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100). Only
-#' relevant when \code{orType = "univariate"}.
+#' relevant when \code{orType = "adjusted"}.
 #' @param pSampled Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true
-#' bootstrap). Only relevant when \code{orType = "univariate"}.
+#' bootstrap). Only relevant when \code{orType = "adjusted"}.
 #'
 #' @return List containing two dataframes:
 #' \enumerate{
@@ -59,9 +58,10 @@
 #'      }
 #' }
 #' @seealso \code{\link{nbProbabilities}}
-#'#' @examples
+#' 
+#' @examples
 #' ## Use iris dataset and predict if a flower is of the specices "virginica".
-#'
+#' 
 #' data(iris)
 #' irisNew <- iris
 #' ## Creating an id variable
@@ -81,7 +81,6 @@
 #'
 #' irisNew$Petal.Width.Cat <- factor(cut(irisNew$Petal.Width, c(0, 1, 2, Inf)),
 #'                                labels = c("<=1.0", "1.1-2.0", "2.1+"))
-#'
 #' ## Using NB to predict if the species is virginica
 #' ## (training and predicting on same dataset)
 #' pred <- performNB(irisNew, irisNew, obsIDVar = "id",
