@@ -1,4 +1,0 @@
-"0","orTab$logor90CILB <- orTab$logorMean - 1.645*orTab$logorSE"
-"0","orTab$logor90CIUB <- orTab$logorMean + 1.645*orTab$logorSE"
-"0","orTab$or90CILB <- exp(orTab$logor90CILB)"
-"0","orTab$or90CIUB <- exp(orTab$logor90CIUB)"
