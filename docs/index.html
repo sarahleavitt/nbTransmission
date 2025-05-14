@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">nbTransmission</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.0</span>
       </span>
     </div>
 
@@ -50,6 +50,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/adjusted-odds-ratio-example-vignette.html">Adjusted Odds Ratio Example</a>
+    </li>
+    <li>
       <a href="articles/nbTransmission-vignette.html">Introductory tutorial for R Package nbTransmission</a>
     </li>
   </ul>
@@ -82,11 +85,13 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This package is a group of functions used in infectious diseases analysis. It implements an algorithm to calculate relative transmission probabilities between cases in an infectious disease outbreak or cluster using naive Bayes. It also contians various functions to use these probabilities to estimate transmission paramaters such as the serial interval and reproductive number as well as estimate the contribution of covariates to the probabilities and visualize the results.</p>
+<p>This package is a group of functions used in infectious diseases analysis. It implements an algorithm to calculate relative transmission probabilities between cases in an infectious disease outbreak or cluster using naive Bayes. It also contains various functions to use these probabilities to estimate transmission parameters such as the serial interval and reproductive number as well as estimate the contribution of covariates to the probabilities and visualize the results.</p>
 <p>The ideal use of this package is for infectious disease dataset with metadata on the majority of cases but more informative data such as contact tracing or pathogen whole genome sequencing (WGS) on only a subset of cases. The package’s algorithm allows a researcher to infer transmission patterns among all cases and not just those with the WGS or contact investigation data.</p>
 <p>Naive Bayes is a simple machine learning method that uses Bayes rule to estimate the probability of an outcome in a prediction dataset given a set of covariates from the observed frequencies in a training dataset. In this application, the outcome is whether a pair is linked by direct transmission and the covariates could be spatial, clinical, demographic, and temporal characteristics of the pairs of cases. A subset of cases with pathogen WGS or contact investigation data are used to create a training dataset of probable transmission links and non/links and the relative probability of a transmission link is estimated for all pairs.</p>
 <p>For a more formal discussion of the theory behind and usage of this method, see the following paper:</p>
-<p>Sarah V Leavitt, Robyn S Lee, Paola Sebastiani, C Robert Horsburgh Jr, Helen E Jenkins, Laura F White, Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, dyaa031, <a href="https://doi.org/10.1093/ije/dyaa031" class="external-link uri">https://doi.org/10.1093/ije/dyaa031</a></p>
+<p>Leavitt, S. V., Lee, R. S., Sebastiani P., Horsburgh C. R&gt; , Jenkins, H. E., White, L. F. (2020). Estimating the relative probability of direct transmission between infectious disease patients, International Journal of Epidemiology, 49(3), 764–775, <a href="https://doi.org/10.1093/ije/dyaa031" class="external-link uri">https://doi.org/10.1093/ije/dyaa031</a>.</p>
+<p>For a description of the method implemented to estimate the serial interval distribution see the following paper:</p>
+<p>Leavitt, S. V., Jenkins, H. E., Sebastiani, P., Lee, R. S., Horsburgh, C. R., Tibbs, A. M., &amp; White, L. F. (2021). Estimation of the generation interval using pairwise relative transmission probabilities. Biostatistics, 23(3), 807–824. <a href="https://doi.org/10.1093/biostatistics/kxaa059" class="external-link uri">https://doi.org/10.1093/biostatistics/kxaa059</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -135,7 +140,8 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Sarah V Leavitt <br><small class="roles"> Author, maintainer, copyright holder </small>  </li>
+<li>Sarah V Leavitt <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Anne Shapiro <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
@@ -147,7 +153,7 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Sarah V Leavitt.</p>
+<p>Developed by Sarah V Leavitt, Anne Shapiro.</p>
 </div>
 
 <div class="pkgdown">

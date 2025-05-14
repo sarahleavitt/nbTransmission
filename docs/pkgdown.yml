@@ -2,6 +2,7 @@ pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
+  adjusted-odds-ratio-example-vignette: adjusted-odds-ratio-example-vignette.html
   nbTransmission-vignette: nbTransmission-vignette.html
-last_built: 2024-01-30T19:41Z
+last_built: 2025-05-14T17:18Z
 

@@ -20,7 +20,7 @@ restricting analysis to the top cluster of possible infectors."><!-- mathjax -->
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nbTransmission</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.0</span>
       </span>
     </div>
 
@@ -35,6 +35,9 @@ restricting analysis to the top cluster of possible infectors."><!-- mathjax -->
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/adjusted-odds-ratio-example-vignette.html">Adjusted Odds Ratio Example</a>
+    </li>
+    <li>
       <a href="../articles/nbTransmission-vignette.html">Introductory tutorial for R Package nbTransmission</a>
     </li>
   </ul></li>
@@ -264,19 +267,19 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 <span class="r-in"><span>             clustMethod <span class="op">=</span> <span class="st">"hc_absolute"</span>, cutoff <span class="op">=</span> <span class="fl">0.05</span>, initialPars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   clustMethod cutoff nIndividuals nInfectors  pCluster    shape    scale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute   0.05           77          1 0.7777778 1.099751 2.029754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute   0.05           78   1.012821 0.7878788 1.190383 1.667412</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     meanSI medianSI     sdSI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.232224 1.603572 2.128583</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1.984859 1.464863 1.819225</span>
 <span class="r-in"><span>             </span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Using all pairs</span></span></span>
 <span class="r-in"><span><span class="fu">estimateSI</span><span class="op">(</span><span class="va">nbResultsNoT</span>, indIDVar <span class="op">=</span> <span class="st">"individualID"</span>,</span></span>
 <span class="r-in"><span>              timeDiffVar <span class="op">=</span> <span class="st">"infectionDiffY"</span>, pVar <span class="op">=</span> <span class="st">"pScaled"</span>,</span></span>
 <span class="r-in"><span>              clustMethod <span class="op">=</span> <span class="st">"none"</span>, initialPars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   clustMethod cutoff nIndividuals nInfectors pCluster    shape     scale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        none   none           99    49.9899        1 1.279973 0.7801822</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      meanSI  medianSI      sdSI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.9986122 0.7539156 0.8826661</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   clustMethod cutoff nIndividuals nInfectors pCluster    shape     scale meanSI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        none   none           99    49.9899        1 1.435021 0.7401288 1.0621</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   medianSI      sdSI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.828117 0.8866176</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># # Using a shifted gamma distribution:</span></span></span>
@@ -287,9 +290,9 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 <span class="r-in"><span>              initialPars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, shift <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   clustMethod cutoff nIndividuals nInfectors  pCluster    shape    scale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute   0.05           77          1 0.7777778 1.249947 1.834671</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute   0.05           78   1.012821 0.7878788 1.273929 1.549818</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     meanSI medianSI     sdSI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.543242 1.968853 2.051182</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.224358 1.738445 1.749256</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># # Using multiple cutoffs</span></span></span>
@@ -298,13 +301,13 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 <span class="r-in"><span>              clustMethod <span class="op">=</span> <span class="st">"hc_absolute"</span>, cutoff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.05</span><span class="op">)</span>, initialPars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   clustMethod cutoff nIndividuals nInfectors  pCluster    shape    scale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute  0.025           86   1.069767 0.8686869 1.063690 2.114437</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 hc_absolute   0.05           77   1.000000 0.7777778 1.099751 2.029754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute  0.025           84   1.142857 0.8484848 1.165297 1.702207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 hc_absolute   0.05           78   1.012821 0.7878788 1.190383 1.667412</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 hc_absolute pooled           NA         NA        NA       NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     meanSI medianSI     sdSI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.249104 1.596268 2.180731</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2.232224 1.603572 2.128583</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2.240664 1.599920 2.154657</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1.983576 1.453673 1.837514</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1.984859 1.464863 1.819225</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 1.984218 1.459268 1.828369</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
@@ -316,11 +319,11 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 <span class="r-in"><span>             initialPars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, shift <span class="op">=</span> <span class="fl">0.25</span>, bootSamples <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%  |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   clustMethod cutoff nIndividuals nInfectors  pCluster    shape    scale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute   0.05           77          1 0.7777778 1.249947 1.834671</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 hc_absolute   0.05           78   1.012821 0.7878788 1.273929 1.549818</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     meanSI medianSI     sdSI shapeCILB shapeCIUB scaleCILB scaleCIUB meanCILB</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.543242 1.968853 2.051182   1.01961   1.23135  1.799448  2.194467 2.466699</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   meanCIUB medianCILB medianCIUB   sdCILB   sdCIUB</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.655508    1.90393   1.973848 1.997454 2.309025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.224358 1.738445 1.749256  1.160396  1.408723  1.188316   1.63125 2.024435</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   meanCIUB medianCILB medianCIUB   sdCILB  sdCIUB</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.164357   1.646329   1.655623 1.460173 1.77042</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -332,7 +335,7 @@ population. <em>American Journal of Epidemiology</em>. 2012 Jul 12;176(3):196-20
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Sarah V Leavitt.</p>
+  <p></p><p>Developed by Sarah V Leavitt, Anne Shapiro.</p>
 </div>
 
 <div class="pkgdown">
