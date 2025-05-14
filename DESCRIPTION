@@ -1,7 +1,7 @@
 Package: nbTransmission
 Title: Naive Bayes Transmission Analysis
 Version: 1.2.0
-Date: 2025-04-10
+Date: 2025-05-14
 Authors@R: c(
 	person("Sarah V", "Leavitt", email = "sv1205@bu.edu", role = c("aut", "cre")),
 	person("Anne", "Shapiro", email = "anshap@bu.edu", role = "aut"))

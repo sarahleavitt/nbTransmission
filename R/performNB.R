@@ -229,7 +229,7 @@ performNB <- function(training, prediction, obsIDVar, goldStdVar,
         trainingF_samp <- dplyr::sample_n(trainingF, nSampled, replace = T)
         bs_samp <- rbind(trainingF_samp, trainingT)
 
-        suppressWarnings(mylogit <- glm(reformulate(covariates, goldStdVar), data = bs_samp, family = "binomial"))
+        suppressWarnings(mylogit <- stats::glm(stats::reformulate(covariates, goldStdVar), data = bs_samp, family = "binomial"))
         tidy_fit <- broom::tidy(mylogit)
         tidy_out <- data.frame(tidy_fit$term, tidy_fit$estimate)
 
