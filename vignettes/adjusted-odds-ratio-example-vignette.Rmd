@@ -1,0 +1,243 @@
+---
+title: "Adjusted Odds Ratio Example"
+author: "Anne N. Shapiro"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{adjusted-odds-ratio-example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction 
+
+This vignette will walk you through how to use the package nbTransmission to estimate adjusted odds ratios for factors associated with a variable representing transmission in an infectious disease outbreak. As transmission is not always observable, this variable may be a proxy for transmission, such as genetic relatedness or results from contact tracing, but we will refer to it henceforth as cases being 'linked' or 'transmission links.' 
+
+This tutorial will focus on using the nbTransmission package to model odds ratios. If you are new to using the nbTransmission package, we recommend starting with the vignette "Introductory tutorial for R Package nbTransmission" (https://sarahleavitt.github.io/nbTransmission/articles/nbTransmission-vignette.html).
+
+Start by installing nbTransmission if you have not already done so, and then load the package:
+
+```{r setup1, eval = FALSE}
+devtools::install_github('sarahleavitt/nbTransmission')
+```
+
+```{r setup}
+library(nbTransmission)
+```
+
+Set your seed to match results in this tutorial:
+
+```{r seed}
+set.seed(0)
+```
+
+
+This package implements an algorithm that takes a dataset of ordered possible infector-infectee pairs from an infectious disease outbreak and estimates the relative probability the cases are linked by direct transmission using naive Bayes (NB) and the odds ratios of covariates associated with transmission. 
+
+To estimate both quantities, we use an iterative estimation procedure. Because transmission is almost always unobserved, links are represent probable and not certain transmission events. In this setting, a given case could have multiple probable links when only one true link exists. The iterative procedure corrects for this by randomly choosing one link of all of the possible links to include in the training dataset multiple times. Multiple iterations allows each probable link a turn to represent the 'true' link. Within each iteration, we also run multiple cross validation folds to allow each pair in the training set an opportunity in the prediction dataset (this is more important in estimating relative probabilities). Final estimates of probabilities and odds ratios are the average of all estimates for a pair across the cross validation folds and iterations. For more details on the algorithm and NB, please see the previous vignette. 
+
+## Using nbTransmission for modeling
+
+A key assumption of NB is that all variables in the model are independent. Thus, when using nbTransmission to calculate transmission probabilities or unadjusted odds ratios, one can add as many variables as one would like into the model without having to worry about variable selection as in a regression model. However, we use a bootstrapped logisitic regression model to calculate adjusted odds ratios, meaning we do need to consider which variables we want in the model to avoid overfitting. 
+
+Many methods exist for model fitting. In this tutorial, we present just one possible method. In short, we will first estimate unadjusted odds ratios for each variable, select the variables significant at the 0.1 level, and then rerun the algorithm with the bootstrapped logistic regression model using just those variables.   
+
+## Creating a Dataset of Pairs
+
+First we need to create the dataset needed to run the iterative model. Creation of the pairwise dataset and descriptions of all covariates are covered in detail in the previous vignette. 
+
+```{r makeData}
+#load individual level data
+data(pairData)
+
+#create ordered pair level dataset
+pairDataOrdered <- pairData[pairData$infectionDate.2 >= pairData$infectionDate.1, ]
+
+#create SNP distances thresholds 
+#SNP distances less than 3 are considered transmission links
+#SNP distances greater than 10 are non-transmission links
+# SNP distances 4-10 are considered indeterminate and only used in the prediction dataset
+pairDataOrdered$snpClose <- ifelse(pairDataOrdered$snpDist < 3, TRUE,
+                                   ifelse(pairDataOrdered$snpDist > 10, FALSE, NA))
+```
+
+## Running the unadjusted model
+
+Now we can use the function nbTransmission to calculate unadjusted odds ratios. 
+
+* *indVar* is the individual ID of the infector and infectee. The function looks for that value with the suffix ".1" and ".2" in the pair data frame (which would have been automatically created if you used indToPair to create the pair-level data frame). 
+
+* *n* specifies the number of cross validation folds within each iteration.
+
+* *m* specifies the number of times to create the *n* cross validation folds within each iteration.
+
+* *nReps* specifies the number of iterations to run.
+
+* *orType* specifies the type of odds ratio to run. It takes values 'univariate' and 'adjusted'.
+
+Recall that we run the *n* cross validation folds within each of the *nReps* iterations, therefore in total you run naive Bayes nReps * n * m times. **In this tutorial, n and nReps = 5 for computation speed but both should be at least 10.** 
+
+```{r probabilities, results="hide"}
+unadjRes <- nbProbabilities(orderedPair = pairDataOrdered,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
+                            label = "SNPs", l = 1,
+                            n = 5, m = 1, nReps = 5, 
+                            orType = "univariate")
+```
+
+The results are a list with two data frames. The first contains the average and scaled relative transmission probabilities; we will not be using these in this tutorial. The second contains our unadjusted log odds ratios. 
+
+```{r probabilities2}
+str(unadjRes)
+```
+
+
+
+
+## Unadjusted model results
+
+The second data frame contains log odds ratios standard errors and  95% confidence intervals describing the contribution of each covariate value to the probabilities. The log odds ratios represent the association between the covariates and being transmission links, modified by the iterative estimation procedure. The standard errors are estimated using Rubin's rules, a method developed for multiple imputation, to summarize the error across the iterations. We can look at the output in table or graph form:
+
+```{r covarTab}
+library(knitr)
+#Exponentiating the log odds ratios and creating a table of odds ratios
+orTab <- unadjRes$estimates
+orTab$orMean <- round(exp(orTab$logorMean), 2)
+orTab$orCILB <- round(exp(orTab$logorCILB), 2)
+orTab$orCIUB <- round(exp(orTab$logorCIUB), 2)
+orTab$Value <- gsub("[A-z0-9]+\\:", "", orTab$level)
+orTab$Variable <- gsub("\\:[A-z0-9+-<=>]+", "", orTab$level)
+orTabPrint1 <- orTab[, c("Variable", "Value", "orMean", "orCILB", "orCIUB")]
+```
+
+
+#### Table of contribution of covariates
+`r kable(orTabPrint1, row.names = F)`
+
+#### Forest plot of contribution of covariates
+```{r covarFig, fig.height=5, fig.width=7}
+library(ggplot2)
+ggplot(data = orTab, aes(x = Value, y = orMean, ymin = orCILB,
+                           ymax = orCIUB)) +
+  geom_point(size = 2) +
+  geom_errorbar(width = 0.3) +
+  geom_hline(aes(yintercept = 1), linetype = 2) +
+  facet_wrap(~Variable, scales = "free_y") +
+  ylab("Odds ratio with 95% confidence interval") +
+  theme_bw() +
+  theme(axis.ticks.y = element_blank(),
+        axis.title.y = element_blank(),
+        strip.text.y = element_text(hjust = 0, vjust = 1, angle = 360),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)),
+        legend.position = "bottom") +
+  scale_y_log10(breaks = c(0.01, 0.1, 1, 10)) +
+  coord_flip()
+
+```
+
+## Identifying significant variables for the adjusted model
+Note that the confidence intervals generated by nbProbabilities are 95% confidence intervals, meaning the odds ratio is statistically significant at the 0.05 level if it does not contain 1. We want to identify odds ratios statistically significant at the 0.10 level for model selection, so we need to generate 90% confidence intervals. 1.645 is the z-score corresponding to 90% confidence intervals; you can change this to calculate confidence intervals for whatever value you'd like.
+
+```{r CI90pct}
+orTab$logor90CILB <- orTab$logorMean - 1.645*orTab$logorSE
+orTab$logor90CIUB <- orTab$logorMean + 1.645*orTab$logorSE
+orTab$or90CILB <- exp(orTab$logor90CILB)
+orTab$or90CIUB <- exp(orTab$logor90CIUB)
+```
+
+We can create an indicator for which associations are significant at the 0.1 level. We see variables Z2, Z4, and timeCat have significant associations. We will include these three variables in our adjusted model. 
+```{r sig90}
+orTab$sig90pctCI <- ifelse(orTab$or90CILB < 1 & orTab$or90CIUB > 1, "Not significant", "Significant")
+
+orTabPrint2 <- orTab[, c("Variable", "Value", "orMean", "or90CILB", "or90CIUB", "sig90pctCI")]
+
+```
+`r kable(orTabPrint2, row.names = F)`
+
+## Running the adjusted model
+
+We again call nbProbabilities to run our adjusted model. Note two changes from the first time we ran this function:
+
+* orType now is set to "adjusted"
+* covariates only includes the variables we found to be significant at the 0.1 level
+
+We also now include the argument nBS to specify the number of bootstrap samples ran in each cross-validation fold. **In this tutorial, nBS = 10 for computation speed but should be at least 100 in practice.** 
+
+```{r adj_probabilities, results="hide"}
+adjRes <- nbProbabilities(orderedPair = pairDataOrdered,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = c("Z2", "Z4", "timeCat"),
+                            label = "SNPs", l = 1,
+                            n = 5, m = 1, nReps = 5, 
+                            orType = "adjusted", nBS = 10)
+```
+We again can look at the output in table form. 
+
+```{r adj_covarTab}
+#Exponentiating the log odds ratios and creating a table of odds ratios
+orTabAdj <- adjRes$estimates
+orTabAdj <- orTabAdj[-c(orTabAdj$level == "(Intercept)"), ]
+orTabAdj$orMean <- round(exp(orTabAdj$logorMean), 2)
+orTabAdj$orCILB <- round(exp(orTabAdj$logorCILB), 2)
+orTabAdj$orCIUB <- round(exp(orTabAdj$logorCIUB), 2)
+orTabAdj$Variable <- substr(orTabAdj$level, 1, nchar(orTabAdj$level)-1)
+orTabAdj$Value <- substr(orTabAdj$level, nchar(orTabAdj$level), nchar(orTabAdj$level))
+orTabAdjPrint <- orTabAdj[, c("Variable", "Value", "orMean", "orCILB", "orCIUB")]
+```
+
+#### Table of contribution of covariates
+`r kable(orTabAdjPrint, row.names = F)`
+
+The odds ratio describing the association between being a link and having a timeCat value of 5 (time between cases of 4-5 years) has a very large confidence interval upper bound. This is due to their being very few instances of transmission in this category, which leads to instability in the standard error calculation in the logistic regression. 
+```{r timeCatTab}
+table(pairDataOrdered$timeCat, pairDataOrdered$snpClose)
+
+```
+
+If this occurs, one may consider other categorizations such that these small sample sizes do not occur. Here, we can combine categories 5 and 6 of timeCat:
+
+```{r timeCatfix}
+pairDataOrdered$timeCat2 <- as.factor(ifelse(pairDataOrdered$timeCat == 6, 5, pairDataOrdered$timeCat ))
+```
+
+We can then rerun the model to see this issue has been fixed. 
+```{r adj_probabilities_rerun, results="hide"}
+adjRes2 <- nbProbabilities(orderedPair = pairDataOrdered,
+                            indIDVar = "individualID",
+                            pairIDVar = "pairID",
+                            goldStdVar = "snpClose",
+                            covariates = c("Z2", "Z4", "timeCat2"),
+                            label = "SNPs", l = 1,
+                            n = 5, m = 1, nReps = 5, 
+                            orType = "adjusted", nBS = 10)
+
+orTabAdj2 <- adjRes2$estimates
+orTabAdj2 <- orTabAdj2[-c(orTabAdj2$level == "(Intercept)"), ]
+orTabAdj2$orMean <- round(exp(orTabAdj2$logorMean), 2)
+orTabAdj2$orCILB <- round(exp(orTabAdj2$logorCILB), 2)
+orTabAdj2$orCIUB <- round(exp(orTabAdj2$logorCIUB), 2)
+orTabAdj2$Variable <- substr(orTabAdj2$level, 1, nchar(orTabAdj2$level)-1)
+orTabAdj2$Value <- substr(orTabAdj2$level, nchar(orTabAdj2$level), nchar(orTabAdj2$level))
+orTabAdjPrint2 <- orTabAdj2[, c("Variable", "Value", "orMean", "orCILB", "orCIUB")]
+```
+
+`r kable(orTabAdjPrint2, row.names = F)`
+
+## Conclusion
+
+In this tutorial, we have illustrated how to use the nbTransmission package to model adjusted odds ratios describing the association between covariates and a variable representing transmission.  
+
+

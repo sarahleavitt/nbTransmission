@@ -4,7 +4,17 @@
 \alias{performNB}
 \title{Performs naive bayes classification}
 \usage{
-performNB(training, prediction, obsIDVar, goldStdVar, covariates, l = 1)
+performNB(
+  training,
+  prediction,
+  obsIDVar,
+  goldStdVar,
+  covariates,
+  l = 1,
+  orType = "univariate",
+  nBS = 100,
+  pSampled = 1
+)
 }
 \arguments{
 \item{training}{The training dataset name.}
@@ -22,9 +32,18 @@ All covariates need to be categorical factor variables.}
 
 \item{l}{Laplace smoothing parameter that is added to each cell
 (a value of 0 indicates no smoothing).}
+
+\item{orType}{Takes value \code{"univariate"} or \code{"adjusted"}. \code{"univariate"} produces contingency table
+odds ratios and \code{"adjusted"} produces adjusted odds ratios from a bootstrapped multivariable logistic regression.}
+
+\item{nBS}{Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100). Only
+relevant when \code{orType = "adjusted"}.}
+
+\item{pSampled}{Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true
+bootstrap). Only relevant when \code{orType = "adjusted"}.}
 }
 \value{
-List containing two dataframes: 
+List containing two dataframes:
 \enumerate{
   \item \code{probabilities} - a dataframe combining \code{training} and \code{prediction}
    with predictied probabilities for the \code{prediction} dataframe. Column names:
@@ -43,18 +62,28 @@ List containing two dataframes:
 }
 }
 \description{
-The function \code{performNB} Calculates the posterior probabilities of a dichotomous class
-variable given a set of covariates using Bayes rule.
+The function \code{performNB} calculates the posterior probabilities of a dichotomous class
+variable given a set of covariates using Bayes rule and either a univariate (default, \code{orType = "univariate"}
+odds ratio or a bootstrapped adjusted odds ratio via logistic regression.
 }
 \details{
-The main purpose of this function is to be used by \code{\link{nbProbabilities}} to 
+The main purpose of this function is to be used by \code{\link{nbProbabilities}} to
 estimate the relative transmission probability between individuals in an infectious
 disease outbreak. However, it can be used more generally to estimate the probability
-of any dichotomous outcome given a set of categorical covariates.
+of any dichotomous outcome given a set of categorical covariates and adjusted odds ratios of such
+dichotomous outcome.
+
+This function also generates odds ratios describing the associations between covariates in the training data
+and outcome defined in the gold standard variable (\code{goldStdVar}) argument. Unadjusted odds ratios are the default.
+These odds ratios are produced using contingency table methods. Adjusted odds ratios are calculated via bootstrapped
+logistic regression to produce non-parametric standard errors. The bootstrap is controlled by parameters \code{nBS},
+the number of bootstrap samples to run, and \code{pSampled}, the proportion of unlinked cases to include in the bootstrap
+sample. \code{pSampled} is recommended only for large datasets in which it is computationally unfeasible to run a full
+bootstrap. Sensitivity analyses should be run to determine an adequate value for \code{pSampled}.
 
 The function needs a training dataset with the outcome variable (\code{goldStdVar})
 which is \code{TRUE} for those who have the value of interest and \code{FALSE}
-for those who do not. The probability of having the outcome 
+for those who do not. The probability of having the outcome
 (\code{<goldStdVar> = TRUE}) is predicted in the prediction dataset.
 }
 \examples{
@@ -79,7 +108,6 @@ irisNew$Petal.Length.Cat <- factor(cut(irisNew$Petal.Length, c(0, 2, 4, 6, Inf))
 
 irisNew$Petal.Width.Cat <- factor(cut(irisNew$Petal.Width, c(0, 1, 2, Inf)),
                                labels = c("<=1.0", "1.1-2.0", "2.1+"))
-
 ## Using NB to predict if the species is virginica
 ## (training and predicting on same dataset)
 pred <- performNB(irisNew, irisNew, obsIDVar = "id",

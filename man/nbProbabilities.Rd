@@ -15,13 +15,16 @@ nbProbabilities(
   n = 10,
   m = 1,
   nReps = 10,
+  orType = "univariate",
+  nBS = 100,
+  pSampled = 1,
   progressBar = TRUE
 )
 }
 \arguments{
 \item{orderedPair}{The name of the ordered pair-level dataset with the covariates.}
 
-\item{indIDVar}{The name (in quotes) of the column with the individual ID. 
+\item{indIDVar}{The name (in quotes) of the column with the individual ID.
 (data frame \code{orderedPair} must have columns called \code{<indIDVar>.1} and \code{<indIDVar>.2}).}
 
 \item{pairIDVar}{The name (in quotes) of the column with the unique pair ID variable.}
@@ -41,6 +44,15 @@ All covariates need to be categorical factor variables.}
 \item{m}{The number of times to create n folds in nxm cross validation.}
 
 \item{nReps}{The number of times to randomly select the "true" infector (should be at least 10).}
+
+\item{orType}{Takes value \code{"univariate"} or \code{"adjusted"}. \code{"univariate"} produces contingency table
+odds ratios and \code{"adjusted"} produces adjusted odds ratios from a bootstrapped multivariable logistic regression.}
+
+\item{nBS}{Number of bootstrap samples to run in each cross-validation fold/iteration (default is 100). Only
+relevant when \code{orType = "adjusted"}.}
+
+\item{pSampled}{Proportion of unlinked cases to include in bootstrap sample (default is 1, i.e.a true
+bootstrap). Only relevant when \code{orType = "adjusted"}.}
 
 \item{progressBar}{A logical indicating if a progress bar should be printed (default is TRUE).}
 }
@@ -100,20 +112,28 @@ A subset of pairs should also have pathogen WGS, contact investigation,  or some
 the pair cannot be used to train (does not have the information or is indeterminate).
 These pairs will be used to a training dataset of probable links and non/links.
 The covariates can be any categorical variables and could represent
-spatial, clinical, demographic, and temporal characteristics of the case pair. 
+spatial, clinical, demographic, and temporal characteristics of the case pair.
 
-Because the outcomes in the training set represent probable and not certain 
-transmission events and a given case could have mulitple probable infectors, 
+Because the outcomes in the training set represent probable and not certain
+transmission events and a given case could have mulitple probable infectors,
 the algorithm uses an iterative estimation procedure. This procedure randomly chooses one
 link of all of the possible links to include in the training dataset \code{nReps}
-times, and then uses \code{mxn} cross prediction to give all pairs a turn 
+times, and then uses \code{mxn} cross prediction to give all pairs a turn
 in the prediction dataset.
 
 The output of this function is a list of two dataframes: one with the estimates of the
 transmission probabilities (\code{probabilities}) and the other with the contribution of
-the covariates to the probabilities in the form of odds ratios (\code{estimates}). The 
-95% confidence intervals reported for these odds ratios use Rubin's Rules, a technique developed
+the covariates to the probabilities in the form of odds ratios (\code{estimates}). The
+95\% confidence intervals reported for these odds ratios use Rubin's Rules, a technique developed
 for multiple imputation, to pool the error across all iterations.
+
+This function generates odds ratios describing the associations between covariates in the training data
+and outcome defined in the gold standard variable (\code{goldStdVar}) argument. Unadjusted odds ratios are the default.
+These odds ratios are produced using contingency table methods. Adjusted odds ratios are calculated via bootstrapped
+logistic regression to produce non-parametric standard errors. The bootstrap is controlled by parameters \code{nBS},
+the number of bootstrap samples to run, and \code{pSampled}, the proportion of unlinked cases to include in the bootstrap
+sample. \code{pSampled} is recommended only for large datasets in which it is computationally unfeasible to run a full
+bootstrap. Sensitivity analyses should be run to determine an adequate value for \code{pSampled}.
 }
 \examples{
 ## Use the pairData dataset which represents a TB-like outbreak
@@ -136,7 +156,7 @@ resGen <- nbProbabilities(orderedPair = orderedPair,
                             covariates = c("Z1", "Z2", "Z3", "Z4", "timeCat"),
                             label = "SNPs", l = 1,
                             n = 10, m = 1, nReps = 1)
-                            
+
 ## Merging the probabilities back with the pair-level data
 nbResults <- merge(resGen[[1]], orderedPair, by = "pairID", all = TRUE)
 
